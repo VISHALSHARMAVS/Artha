@@ -39,7 +39,7 @@ export class BudgetRepository {
       WHERE b.user_id = ? AND b.month_year = ?
       GROUP BY b.id
       ORDER BY b.limit_paise DESC
-    `).all(start, end, userId, monthYear) as BudgetRecord[];
+    `).all(start, end, userId, monthYear) as unknown as BudgetRecord[];
 
     return rows;
   }

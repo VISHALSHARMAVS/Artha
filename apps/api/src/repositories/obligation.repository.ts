@@ -30,7 +30,7 @@ export class ObligationRepository {
       LEFT JOIN categories c ON c.id = o.category_id
       WHERE o.user_id = ? AND o.is_active = 1
       ORDER BY o.due_day_of_month ASC
-    `).all(userId) as ObligationRecord[];
+    `).all(userId) as unknown as ObligationRecord[];
     return rows;
   }
 
@@ -43,7 +43,7 @@ export class ObligationRepository {
       LEFT JOIN categories c ON c.id = o.category_id
       WHERE o.user_id = ? AND o.is_active = 1 AND o.next_due_date <= ?
       ORDER BY o.next_due_date ASC
-    `).all(userId, targetDate) as ObligationRecord[];
+    `).all(userId, targetDate) as unknown as ObligationRecord[];
     return rows;
   }
 

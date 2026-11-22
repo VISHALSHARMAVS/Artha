@@ -18,7 +18,7 @@ export class InvestmentRepository {
       SELECT * FROM investments
       WHERE user_id = ?
       ORDER BY current_value_paise DESC
-    `).all(userId) as InvestmentRecord[];
+    `).all(userId) as unknown as InvestmentRecord[];
     return rows;
   }
 
@@ -45,7 +45,7 @@ export class InvestmentRepository {
       data.last_updated_date
     );
 
-    const row = db.prepare('SELECT * FROM investments WHERE id = ?').get(data.id) as InvestmentRecord;
+    const row = db.prepare('SELECT * FROM investments WHERE id = ?').get(data.id) as unknown as InvestmentRecord;
     return row;
   }
 
@@ -57,7 +57,7 @@ export class InvestmentRepository {
         COALESCE(SUM(current_value_paise), 0) as currentValuePaise
       FROM investments
       WHERE user_id = ?
-    `).get(userId) as { investedPaise: number; currentValuePaise: number };
+    `).get(userId) as unknown as { investedPaise: number; currentValuePaise: number };
 
     return row;
   }

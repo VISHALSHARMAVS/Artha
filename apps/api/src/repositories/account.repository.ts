@@ -32,13 +32,13 @@ export class AccountRepository {
           ELSE 7
         END,
         name ASC
-    `).all(userId) as AccountRecord[];
+    `).all(userId) as unknown as AccountRecord[];
     return rows;
   }
 
   static findById(id: string, userId: string): AccountRecord | null {
     const db = getDb();
-    const row = db.prepare('SELECT * FROM accounts WHERE id = ? AND user_id = ?').get(id, userId) as AccountRecord | undefined;
+    const row = db.prepare('SELECT * FROM accounts WHERE id = ? AND user_id = ?').get(id, userId) as unknown as AccountRecord | undefined;
     return row || null;
   }
 

@@ -24,13 +24,13 @@ export interface SalaryProfileRecord {
 export class UserRepository {
   static findById(id: string): UserRecord | null {
     const db = getDb();
-    const row = db.prepare('SELECT * FROM users WHERE id = ?').get(id) as UserRecord | undefined;
+    const row = db.prepare('SELECT * FROM users WHERE id = ?').get(id) as unknown as UserRecord | undefined;
     return row || null;
   }
 
   static findByEmail(email: string): UserRecord | null {
     const db = getDb();
-    const row = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as UserRecord | undefined;
+    const row = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as unknown as UserRecord | undefined;
     return row || null;
   }
 
@@ -47,7 +47,7 @@ export class UserRepository {
 
   static getSalaryProfile(userId: string): SalaryProfileRecord | null {
     const db = getDb();
-    const row = db.prepare('SELECT * FROM salary_profiles WHERE user_id = ?').get(userId) as SalaryProfileRecord | undefined;
+    const row = db.prepare('SELECT * FROM salary_profiles WHERE user_id = ?').get(userId) as unknown as SalaryProfileRecord | undefined;
     return row || null;
   }
 

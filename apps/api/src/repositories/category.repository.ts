@@ -20,13 +20,13 @@ export class CategoryRepository {
       SELECT * FROM categories 
       WHERE user_id = ? OR is_system = 1
       ORDER BY type DESC, name ASC
-    `).all(userId) as CategoryRecord[];
+    `).all(userId) as unknown as CategoryRecord[];
     return rows;
   }
 
   static findById(id: string): CategoryRecord | null {
     const db = getDb();
-    const row = db.prepare('SELECT * FROM categories WHERE id = ?').get(id) as CategoryRecord | undefined;
+    const row = db.prepare('SELECT * FROM categories WHERE id = ?').get(id) as unknown as CategoryRecord | undefined;
     return row || null;
   }
 
@@ -36,7 +36,7 @@ export class CategoryRepository {
       SELECT * FROM categories 
       WHERE (user_id = ? OR is_system = 1) AND LOWER(name) = LOWER(?)
       LIMIT 1
-    `).get(userId, name) as CategoryRecord | undefined;
+    `).get(userId, name) as unknown as CategoryRecord | undefined;
     return row || null;
   }
 

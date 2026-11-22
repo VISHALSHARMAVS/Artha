@@ -52,7 +52,7 @@ export class TransactionRepository {
       LEFT JOIN accounts da ON da.id = t.destination_account_id
       LEFT JOIN categories c ON c.id = t.category_id
       WHERE t.id = ? AND t.user_id = ?
-    `).get(id, userId) as TransactionRecord | undefined;
+    `).get(id, userId) as unknown as TransactionRecord | undefined;
 
     return row || null;
   }
@@ -112,7 +112,7 @@ export class TransactionRepository {
       WHERE ${whereClause}
       ORDER BY t.transaction_date DESC, t.created_at DESC
       LIMIT ? OFFSET ?
-    `).all(...sqlParams, limit, offset) as TransactionRecord[];
+    `).all(...sqlParams, limit, offset) as unknown as TransactionRecord[];
 
     return { transactions: rows, total };
   }

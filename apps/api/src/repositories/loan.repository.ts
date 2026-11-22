@@ -27,7 +27,7 @@ export class LoanRepository {
       LEFT JOIN accounts a ON a.id = l.account_id
       WHERE l.user_id = ?
       ORDER BY l.created_at DESC
-    `).all(userId) as LoanRecord[];
+    `).all(userId) as unknown as LoanRecord[];
     return rows;
   }
 
@@ -38,7 +38,7 @@ export class LoanRepository {
       FROM loans l
       LEFT JOIN accounts a ON a.id = l.account_id
       WHERE l.id = ? AND l.user_id = ?
-    `).get(id, userId) as LoanRecord | undefined;
+    `).get(id, userId) as unknown as LoanRecord | undefined;
     return row || null;
   }
 
