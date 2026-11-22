@@ -16,6 +16,33 @@ export type TransactionType = z.infer<typeof TransactionTypeEnum>;
 export const FrequencyEnum = z.enum(['MONTHLY', 'QUARTERLY', 'YEARLY', 'WEEKLY']);
 export type Frequency = z.infer<typeof FrequencyEnum>;
 
+// Authentication schemas
+export const RegisterSchema = z.object({
+  email: z.string().email('Please enter a valid email address').toLowerCase(),
+  password: z.string().min(8, 'Password must be at least 8 characters long'),
+  full_name: z.string().min(2, 'Full name must be at least 2 characters').max(60),
+});
+export type RegisterDTO = z.infer<typeof RegisterSchema>;
+
+export const LoginSchema = z.object({
+  email: z.string().email('Please enter a valid email address').toLowerCase(),
+  password: z.string().min(1, 'Password is required'),
+});
+export type LoginDTO = z.infer<typeof LoginSchema>;
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  full_name: string;
+  currency_code: string;
+  created_at: string;
+}
+
+export interface AuthResponse {
+  user: AuthUser;
+  token: string;
+}
+
 // Account validation schemas
 export const CreateAccountSchema = z.object({
   name: z.string().min(2, 'Account name must be at least 2 characters').max(50),

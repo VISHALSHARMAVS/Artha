@@ -4,9 +4,27 @@ export interface UserRecord {
   id: string;
   email: string;
   full_name: string;
+  phone_number?: string | null;
+  whatsapp_linked?: number;
   currency_code: string;
   created_at: string;
   updated_at: string;
+}
+
+export function normalizePhoneNumber(rawPhone: string): string {
+  const digits = rawPhone.replace(/\D/g, '');
+  if (digits.length === 10) {
+    return '91' + digits;
+  }
+  if (digits.length === 11 && digits.startsWith('0')) {
+    return '91' + digits.slice(1);
+  }
+  return digits;
+}
+
+export interface UserWithCredentials extends UserRecord {
+  password_hash: string;
+  password_salt: string;
 }
 
 export interface SalaryProfileRecord {
@@ -24,14 +42,40 @@ export interface SalaryProfileRecord {
 export class UserRepository {
   static findById(id: string): UserRecord | null {
     const db = getDb();
-    const row = db.prepare('SELECT * FROM users WHERE id = ?').get(id) as unknown as UserRecord | undefined;
+    const row = db.prepare('SELECT id, email, full_name, phone_number, whatsapp_linked, currency_code, created_at, updated_at FROM users WHERE id = ?').get(id) as unknown as UserRecord | undefined;
     return row || null;
   }
 
-  static findByEmail(email: string): UserRecord | null {
+  static findByEmail(email: string): UserWithCredentials | null {
     const db = getDb();
-    const row = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as unknown as UserRecord | undefined;
+    const row = db.prepare('SELECT * FROM users WHERE LOWER(email) = LOWER(?)').get(email) as unknown as UserWithCredentials | undefined;
     return row || null;
+  }
+
+  static findByPhoneNumber(rawPhone: string): UserRecord | null {
+    const db = getDb();
+    const normalized = normalizePhoneNumber(rawPhone);
+    const row = db.prepare('SELECT id, email, full_name, phone_number, whatsapp_linked, currency_code, created_at, updated_at FROM users WHERE phone_number = ?').get(normalized) as unknown as UserRecord | undefined;
+    return row || null;
+  }
+
+  static linkPhoneNumber(userId: string, rawPhone: string): UserRecord {
+    const db = getDb();
+    const normalized = normalizePhoneNumber(rawPhone);
+    
+    // Check if phone number is already linked to another user
+    const existing = db.prepare('SELECT id FROM users WHERE phone_number = ? AND id != ?').get(normalized, userId) as { id: string } | undefined;
+    if (existing) {
+      throw new Error(`Phone number ${rawPhone} is already linked to another account.`);
+    }
+
+    db.prepare(`
+      UPDATE users 
+      SET phone_number = ?, whatsapp_linked = 1, updated_at = CURRENT_TIMESTAMP 
+      WHERE id = ?
+    `).run(normalized, userId);
+
+    return this.findById(userId)!;
   }
 
   static create(user: { id: string; email: string; full_name: string; currency_code?: string }): UserRecord {
@@ -43,6 +87,31 @@ export class UserRepository {
     `).run(user.id, user.email, user.full_name, currency);
 
     return this.findById(user.id)!;
+  }
+
+  static createWithPassword(data: {
+    id: string;
+    email: string;
+    full_name: string;
+    password_hash: string;
+    password_salt: string;
+    currency_code?: string;
+  }): UserRecord {
+    const db = getDb();
+    const currency = data.currency_code || 'INR';
+    db.prepare(`
+      INSERT INTO users (id, email, full_name, password_hash, password_salt, currency_code)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(
+      data.id,
+      data.email.toLowerCase(),
+      data.full_name,
+      data.password_hash,
+      data.password_salt,
+      currency
+    );
+
+    return this.findById(data.id)!;
   }
 
   static getSalaryProfile(userId: string): SalaryProfileRecord | null {

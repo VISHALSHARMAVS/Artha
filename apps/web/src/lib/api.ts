@@ -147,20 +147,69 @@ export function formatPaise(paise: number, options: {
   return `${prefix}${formattedNum}`;
 }
 
+export interface AuthUser {
+  id: string;
+  email: string;
+  full_name: string;
+  phone_number?: string | null;
+  whatsapp_linked?: boolean | number;
+  currency_code: string;
+}
+
+export interface AuthResponse {
+  user: AuthUser;
+  token: string;
+}
+
+export interface WhatsAppStatus {
+  phone_number: string | null;
+  whatsapp_linked: boolean;
+  webhook_url: string;
+  verify_token: string;
+  sandbox_instructions: {
+    steps: string[];
+  };
+}
+
+export interface WhatsAppSimulateResponse {
+  sender_phone: string;
+  input_message: string;
+  result: {
+    success: boolean;
+    action: string;
+    replyMessage: string;
+    transaction?: {
+      id: string;
+      type: 'EXPENSE' | 'INCOME' | 'TRANSFER';
+      amountPaise: number;
+      description: string;
+      categoryName?: string;
+      accountName: string;
+    };
+  };
+}
+
 const API_BASE = '/api/v1';
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('artha_token') : null;
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string>),
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
+    headers,
   });
 
   const json = await res.json();
   if (!res.ok || !json.success) {
-    const errorMsg = json.error?.message || `Request failed with status ${res.status}`;
+    const errorMsg = json.error?.message || json.message || `Request failed with status ${res.status}`;
     throw new Error(errorMsg);
   }
 
@@ -269,4 +318,24 @@ export const api = {
   // Onboarding (Journey A)
   submitOnboarding: (data: any) =>
     request<any>('/onboarding', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Multi-User Authentication
+  login: (data: { email: string; password: string }) =>
+    request<AuthResponse>('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
+  register: (data: { email: string; password: string; full_name: string; currency_code?: string }) =>
+    request<AuthResponse>('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
+  getMe: () => request<AuthUser>('/auth/me'),
+
+  // WhatsApp Conversational Bot & Webhook
+  getWhatsAppStatus: () => request<WhatsAppStatus>('/whatsapp/status'),
+  linkWhatsAppPhone: (phone_number: string) =>
+    request<{ message: string; user: AuthUser }>('/whatsapp/link', {
+      method: 'POST',
+      body: JSON.stringify({ phone_number }),
+    }),
+  simulateWhatsAppMessage: (message: string, phone_number?: string) =>
+    request<WhatsAppSimulateResponse>('/whatsapp/simulate', {
+      method: 'POST',
+      body: JSON.stringify({ message, phone_number }),
+    }),
 };

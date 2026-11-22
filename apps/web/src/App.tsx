@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { api, DashboardOverview, Account, Category } from './lib/api.js';
+import { api, DashboardOverview, Account, Category, AuthUser } from './lib/api.js';
 import { Sidebar, NavigationTab } from './components/Sidebar.js';
 import { DashboardView } from './features/DashboardView.js';
 import { TransactionsView } from './features/TransactionsView.js';
@@ -7,6 +7,8 @@ import { AccountsView } from './features/AccountsView.js';
 import { BudgetsView } from './features/BudgetsView.js';
 import { LoansView } from './features/LoansView.js';
 import { ReportsView } from './features/ReportsView.js';
+import { WhatsAppView } from './features/WhatsAppView.js';
+import { AuthModal } from './features/AuthModal.js';
 import { QuickAddModal } from './components/QuickAddModal.js';
 import { AddTransactionModal } from './components/AddTransactionModal.js';
 import { OnboardingModal } from './components/OnboardingModal.js';
@@ -16,6 +18,9 @@ export const App: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('artha-theme') as 'light' | 'dark') || 'light';
   });
+
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
 
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -44,6 +49,24 @@ export const App: React.FC = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
+  const checkAuth = async () => {
+    const token = localStorage.getItem('artha_token');
+    if (!token) return;
+    try {
+      const u = await api.getMe();
+      setUser(u);
+    } catch {
+      localStorage.removeItem('artha_token');
+      setUser(null);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('artha_token');
+    setUser(null);
+    refreshAllData();
+  };
+
   const refreshAllData = async () => {
     try {
       const [ovData, accData, catData] = await Promise.all([
@@ -62,6 +85,7 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
+    checkAuth();
     refreshAllData();
   }, []);
 
@@ -97,6 +121,9 @@ export const App: React.FC = () => {
         onStartOnboarding={() => setIsOnboardingOpen(true)}
         theme={theme}
         onToggleTheme={toggleTheme}
+        user={user}
+        onOpenAuth={() => setIsAuthOpen(true)}
+        onLogout={handleLogout}
       />
 
       {/* Main Content Area */}
@@ -116,6 +143,12 @@ export const App: React.FC = () => {
             onAddTransaction={() => setIsAddTxOpen(true)}
             accounts={accounts}
             categories={categories}
+          />
+        )}
+
+        {currentTab === 'whatsapp' && (
+          <WhatsAppView
+            onTransactionLogged={refreshAllData}
           />
         )}
 
@@ -144,6 +177,16 @@ export const App: React.FC = () => {
           />
         )}
       </main>
+
+      {/* Auth Modal (Multi-User) */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onSuccess={(u) => {
+          setUser(u);
+          refreshAllData();
+        }}
+      />
 
       {/* Quick Add Modal (Journey B) */}
       <QuickAddModal

@@ -10,9 +10,13 @@ import {
   Sun,
   Moon,
   Sparkles,
+  MessageSquare,
+  User as UserIcon,
+  LogOut,
 } from 'lucide-react';
+import { AuthUser } from '../lib/api.js';
 
-export type NavigationTab = 'dashboard' | 'transactions' | 'accounts' | 'budgets' | 'loans' | 'reports';
+export type NavigationTab = 'dashboard' | 'transactions' | 'accounts' | 'budgets' | 'loans' | 'reports' | 'whatsapp';
 
 interface SidebarProps {
   currentTab: NavigationTab;
@@ -21,6 +25,9 @@ interface SidebarProps {
   onStartOnboarding: () => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
+  user?: AuthUser | null;
+  onOpenAuth: () => void;
+  onLogout: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -30,10 +37,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onStartOnboarding,
   theme,
   onToggleTheme,
+  user,
+  onOpenAuth,
+  onLogout,
 }) => {
   const navItems: Array<{ id: NavigationTab; label: string; icon: React.ReactNode }> = [
     { id: 'dashboard', label: 'Overview', icon: <LayoutDashboard className="w-4 h-4" /> },
     { id: 'transactions', label: 'Transactions', icon: <Receipt className="w-4 h-4" /> },
+    { id: 'whatsapp', label: 'WhatsApp Bot', icon: <MessageSquare className="w-4 h-4 text-emerald-500" /> },
     { id: 'accounts', label: 'Accounts', icon: <Landmark className="w-4 h-4" /> },
     { id: 'budgets', label: 'Budgets', icon: <PiggyBank className="w-4 h-4" /> },
     { id: 'loans', label: 'Loans & EMI', icon: <TrendingDown className="w-4 h-4" /> },
@@ -107,13 +118,41 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
 
         {/* Bottom User / Onboarding Trigger */}
-        <div className="p-3 border-t border-slate-200 dark:border-slate-800">
+        <div className="p-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
+          {user ? (
+            <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/50 flex items-center justify-between">
+              <div className="min-w-0 pr-2">
+                <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
+                  {user.full_name}
+                </p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                  {user.email}
+                </p>
+              </div>
+              <button
+                onClick={onLogout}
+                className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors"
+                title="Sign Out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={onOpenAuth}
+              className="w-full flex items-center justify-center gap-2 py-2 px-3 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-md transition-colors border border-blue-200 dark:border-blue-900/60"
+            >
+              <UserIcon className="w-3.5 h-3.5" />
+              <span>Sign In / Register</span>
+            </button>
+          )}
+
           <button
             onClick={onStartOnboarding}
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
+            className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
           >
-            <Sparkles className="w-4 h-4 text-blue-500" />
-            <span>Re-run Onboarding (Journey A)</span>
+            <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+            <span>Re-run Onboarding</span>
           </button>
         </div>
       </aside>
@@ -134,6 +173,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add</span>
+          </button>
+          <button
+            onClick={onOpenAuth}
+            className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+            title={user ? user.full_name : 'Sign In'}
+          >
+            <UserIcon className="w-4 h-4" />
           </button>
           <button
             onClick={onToggleTheme}

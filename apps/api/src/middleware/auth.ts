@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import { Security } from '../lib/security.js';
+import { AppError } from './error-handler.js';
 
-// Extend Express Request to include authenticated user ID
 declare global {
   namespace Express {
     interface Request {
@@ -11,9 +12,44 @@ declare global {
 
 export const DEFAULT_USER_ID = 'usr_artha_demo';
 
+// List of public endpoints that do not require authentication
+const PUBLIC_PATHS = [
+  '/api/health',
+  '/api/v1/auth/register',
+  '/api/v1/auth/login',
+  '/api/v1/webhooks/whatsapp',
+  '/api/v1/whatsapp/simulate',
+];
+
 export function authMiddleware(req: Request, _res: Response, next: NextFunction): void {
-  // Extract user ID from header or use default demo user
+  // Check if current request path is public
+  const path = req.path;
+  if (PUBLIC_PATHS.some((publicPath) => path === publicPath || path.startsWith(publicPath))) {
+    return next();
+  }
+
+  const authHeader = req.header('authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7).trim();
+    const payload = Security.verifyToken(token);
+    if (payload) {
+      req.userId = payload.userId;
+      return next();
+    }
+  }
+
+  // Developer / test fallback support: check x-user-id or test mode
   const headerUserId = req.header('x-user-id');
-  req.userId = (headerUserId && headerUserId.trim()) ? headerUserId.trim() : DEFAULT_USER_ID;
-  next();
+  if (headerUserId && headerUserId.trim()) {
+    req.userId = headerUserId.trim();
+    return next();
+  }
+
+  if (process.env.NODE_ENV === 'test') {
+    req.userId = DEFAULT_USER_ID;
+    return next();
+  }
+
+  // Reject unauthenticated requests
+  throw new AppError('Unauthorized: Authentication token is missing or has expired. Please sign in.', 401, 'UNAUTHORIZED');
 }

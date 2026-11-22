@@ -25,6 +25,7 @@ export class DatabaseService {
       
       // Enforce institutional safety pragmas
       this.instance.exec('PRAGMA foreign_keys = ON;');
+      this.instance.exec('PRAGMA busy_timeout = 5000;');
       if (DB_PATH !== ':memory:') {
         this.instance.exec('PRAGMA journal_mode = WAL;');
         this.instance.exec('PRAGMA synchronous = NORMAL;');
@@ -41,6 +42,28 @@ export class DatabaseService {
     if (fs.existsSync(schemaPath)) {
       const sql = fs.readFileSync(schemaPath, 'utf8');
       db.exec(sql);
+
+      // Automated migration for auth and whatsapp columns if database already existed
+      try {
+        db.exec("ALTER TABLE users ADD COLUMN password_hash TEXT DEFAULT '';");
+      } catch {
+        // Column already exists
+      }
+      try {
+        db.exec("ALTER TABLE users ADD COLUMN password_salt TEXT DEFAULT '';");
+      } catch {
+        // Column already exists
+      }
+      try {
+        db.exec("ALTER TABLE users ADD COLUMN phone_number TEXT UNIQUE;");
+      } catch {
+        // Column already exists
+      }
+      try {
+        db.exec("ALTER TABLE users ADD COLUMN whatsapp_linked INTEGER DEFAULT 0;");
+      } catch {
+        // Column already exists
+      }
     }
   }
 

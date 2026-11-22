@@ -1,5 +1,6 @@
 import { getDb, transaction } from './db.js';
 import { DEFAULT_USER_ID } from '../middleware/auth.js';
+import { Security } from '../lib/security.js';
 
 export function runSeed(): void {
   console.log('🌱 Starting Artha Institutional Data Seed...');
@@ -34,11 +35,12 @@ export function runSeed(): void {
       insertCat.run(c.id, c.name, c.type, c.icon_name, c.color_hex, c.is_system);
     }
 
-    // 2. Seed Default User
+    // 2. Seed Default Demo User with Secure Password
+    const { hash, salt } = Security.hashPassword('Demo@1234');
     db.prepare(`
-      INSERT OR REPLACE INTO users (id, email, full_name, currency_code)
-      VALUES (?, ?, ?, ?)
-    `).run(DEFAULT_USER_ID, 'aditya@artha.internal', 'Aditya Sharma', 'INR');
+      INSERT OR REPLACE INTO users (id, email, full_name, password_hash, password_salt, currency_code)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(DEFAULT_USER_ID, 'aditya@artha.internal', 'Aditya Sharma', hash, salt, 'INR');
 
     // 3. Seed Salary Profile
     db.prepare(`

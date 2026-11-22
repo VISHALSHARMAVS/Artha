@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { AuthController } from '../controllers/auth.controller.js';
 import { DashboardController } from '../controllers/dashboard.controller.js';
 import { AccountController } from '../controllers/account.controller.js';
 import { TransactionController } from '../controllers/transaction.controller.js';
@@ -7,8 +8,11 @@ import { BudgetController } from '../controllers/budget.controller.js';
 import { LoanController } from '../controllers/loan.controller.js';
 import { ReportController } from '../controllers/report.controller.js';
 import { OnboardingController } from '../controllers/onboarding.controller.js';
+import { WhatsAppController } from '../controllers/whatsapp.controller.js';
 import { validateBody } from '../middleware/validate.js';
 import {
+  RegisterSchema,
+  LoginSchema,
   CreateAccountSchema,
   CreateTransactionSchema,
   QuickAddTransactionSchema,
@@ -18,6 +22,11 @@ import {
 } from '@artha/domain';
 
 export const router = Router();
+
+// Authentication & Multi-User Management
+router.post('/auth/register', validateBody(RegisterSchema), AuthController.register);
+router.post('/auth/login', validateBody(LoginSchema), AuthController.login);
+router.get('/auth/me', AuthController.me);
 
 // Dashboard overview
 router.get('/dashboard/overview', DashboardController.getOverview);
@@ -54,3 +63,10 @@ router.get('/reports/category-breakdown', ReportController.getCategoryBreakdown)
 
 // Journey A Onboarding
 router.post('/onboarding', validateBody(OnboardingPayloadSchema), OnboardingController.submit);
+
+// WhatsApp Expense Bot Integration & Webhooks
+router.get('/webhooks/whatsapp', WhatsAppController.verifyWebhook);
+router.post('/webhooks/whatsapp', WhatsAppController.handleWebhookMessage);
+router.post('/whatsapp/link', WhatsAppController.linkPhone);
+router.post('/whatsapp/simulate', WhatsAppController.simulateMessage);
+router.get('/whatsapp/status', WhatsAppController.getStatus);

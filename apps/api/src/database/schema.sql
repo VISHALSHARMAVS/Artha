@@ -5,11 +5,16 @@ CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
     full_name TEXT NOT NULL,
+    phone_number TEXT UNIQUE,
+    whatsapp_linked INTEGER DEFAULT 0 CHECK(whatsapp_linked IN (0, 1)),
+    password_hash TEXT DEFAULT '',
+    password_salt TEXT DEFAULT '',
     currency_code TEXT DEFAULT 'INR' NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone_number);
 
 CREATE TABLE IF NOT EXISTS accounts (
     id TEXT PRIMARY KEY,
