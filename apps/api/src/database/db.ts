@@ -1,0 +1,72 @@
+import { DatabaseSync } from 'node:sqlite';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Path to SQLite database file
+const DB_DIR = path.resolve(__dirname, '../../data');
+if (!fs.existsSync(DB_DIR)) {
+  fs.mkdirSync(DB_DIR, { recursive: true });
+}
+
+const DB_PATH = process.env.NODE_ENV === 'test' 
+  ? ':memory:' 
+  : path.join(DB_DIR, 'finora.db');
+
+export class DatabaseService {
+  private static instance: DatabaseSync | null = null;
+
+  static getDb(): DatabaseSync {
+    if (!this.instance) {
+      this.instance = new DatabaseSync(DB_PATH);
+      
+      // Enforce institutional safety pragmas
+      this.instance.exec('PRAGMA foreign_keys = ON;');
+      if (DB_PATH !== ':memory:') {
+        this.instance.exec('PRAGMA journal_mode = WAL;');
+        this.instance.exec('PRAGMA synchronous = NORMAL;');
+      }
+
+      this.initSchema();
+    }
+    return this.instance;
+  }
+
+  static initSchema(): void {
+    const db = this.instance!;
+    const schemaPath = path.resolve(__dirname, 'schema.sql');
+    if (fs.existsSync(schemaPath)) {
+      const sql = fs.readFileSync(schemaPath, 'utf8');
+      db.exec(sql);
+    }
+  }
+
+  /**
+   * Execute an atomic transaction with automatic rollback on error.
+   */
+  static transaction<T>(callback: () => T): T {
+    const db = this.getDb();
+    db.exec('BEGIN TRANSACTION;');
+    try {
+      const result = callback();
+      db.exec('COMMIT;');
+      return result;
+    } catch (error) {
+      db.exec('ROLLBACK;');
+      throw error;
+    }
+  }
+
+  static resetForTesting(): void {
+    if (this.instance) {
+      this.instance.close();
+      this.instance = null;
+    }
+  }
+}
+
+export const getDb = () => DatabaseService.getDb();
+export const transaction = <T>(cb: () => T) => DatabaseService.transaction(cb);

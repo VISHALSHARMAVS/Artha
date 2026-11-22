@@ -1,0 +1,21 @@
+{
+  "name": "finora-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Finora — Intelligent Financial Operating System",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "seed": "npm run seed --workspace=apps/api"
+  },
+  "devDependencies": {
+    "@esbuild/win32-x64": "^0.28.2",
+    "typescript": "^5.7.3"
+  }
+}

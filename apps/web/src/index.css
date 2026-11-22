@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Brand Tokens */
+  --brand-primary: #0F172A;
+  --brand-primary-hover: #1E293B;
+  --brand-secondary: #2563EB;
+  --brand-secondary-hover: #1D4ED8;
+  --brand-accent: #3B82F6;
+
+  /* Surfaces & Backgrounds */
+  --bg-app: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #F1F5F9;
+  --bg-surface-subtle: #F8FAFC;
+
+  /* Typography Colors */
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #94A3B8;
+  --text-inverse: #FFFFFF;
+
+  /* Borders & Dividers */
+  --border-subtle: #E2E8F0;
+  --border-medium: #CBD5E1;
+  --border-focus: #2563EB;
+
+  /* Semantic Financial Indicators */
+  --color-income: #059669;
+  --color-income-subtle: #ECFDF5;
+  --color-expense: #DC2626;
+  --color-expense-subtle: #FEF2F2;
+  --color-transfer: #475569;
+  --color-transfer-subtle: #F1F5F9;
+  
+  /* System Feedback */
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-error: #DC2626;
+  --color-info: #2563EB;
+}
+
+[data-theme="dark"] {
+  --brand-primary: #FFFFFF;
+  --brand-primary-hover: #F1F5F9;
+  --brand-secondary: #3B82F6;
+  --brand-secondary-hover: #60A5FA;
+  --brand-accent: #60A5FA;
+
+  --bg-app: #0B0F19;
+  --bg-surface: #111827;
+  --bg-surface-elevated: #1F2937;
+  --bg-surface-subtle: #161F30;
+
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
+  --text-inverse: #0F172A;
+
+  --border-subtle: #1F2937;
+  --border-medium: #374151;
+  --border-focus: #3B82F6;
+
+  --color-income: #10B981;
+  --color-income-subtle: rgba(16, 185, 129, 0.12);
+  --color-expense: #F87171;
+  --color-expense-subtle: rgba(248, 113, 113, 0.12);
+  --color-transfer: #9CA3AF;
+  --color-transfer-subtle: #1F2937;
+
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Enforce tabular numerals across all financial elements */
+.tnum,
+.tabular-nums,
+[data-tabular="true"] {
+  font-feature-settings: "tnum" 1, "cv05" 1, "cv11" 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtle scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}

@@ -1,0 +1,176 @@
+import React, { useState, useEffect } from 'react';
+import { api, DashboardOverview, Account, Category } from './lib/api.js';
+import { Sidebar, NavigationTab } from './components/Sidebar.js';
+import { DashboardView } from './features/DashboardView.js';
+import { TransactionsView } from './features/TransactionsView.js';
+import { AccountsView } from './features/AccountsView.js';
+import { BudgetsView } from './features/BudgetsView.js';
+import { LoansView } from './features/LoansView.js';
+import { ReportsView } from './features/ReportsView.js';
+import { QuickAddModal } from './components/QuickAddModal.js';
+import { AddTransactionModal } from './components/AddTransactionModal.js';
+import { OnboardingModal } from './components/OnboardingModal.js';
+
+export const App: React.FC = () => {
+  const [currentTab, setCurrentTab] = useState<NavigationTab>('dashboard');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    return (localStorage.getItem('finora-theme') as 'light' | 'dark') || 'light';
+  });
+
+  const [overview, setOverview] = useState<DashboardOverview | null>(null);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Modals
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState<boolean>(false);
+  const [isAddTxOpen, setIsAddTxOpen] = useState<boolean>(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(false);
+
+  // Theme synchronization
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.setAttribute('data-theme', 'dark');
+      root.classList.add('dark');
+    } else {
+      root.removeAttribute('data-theme');
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('finora-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
+  const refreshAllData = async () => {
+    try {
+      const [ovData, accData, catData] = await Promise.all([
+        api.getDashboardOverview(),
+        api.getAccounts(),
+        api.getCategories(),
+      ]);
+      setOverview(ovData);
+      setAccounts(accData);
+      setCategories(catData);
+    } catch (err) {
+      console.error('Data refresh error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshAllData();
+  }, []);
+
+  // Keyboard shortcut: Press 'e' or 'E' anywhere to open Quick Record (Journey B)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in an input or textarea
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+
+      if ((e.key === 'e' || e.key === 'E') && !isQuickAddOpen && !isAddTxOpen && !isOnboardingOpen) {
+        e.preventDefault();
+        setIsQuickAddOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isQuickAddOpen, isAddTxOpen, isOnboardingOpen]);
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 flex flex-col lg:flex-row transition-colors">
+      {/* Sidebar Navigation */}
+      <Sidebar
+        currentTab={currentTab}
+        onTabChange={setCurrentTab}
+        onQuickAdd={() => setIsQuickAddOpen(true)}
+        onStartOnboarding={() => setIsOnboardingOpen(true)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+
+      {/* Main Content Area */}
+      <main className="flex-1 px-4 sm:px-8 py-6 lg:py-8 max-w-7xl overflow-y-auto">
+        {currentTab === 'dashboard' && (
+          <DashboardView
+            overview={overview}
+            loading={loading}
+            onQuickAdd={() => setIsQuickAddOpen(true)}
+            onAddTransaction={() => setIsAddTxOpen(true)}
+            onNavigateTab={setCurrentTab}
+          />
+        )}
+
+        {currentTab === 'transactions' && (
+          <TransactionsView
+            onAddTransaction={() => setIsAddTxOpen(true)}
+            accounts={accounts}
+            categories={categories}
+          />
+        )}
+
+        {currentTab === 'accounts' && (
+          <AccountsView
+            accounts={accounts}
+            onRefresh={refreshAllData}
+          />
+        )}
+
+        {currentTab === 'budgets' && (
+          <BudgetsView
+            categories={categories}
+          />
+        )}
+
+        {currentTab === 'loans' && (
+          <LoansView
+            accounts={accounts}
+          />
+        )}
+
+        {currentTab === 'reports' && (
+          <ReportsView
+            overview={overview}
+          />
+        )}
+      </main>
+
+      {/* Quick Add Modal (Journey B) */}
+      <QuickAddModal
+        isOpen={isQuickAddOpen}
+        onClose={() => setIsQuickAddOpen(false)}
+        onSuccess={refreshAllData}
+        accounts={accounts}
+      />
+
+      {/* Comprehensive Add Transaction Modal */}
+      <AddTransactionModal
+        isOpen={isAddTxOpen}
+        onClose={() => setIsAddTxOpen(false)}
+        onSuccess={refreshAllData}
+        accounts={accounts}
+        categories={categories}
+      />
+
+      {/* Onboarding Wizard Modal (Journey A) */}
+      <OnboardingModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        onComplete={() => {
+          refreshAllData();
+          setCurrentTab('dashboard');
+        }}
+      />
+    </div>
+  );
+};

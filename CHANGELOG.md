@@ -1,0 +1,20 @@
+# Changelog
+
+All notable changes to the Finora platform are documented in this file.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and adheres to Semantic Versioning.
+
+---
+
+## [Unreleased]
+
+### Added
+- **Core Product Mandate Enforcement**: Established institutional fintech quality standards in alignment with the Finora Product Design & System Engineering Mandate.
+- **Architectural Specification (`ARCHITECTURE.md`)**: Detailed 4-layer architecture (API/Controller, Service/Application, Domain, Repository) and 13 autonomous modules.
+- **Design System Tokens (`DESIGN_SYSTEM.md`)**: Full color tokens, typography scale with tabular numerals (`tnum`), 8pt spatial grid, and prohibited anti-patterns checklist.
+- **Database Schema Specification (`DATABASE.md`)**: Relational DDL specifications for 10 entities in integer paise, foreign key constraints, indexes, and ACID guarantees.
+- **RESTful API Specification (`API.md`)**: Contract definitions for dashboard overview, accounts, transactions, quick-add heuristics, budgets, and loans.
+- **Architecture Decision Records (`ADR/`)**:
+  - `ADR-0001`: Integer-paise financial precision standard.
+  - `ADR-0002`: Layered modular monolith architecture.
+  - `ADR-0003`: Transaction-safe double-entry ledger.
+  - `ADR-0004`: Design tokens, typography, and tabular numeral system.
