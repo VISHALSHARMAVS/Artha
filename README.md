@@ -1,8 +1,8 @@
-# Finora — Intelligent Financial Operating System
+# Artha — Intelligent Financial Operating System
 
-Finora is a disciplined, high-precision personal finance operating system engineered for individuals, founders, and professionals who demand clarity, financial accuracy, and visual calm over vanity metrics and chaotic charts.
+Artha is a disciplined, high-precision personal finance operating system engineered for individuals, founders, and professionals who demand clarity, financial accuracy, and visual calm over vanity metrics and chaotic charts.
 
-Finora is built according to the **Finora Product Design & System Engineering Quality Mandate** — adhering strictly to institutional fintech standards, double-entry transactional safety, integer-paise precision, and modern interface ergonomics inspired by Fold Money, Linear, Monzo, Revolut, Apple Wallet, and Stripe.
+Artha is built according to the **Institutional Fintech Product Design & System Engineering Quality Mandate** — adhering strictly to institutional fintech standards, double-entry transactional safety, integer-paise precision, and modern interface ergonomics inspired by Fold Money, Linear, Monzo, Revolut, Apple Wallet, and Stripe.
 
 ---
 
@@ -10,7 +10,7 @@ Finora is built according to the **Finora Product Design & System Engineering Qu
 
 1. **Precision First**: Financial amounts are stored and computed in **integer paise** (`1 INR = 100 paise`). No JavaScript floating-point arithmetic errors occur in balances, ledgers, or aggregations.
 2. **Transaction-Safe Ledger**: Account transfers are neutral movements between assets/liabilities; they never distort income or expense metrics.
-3. **The 5 Instant Answers**: Finora's core dashboard answers the five fundamental financial questions at a single glance:
+3. **The 5 Instant Answers**: Artha's core dashboard answers the five fundamental financial questions at a single glance:
    - *How much money do I currently have?* (Liquid & Net Available Assets)
    - *How much did I earn this month?* (Realized Income MTD)
    - *How much did I spend this month?* (Realized Expenses MTD)
@@ -22,7 +22,7 @@ Finora is built according to the **Finora Product Design & System Engineering Qu
 
 ## Architecture Overview
 
-Finora is structured as a modular monorepo:
+Artha is structured as a modular monorepo:
 
 ```
 MoneyTracker/
@@ -80,8 +80,8 @@ MoneyTracker/
 
 ```bash
 # Clone the repository
-git clone <repo-url> Finora
-cd Finora
+git clone <repo-url> Artha
+cd Artha
 
 # Install dependencies across all workspaces
 npm install
@@ -94,10 +94,10 @@ npm install
 npm test
 
 # Run backend API server (port 3001)
-npm run dev --workspace=apps/api
+npm run dev:api
 
 # Run frontend client (port 5173)
-npm run dev --workspace=apps/web
+npm run dev:web
 ```
 
 ---
@@ -116,4 +116,4 @@ npm run dev --workspace=apps/web
 
 ## License
 
-Proprietary — All rights reserved. Finora Fintech Systems.
+Proprietary — All rights reserved. Artha Fintech Systems.

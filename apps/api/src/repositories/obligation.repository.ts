@@ -1,5 +1,5 @@
 import { getDb } from '../database/db.js';
-import type { Frequency } from '@finora/domain';
+import type { Frequency } from '@artha/domain';
 
 export interface ObligationRecord {
   id: string;

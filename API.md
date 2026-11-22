@@ -1,4 +1,4 @@
-# Finora RESTful API Specification (v1.0.0)
+# Artha RESTful API Specification (v1.0.0)
 
 All requests and responses use JSON format. All monetary amounts are exchanged in integer **paise** (`1 INR = 100 paise`).
 
@@ -164,7 +164,7 @@ Fast expense recording with automated category heuristics (Journey B).
   "account_id": "acc_sbi_salary"
 }
 ```
-*Backend infers category `Dining & Food` automatically if `category_id` is omitted.*
+*Backend infers category `Food & Dining` automatically if `category_id` is omitted.*
 
 #### `PUT /api/v1/transactions/:id`
 Updates transaction details and atomically recalculates related account ledger balances.

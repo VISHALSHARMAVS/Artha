@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { BudgetRepository, BudgetRecord } from '../repositories/budget.repository.js';
-import { BudgetEngine } from '@finora/domain';
-import type { CreateBudgetDTO } from '@finora/domain';
+import { BudgetEngine } from '@artha/domain';
+import type { CreateBudgetDTO } from '@artha/domain';
 
 export class BudgetService {
   static getBudgetsForMonth(userId: string, monthYear: string) {

@@ -1,5 +1,5 @@
 import { getDb } from '../database/db.js';
-import type { TransactionType } from '@finora/domain';
+import type { TransactionType } from '@artha/domain';
 
 export interface CategoryRecord {
   id: string;

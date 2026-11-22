@@ -8,7 +8,7 @@ export class OnboardingController {
       res.status(201).json({
         success: true,
         data: result,
-        message: 'Onboarding completed successfully. Welcome to Finora.',
+        message: 'Onboarding completed successfully. Welcome to Artha.',
       });
     } catch (error) {
       next(error);

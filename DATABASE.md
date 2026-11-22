@@ -1,6 +1,6 @@
-# Finora Database Schema & Constraint Specification
+# Artha Database Schema & Constraint Specification
 
-Finora uses an ACID-compliant relational model with foreign key enforcement (`PRAGMA foreign_keys = ON;`), WAL mode (`PRAGMA journal_mode = WAL;`), and strict data type constraints.
+Artha uses an ACID-compliant relational model with foreign key enforcement (`PRAGMA foreign_keys = ON;`), WAL mode (`PRAGMA journal_mode = WAL;`), and strict data type constraints.
 
 All monetary quantities are stored as **64-bit integer values representing paise** (`BIGINT` or `INTEGER` in SQLite).
 

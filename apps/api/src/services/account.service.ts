@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { AccountRepository, AccountRecord } from '../repositories/account.repository.js';
-import type { CreateAccountDTO } from '@finora/domain';
+import type { CreateAccountDTO } from '@artha/domain';
 import { AppError } from '../middleware/error-handler.js';
 
 export class AccountService {

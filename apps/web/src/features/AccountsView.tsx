@@ -160,7 +160,7 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title="Connect New Financial Account"
-        description="Add a savings account, credit line, or cash reserve to Finora."
+        description="Add a savings account, credit line, or cash reserve to Artha."
         maxWidth="md"
       >
         <form onSubmit={handleCreate} className="space-y-4">

@@ -1,5 +1,5 @@
 {
-  "name": "@finora/domain",
+  "name": "@artha/domain",
   "version": "1.0.0",
   "type": "module",
   "main": "./dist/index.js",

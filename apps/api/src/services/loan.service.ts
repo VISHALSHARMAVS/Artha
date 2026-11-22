@@ -2,8 +2,8 @@ import crypto from 'node:crypto';
 import { LoanRepository, LoanRecord } from '../repositories/loan.repository.js';
 import { ObligationRepository } from '../repositories/obligation.repository.js';
 import { CategoryRepository } from '../repositories/category.repository.js';
-import { LoanCalculator } from '@finora/domain';
-import type { CreateLoanDTO } from '@finora/domain';
+import { LoanCalculator } from '@artha/domain';
+import type { CreateLoanDTO } from '@artha/domain';
 import { transaction } from '../database/db.js';
 
 export class LoanService {

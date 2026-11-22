@@ -20,7 +20,7 @@ app.use(authMiddleware);
 app.get('/api/health', (_req, res) => {
   res.json({
     status: 'HEALTHY',
-    service: 'Finora API Server',
+    service: 'Artha API Server',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
   });
@@ -46,7 +46,7 @@ try {
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
-    console.log(`🏛️ Finora Financial API running at http://localhost:${PORT}`);
+    console.log(`🏛️ Artha Financial API running at http://localhost:${PORT}`);
     console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
     console.log(`💼 API v1 base: http://localhost:${PORT}/api/v1`);
   });

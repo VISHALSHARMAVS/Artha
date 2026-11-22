@@ -14,7 +14,7 @@ if (!fs.existsSync(DB_DIR)) {
 
 const DB_PATH = process.env.NODE_ENV === 'test' 
   ? ':memory:' 
-  : path.join(DB_DIR, 'finora.db');
+  : path.join(DB_DIR, 'artha.db');
 
 export class DatabaseService {
   private static instance: DatabaseSync | null = null;

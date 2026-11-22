@@ -8,7 +8,7 @@ import { BudgetService } from '../src/services/budget.service.js';
 import { LoanService } from '../src/services/loan.service.js';
 import { DEFAULT_USER_ID } from '../src/middleware/auth.js';
 
-describe('Finora Layered Backend Integration Tests', () => {
+describe('Artha Layered Backend Integration Tests', () => {
   test('Dashboard Service answers the 5 Core Questions', () => {
     const overview = DashboardService.getOverview(DEFAULT_USER_ID);
 

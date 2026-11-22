@@ -1,5 +1,5 @@
 /**
- * Money Value Object for Finora Financial Operating System.
+ * Money Value Object for Artha Financial Operating System.
  * 
  * Invariant: Every monetary amount is represented internally as an integer number of paise.
  * 1 INR = 100 paise.

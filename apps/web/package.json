@@ -1,5 +1,5 @@
 {
-  "name": "@finora/web",
+  "name": "@artha/web",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@finora/domain": "*",
+    "@artha/domain": "*",
     "lucide-react": "^0.475.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

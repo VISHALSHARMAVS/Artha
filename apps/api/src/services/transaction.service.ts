@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { TransactionRepository, TransactionRecord, TransactionFilterParams } from '../repositories/transaction.repository.js';
 import { AccountRepository } from '../repositories/account.repository.js';
 import { CategoryService } from './category.service.js';
-import type { CreateTransactionDTO, QuickAddTransactionDTO } from '@finora/domain';
+import type { CreateTransactionDTO, QuickAddTransactionDTO } from '@artha/domain';
 import { AppError } from '../middleware/error-handler.js';
 
 export class TransactionService {

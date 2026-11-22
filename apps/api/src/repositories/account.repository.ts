@@ -1,5 +1,5 @@
 import { getDb } from '../database/db.js';
-import type { AccountType } from '@finora/domain';
+import type { AccountType } from '@artha/domain';
 
 export interface AccountRecord {
   id: string;
@@ -97,7 +97,7 @@ export class AccountRepository {
         liquidTotal += acc.balance_paise;
       } else if (acc.account_type === 'CREDIT_CARD') {
         // If credit card balance represents an outstanding liability (negative or positive debt)
-        // In Finora standard: negative balance on credit card is outstanding debt to be paid
+        // In Artha standard: negative balance on credit card is outstanding debt to be paid
         if (acc.balance_paise < 0) {
           liquidTotal += acc.balance_paise; // deducts the liability
         }

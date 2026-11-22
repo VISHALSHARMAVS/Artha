@@ -4,7 +4,7 @@ import { ObligationRepository } from '../repositories/obligation.repository.js';
 import { UserRepository } from '../repositories/user.repository.js';
 import { InvestmentRepository } from '../repositories/investment.repository.js';
 import { LoanRepository } from '../repositories/loan.repository.js';
-import { SafeToSpendCalculator, ObligationItem } from '@finora/domain';
+import { SafeToSpendCalculator, ObligationItem } from '@artha/domain';
 
 export class DashboardService {
   /**

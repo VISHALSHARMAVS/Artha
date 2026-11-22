@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-export const DEFAULT_USER_ID = 'usr_finora_demo';
+export const DEFAULT_USER_ID = 'usr_artha_demo';
 
 export function authMiddleware(req: Request, _res: Response, next: NextFunction): void {
   // Extract user ID from header or use default demo user

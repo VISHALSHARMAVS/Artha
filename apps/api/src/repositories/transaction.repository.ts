@@ -1,6 +1,6 @@
 import { getDb, transaction } from '../database/db.js';
 import { AccountRepository } from './account.repository.js';
-import type { TransactionType } from '@finora/domain';
+import type { TransactionType } from '@artha/domain';
 
 export interface TransactionRecord {
   id: string;

@@ -7,7 +7,7 @@ Accepted
 In basic budget apps, moving money between a checking account and a savings account is frequently recorded as an "Expense" and an "Income", causing wildly inflated monthly spend and income numbers. Furthermore, editing or deleting past transactions often leaves account balances out of sync with the underlying transaction history.
 
 ## Decision
-Finora enforces a transaction-safe ledger model:
+Artha enforces a transaction-safe ledger model:
 1. **Transfer Neutrality**:
    - Transfers between user accounts (`source_account_id` -> `destination_account_id`) are classified as type `TRANSFER`.
    - Transfers update source balance (`-amount_paise`) and destination balance (`+amount_paise`) atomically inside a database transaction.

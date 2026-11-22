@@ -14,7 +14,7 @@ import { OnboardingModal } from './components/OnboardingModal.js';
 export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<NavigationTab>('dashboard');
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    return (localStorage.getItem('finora-theme') as 'light' | 'dark') || 'light';
+    return (localStorage.getItem('artha-theme') as 'light' | 'dark') || 'light';
   });
 
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
@@ -37,7 +37,7 @@ export const App: React.FC = () => {
       root.removeAttribute('data-theme');
       root.classList.remove('dark');
     }
-    localStorage.setItem('finora-theme', theme);
+    localStorage.setItem('artha-theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {

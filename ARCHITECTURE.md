@@ -1,10 +1,10 @@
-# Finora System Architecture Specification
+# Artha System Architecture Specification
 
 ## 1. Architectural Philosophy & Overview
 
-Finora is designed as a **Modular Monolith** employing **Clean Layered Architecture** with strict Domain-Driven Design (DDD) principles. 
+Artha is designed as a **Modular Monolith** employing **Clean Layered Architecture** with strict Domain-Driven Design (DDD) principles. 
 
-Financial software demands deterministic calculation, transactional safety, and strict auditability. To prevent state divergence, Finora cleanly segregates pure financial domain rules from application use cases, transport controllers, and database engines.
+Financial software demands deterministic calculation, transactional safety, and strict auditability. To prevent state divergence, Artha cleanly segregates pure financial domain rules from application use cases, transport controllers, and database engines.
 
 ```
 +-------------------------------------------------------------------------+
@@ -51,7 +51,7 @@ Financial software demands deterministic calculation, transactional safety, and 
 
 ## 2. Module Boundaries & Responsibilities
 
-Finora is partitioned into 13 autonomous modules, each possessing a dedicated Service, Repository, and Controller:
+Artha is partitioned into 13 autonomous modules, each possessing a dedicated Service, Repository, and Controller:
 
 | Module | Core Responsibility | Key Invariants |
 | :--- | :--- | :--- |
@@ -80,7 +80,7 @@ All monetary amounts are strictly represented in the database and in code as int
 - Direct floating point numbers (e.g. `0.1 + 0.2`) are strictly prohibited in domain math.
 
 ### 3.2 Transaction-Safe Ledger Approach
-A transaction in Finora is recorded as an immutable ledger movement:
+A transaction in Artha is recorded as an immutable ledger movement:
 - **Income Transaction**: Credit to user's Asset Account (increases balance), Source: External Income Entity.
 - **Expense Transaction**: Debit from user's Asset Account (decreases balance), Sink: Expense Category.
 - **Transfer Transaction**: Debit from Source Account, Credit to Destination Account. Net change to user's overall liquidity is zero. Transfers DO NOT alter Income or Expense metrics.
@@ -137,5 +137,5 @@ apps/api/src/
 
 1. **User Identity Boundary**: Every SQL query filtering financial entities includes `WHERE user_id = ?`. Repository methods accept a typed `UserId` extracted solely from verified session context.
 2. **Input Sanitization**: Request bodies, route parameters, and query strings are validated via Zod schemas before reaching the service layer.
-3. **No Sensitive Banking Credentials**: Finora does not store banking netbanking passwords or PINs. Account numbers are masked, displaying only the last 4 digits (e.g. `HDFC Bank ••4821`).
+3. **No Sensitive Banking Credentials**: Artha does not store banking netbanking passwords or PINs. Account numbers are masked, displaying only the last 4 digits (e.g. `HDFC Bank ••4821`).
 4. **Structured Auditing**: Every write operation (Create, Update, Delete) is logged with timestamp, user ID, entity type, and operation result.

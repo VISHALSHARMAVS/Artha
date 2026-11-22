@@ -7,7 +7,7 @@ Accepted
 Many modern AI-generated or "vibe-coded" financial apps suffer from inconsistent typography, excessive glassmorphism, random multi-color gradients, emoji icons for serious financial categories, and proportional numbers that jitter and misalign in tables.
 
 ## Decision
-Finora establishes a strict design token and typography standard:
+Artha establishes a strict design token and typography standard:
 1. **Typography**:
    - Primary typeface: `Inter` sans-serif.
    - All numerical data (currency, percentages, dates, metric counts) MUST use tabular numerals (`font-feature-settings: 'tnum' 1, 'cv05' 1, 'cv11' 1; font-variant-numeric: tabular-nums`).

@@ -1,6 +1,6 @@
-# Finora Design System Specification (v1.0.0)
+# Artha Design System Specification (v1.0.0)
 
-Finora's design system is engineered for financial clarity, visual tranquility, and high information density. It draws inspiration from the utility and elegance of Fold Money, Linear, Monzo, Stripe Dashboard, and Apple Wallet.
+Artha's design system is engineered for financial clarity, visual tranquility, and high information density. It draws inspiration from the utility and elegance of Fold Money, Linear, Monzo, Stripe Dashboard, and Apple Wallet.
 
 ---
 

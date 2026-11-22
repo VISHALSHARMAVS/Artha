@@ -5,7 +5,7 @@ import { ObligationRepository } from '../repositories/obligation.repository.js';
 import { TransactionRepository } from '../repositories/transaction.repository.js';
 import { CategoryRepository } from '../repositories/category.repository.js';
 import { transaction } from '../database/db.js';
-import type { OnboardingPayloadDTO } from '@finora/domain';
+import type { OnboardingPayloadDTO } from '@artha/domain';
 
 export class OnboardingService {
   /**

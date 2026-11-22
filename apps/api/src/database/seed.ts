@@ -2,7 +2,7 @@ import { getDb, transaction } from './db.js';
 import { DEFAULT_USER_ID } from '../middleware/auth.js';
 
 export function runSeed(): void {
-  console.log('🌱 Starting Finora Institutional Data Seed...');
+  console.log('🌱 Starting Artha Institutional Data Seed...');
   const db = getDb();
 
   transaction(() => {
@@ -38,7 +38,7 @@ export function runSeed(): void {
     db.prepare(`
       INSERT OR REPLACE INTO users (id, email, full_name, currency_code)
       VALUES (?, ?, ?, ?)
-    `).run(DEFAULT_USER_ID, 'aditya@finora.internal', 'Aditya Sharma', 'INR');
+    `).run(DEFAULT_USER_ID, 'aditya@artha.internal', 'Aditya Sharma', 'INR');
 
     // 3. Seed Salary Profile
     db.prepare(`

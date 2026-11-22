@@ -7,7 +7,7 @@ Accepted
 Fintech applications often fail due to tight coupling between UI components and backend queries, or between HTTP controllers and raw SQL queries. Mixing financial balance updates with UI state or controller request handling prevents automated testing, obscures business rules, and leads to accidental double-spending or corrupt ledgers.
 
 ## Decision
-Finora adopts a **Clean Layered Modular Monolith** architecture:
+Artha adopts a **Clean Layered Modular Monolith** architecture:
 1. **Domain Layer (`packages/domain`)**: Contains pure TypeScript domain logic (Money value object, Safe-to-Spend formula, EMI calculator, Budget calculations). Has zero runtime dependencies, zero database awareness, and zero UI imports.
 2. **Repository Layer (`apps/api/src/repositories`)**: Encapsulates all SQL execution, foreign key constraints, and transactional consistency.
 3. **Application / Service Layer (`apps/api/src/services`)**: Orchestrates business use-cases, coordinating across multiple repositories and invoking domain calculations.

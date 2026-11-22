@@ -1,6 +1,6 @@
-# Finora Product Roadmap & Implementation Milestones
+# Artha Product Roadmap & Implementation Milestones
 
-This roadmap tracks engineering deliverables against the **Finora Product Design & System Engineering Quality Mandate**.
+This roadmap tracks engineering deliverables against the **Institutional Fintech Product Design & System Engineering Quality Mandate**.
 
 ---
 
@@ -43,7 +43,7 @@ This roadmap tracks engineering deliverables against the **Finora Product Design
 
 ## Milestone 3: Design System & Web Application (apps/web)
 - [x] Setup Vite + React 19 / TypeScript + Tailwind CSS
-- [x] Implement Finora Design Tokens in Tailwind:
+- [x] Implement Artha Design Tokens in Tailwind:
   - [x] Color tokens (Surfaces, Borders, Brand Midnight/Cobalt, Income Emerald, Expense Crimson, Neutral Slate)
   - [x] Tabular numerical styling (`font-feature-settings: 'tnum'`)
   - [x] 8-point spatial grid
@@ -57,7 +57,7 @@ This roadmap tracks engineering deliverables against the **Finora Product Design
 - [x] User Journeys & Screen Implementation:
   - [x] **Journey A (First-time User)**: Frictionless 3-step onboarding flow
   - [x] **Journey B (Record an Expense)**: Ultra-fast Quick-Add modal with automatic category detection & 'E' keyboard shortcut
-  - [x] **Journey C (Understand Financial Health)**: Finora Hero Dashboard answering the 5 core questions
+  - [x] **Journey C (Understand Financial Health)**: Artha Hero Dashboard answering the 5 core questions
   - [x] **Transactions Screen**: Filterable, searchable, paginated ledger with delete and balance rollbacks
   - [x] **Accounts Screen**: Bank, cash, credit card, and liability management
   - [x] **Budgets Screen**: Monthly progress bars, category caps, variance alerts

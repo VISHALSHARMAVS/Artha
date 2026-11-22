@@ -1,8 +1,8 @@
 {
-  "name": "finora-monorepo",
+  "name": "artha-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "Finora — Intelligent Financial Operating System",
+  "description": "Artha — Intelligent Financial Operating System",
   "workspaces": [
     "packages/*",
     "apps/*"

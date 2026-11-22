@@ -48,11 +48,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex items-center justify-between px-6 h-16 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-              F
+              A
             </div>
             <div>
               <span className="font-semibold tracking-tight text-slate-900 dark:text-white text-base">
-                Finora
+                Artha
               </span>
               <span className="ml-1.5 text-[10px] uppercase font-semibold tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-1.5 py-0.5 rounded border border-blue-100 dark:border-blue-900/50">
                 PRO
@@ -122,9 +122,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <header className="lg:hidden flex items-center justify-between px-4 h-14 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
-            F
+            A
           </div>
-          <span className="font-semibold text-slate-900 dark:text-white text-sm">Finora</span>
+          <span className="font-semibold text-slate-900 dark:text-white text-sm">Artha</span>
         </div>
 
         <div className="flex items-center gap-2">

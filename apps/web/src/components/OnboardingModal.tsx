@@ -22,7 +22,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
   // Step 1: Profile & Primary Account
   const [fullName, setFullName] = useState<string>('Priya Nair');
-  const [email, setEmail] = useState<string>('priya@finora.internal');
+  const [email, setEmail] = useState<string>('priya@artha.internal');
   const [accountName, setAccountName] = useState<string>('HDFC Salary Account');
   const [accountType, setAccountType] = useState<string>('SAVINGS');
   const [initialBalancePaise, setInitialBalancePaise] = useState<number>(12000000); // ₹1,20,000
@@ -85,7 +85,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Welcome to Finora"
+      title="Welcome to Artha"
       description="Journey A — High-precision financial onboarding in 3 simple steps."
       maxWidth="lg"
     >
@@ -252,7 +252,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 onChangePaise={setEmergencyBufferPaise}
               />
               <p className="text-xs text-slate-500 mt-1">
-                Finora protects this buffer from being spent when calculating your daily Safe-to-Spend velocity.
+                Artha protects this buffer from being spent when calculating your daily Safe-to-Spend velocity.
               </p>
             </div>
           </div>
@@ -356,7 +356,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               icon={<CheckCircle2 className="w-4 h-4" />}
               onClick={handleSubmit}
             >
-              Complete Setup & Open Finora
+              Complete Setup & Open Artha
             </Button>
           )}
         </div>

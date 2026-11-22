@@ -15,7 +15,7 @@ import {
   CreateBudgetSchema,
   CreateLoanSchema,
   OnboardingPayloadSchema,
-} from '@finora/domain';
+} from '@artha/domain';
 
 export const router = Router();
 

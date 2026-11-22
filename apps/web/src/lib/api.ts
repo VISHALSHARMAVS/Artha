@@ -1,5 +1,5 @@
 /**
- * Finora API Client & Precision Financial Formatters
+ * Artha API Client & Precision Financial Formatters
  */
 
 export interface Account {

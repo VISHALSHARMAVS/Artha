@@ -1,4 +1,4 @@
--- Finora Institutional Database DDL
+-- Artha Institutional Database DDL
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS users (
