@@ -15,6 +15,7 @@ try {
 }
 
 import { router as apiRoutes } from './routes/index.js';
+import { WhatsAppController } from './controllers/whatsapp.controller.js';
 import { requestLogger } from './middleware/logger.js';
 import { authMiddleware } from './middleware/auth.js';
 import { errorHandler } from './middleware/error-handler.js';
@@ -43,6 +44,10 @@ app.get('/api/health', (_req, res) => {
 // Mount modular API v1 router
 app.use('/api/v1', apiRoutes);
 
+// Root aliases for Meta WhatsApp Webhook configuration (supports both /webhooks/whatsapp and /api/v1/webhooks/whatsapp)
+app.get('/webhooks/whatsapp', WhatsAppController.verifyWebhook);
+app.post('/webhooks/whatsapp', WhatsAppController.handleWebhookMessage);
+
 // Optional static frontend serving for unified single-service deployment
 const candidateWebPaths = [
   path.resolve(__dirname, '../../web/dist'),
@@ -54,7 +59,7 @@ for (const p of candidateWebPaths) {
   if (fs.existsSync(p) && fs.existsSync(path.join(p, 'index.html'))) {
     app.use(express.static(p));
     app.get('*', (req, res, next) => {
-      if (req.path.startsWith('/api')) return next();
+      if (req.path.startsWith('/api') || req.path.startsWith('/webhooks')) return next();
       res.sendFile(path.join(p, 'index.html'));
     });
     break;

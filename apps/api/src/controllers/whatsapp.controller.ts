@@ -170,7 +170,7 @@ export class WhatsAppController {
     const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
     if (!token || !phoneId) {
-      // In development / sandbox simulation mode, no external HTTP dispatch needed
+      console.warn('⚠️ Meta Cloud API credentials missing (WHATSAPP_CLOUD_API_TOKEN or WHATSAPP_PHONE_NUMBER_ID not set in environment).');
       return;
     }
 
@@ -191,12 +191,12 @@ export class WhatsAppController {
       });
       const data = await response.json();
       if (!response.ok) {
-        console.warn('⚠️ Meta Cloud API error:', data);
+        console.error('❌ Meta Cloud API error dispatching reply:', JSON.stringify(data));
       } else {
-        console.log('✅ Meta Cloud WhatsApp message dispatched successfully:', data);
+        console.log('✅ Meta Cloud WhatsApp message dispatched successfully to +' + recipientPhone);
       }
     } catch (error) {
-      console.warn('⚠️ Meta Cloud API dispatch failed (network error):', error);
+      console.error('❌ Meta Cloud API dispatch failed (network error):', error);
     }
   }
 }
