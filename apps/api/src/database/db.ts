@@ -18,6 +18,7 @@ const DB_PATH = process.env.NODE_ENV === 'test'
 
 export class DatabaseService {
   private static instance: DatabaseSync | null = null;
+  private static transactionDepth = 0;
 
   static getDb(): DatabaseSync {
     if (!this.instance) {
@@ -69,17 +70,37 @@ export class DatabaseService {
 
   /**
    * Execute an atomic transaction with automatic rollback on error.
+   * Supports nested transactions via SQLite savepoints.
    */
   static transaction<T>(callback: () => T): T {
     const db = this.getDb();
-    db.exec('BEGIN TRANSACTION;');
+    const isRoot = this.transactionDepth === 0;
+    this.transactionDepth++;
+    const spName = `sp_${this.transactionDepth}`;
+
+    if (isRoot) {
+      db.exec('BEGIN TRANSACTION;');
+    } else {
+      db.exec(`SAVEPOINT ${spName};`);
+    }
+
     try {
       const result = callback();
-      db.exec('COMMIT;');
+      if (isRoot) {
+        db.exec('COMMIT;');
+      } else {
+        db.exec(`RELEASE SAVEPOINT ${spName};`);
+      }
       return result;
     } catch (error) {
-      db.exec('ROLLBACK;');
+      if (isRoot) {
+        try { db.exec('ROLLBACK;'); } catch {}
+      } else {
+        try { db.exec(`ROLLBACK TO SAVEPOINT ${spName};`); } catch {}
+      }
       throw error;
+    } finally {
+      this.transactionDepth--;
     }
   }
 
