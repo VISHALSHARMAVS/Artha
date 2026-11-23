@@ -45,11 +45,12 @@ export function authMiddleware(req: Request, _res: Response, next: NextFunction)
     return next();
   }
 
-  if (process.env.NODE_ENV === 'test') {
+  // Fallback for local development or demo mode if not explicitly signed in
+  if (process.env.NODE_ENV !== 'production') {
     req.userId = DEFAULT_USER_ID;
     return next();
   }
 
-  // Reject unauthenticated requests
+  // Reject unauthenticated requests in production
   throw new AppError('Unauthorized: Authentication token is missing or has expired. Please sign in.', 401, 'UNAUTHORIZED');
 }
