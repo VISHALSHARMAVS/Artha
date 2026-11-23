@@ -22,8 +22,14 @@ const PUBLIC_PATHS = [
 ];
 
 export function authMiddleware(req: Request, _res: Response, next: NextFunction): void {
-  // Check if current request path is public
   const path = req.path;
+
+  // 1. All non-API frontend static assets and routes are public
+  if (!path.startsWith('/api')) {
+    return next();
+  }
+
+  // 2. Check if current API request path is public
   if (PUBLIC_PATHS.some((publicPath) => path === publicPath || path.startsWith(publicPath))) {
     return next();
   }
