@@ -72,3 +72,4 @@ router.post('/webhooks/whatsapp', WhatsAppController.handleWebhookMessage);
 router.post('/whatsapp/link', WhatsAppController.linkPhone);
 router.post('/whatsapp/simulate', WhatsAppController.simulateMessage);
 router.get('/whatsapp/status', WhatsAppController.getStatus);
+router.get('/whatsapp/test-connection', WhatsAppController.testConnection);

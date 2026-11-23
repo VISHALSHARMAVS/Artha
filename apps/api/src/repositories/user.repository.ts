@@ -46,6 +46,11 @@ export class UserRepository {
     return row || null;
   }
 
+  static findAll(): UserRecord[] {
+    const db = getDb();
+    return db.prepare('SELECT id, email, full_name, phone_number, whatsapp_linked, currency_code, created_at, updated_at FROM users').all() as unknown as UserRecord[];
+  }
+
   static findByEmail(email: string): UserWithCredentials | null {
     const db = getDb();
     const row = db.prepare('SELECT * FROM users WHERE LOWER(email) = LOWER(?)').get(email) as unknown as UserWithCredentials | undefined;

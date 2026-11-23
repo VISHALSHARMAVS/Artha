@@ -19,6 +19,9 @@ const PUBLIC_PATHS = [
   '/api/v1/auth/login',
   '/api/v1/webhooks/whatsapp',
   '/api/v1/whatsapp/simulate',
+  '/api/v1/whatsapp/test-connection',
+  '/webhooks/whatsapp',
+  '/whatsapp/test-connection',
 ];
 
 export function authMiddleware(req: Request, _res: Response, next: NextFunction): void {
@@ -51,12 +54,12 @@ export function authMiddleware(req: Request, _res: Response, next: NextFunction)
     return next();
   }
 
-  // Fallback for local development or demo mode if not explicitly signed in
-  if (process.env.NODE_ENV !== 'production') {
+  // Fallback for demo mode and exploration: allows linking WhatsApp and using demo ledger
+  if (process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEMO_MODE !== 'false') {
     req.userId = DEFAULT_USER_ID;
     return next();
   }
 
-  // Reject unauthenticated requests in production
+  // Reject unauthenticated requests in production if demo mode is explicitly disabled
   throw new AppError('Unauthorized: Authentication token is missing or has expired. Please sign in.', 401, 'UNAUTHORIZED');
 }

@@ -47,6 +47,7 @@ app.use('/api/v1', apiRoutes);
 // Root aliases for Meta WhatsApp Webhook configuration (supports both /webhooks/whatsapp and /api/v1/webhooks/whatsapp)
 app.get('/webhooks/whatsapp', WhatsAppController.verifyWebhook);
 app.post('/webhooks/whatsapp', WhatsAppController.handleWebhookMessage);
+app.get('/whatsapp/test-connection', WhatsAppController.testConnection);
 
 // Optional static frontend serving for unified single-service deployment
 const candidateWebPaths = [

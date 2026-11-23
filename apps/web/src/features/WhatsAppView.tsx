@@ -19,6 +19,21 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
   const [isLinking, setIsLinking] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
   const [linkSuccess, setLinkSuccess] = useState<string | null>(null);
+  const [metaDiag, setMetaDiag] = useState<any>(null);
+  const [isCheckingMeta, setIsCheckingMeta] = useState<boolean>(false);
+
+  const checkMetaHealth = async () => {
+    setIsCheckingMeta(true);
+    try {
+      const res = await fetch('/api/v1/whatsapp/test-connection');
+      const data = await res.json();
+      setMetaDiag(data);
+    } catch (e: any) {
+      setMetaDiag({ status: 'ERROR', message: e.message });
+    } finally {
+      setIsCheckingMeta(false);
+    }
+  };
 
   // Simulator State
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -251,7 +266,42 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
                 <li>Create free Meta for Developers account at <code className="text-blue-600 dark:text-blue-400">developers.facebook.com</code></li>
                 <li>Add WhatsApp product and copy the free Meta Sandbox test number</li>
                 <li>Paste the Webhook URL & Verify Token above into Configuration</li>
+                <li>Add your personal WhatsApp number to the <strong>"To" (Recipient)</strong> list in API Setup</li>
+                <li>Send a test message from Meta dashboard to open the 24-hr session, then reply!</li>
               </ol>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="p-2.5 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-xs text-slate-700 dark:text-slate-300 space-y-1">
+                <span className="font-semibold text-emerald-600 dark:text-emerald-400">💡 1-Second WhatsApp Link:</span>
+                <p>You can also link directly inside WhatsApp! Just text the bot: <br/><code className="font-mono text-emerald-600 dark:text-emerald-400 font-semibold select-all">LINK aditya@artha.internal</code></p>
+              </div>
+            </div>
+
+            {/* Test Connection Button */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={checkMetaHealth}
+                disabled={isCheckingMeta}
+                className="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
+              >
+                {isCheckingMeta ? 'Checking Meta Cloud API...' : '🔍 Check Meta API Token & Connection'}
+              </button>
+
+              {metaDiag && (
+                <div className={`mt-2 p-2.5 rounded-lg text-xs space-y-1 border ${
+                  metaDiag.status === 'HEALTHY' 
+                    ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 text-emerald-700 dark:text-emerald-300'
+                    : 'bg-amber-50 dark:bg-amber-950/30 border-amber-300 text-amber-700 dark:text-amber-300'
+                }`}>
+                  <div className="font-semibold flex items-center justify-between">
+                    <span>Status: {metaDiag.status}</span>
+                    <span className="text-[10px]">{metaDiag.phoneId ? `Phone ID: ${metaDiag.phoneId}` : ''}</span>
+                  </div>
+                  <p>{metaDiag.message || JSON.stringify(metaDiag.metaGraphResponse || metaDiag)}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -43,23 +43,61 @@ export class WhatsAppParserService {
     }
 
     // 1. Identify User by Phone Number
-    const user = UserRepository.findByPhoneNumber(rawSenderPhone);
+    let user = UserRepository.findByPhoneNumber(rawSenderPhone);
     if (!user) {
-      return {
-        success: false,
-        action: 'UNLINKED_USER',
-        replyMessage: 
+      // Check if user sent an explicit link command: "LINK <email>" or "CONNECT <email>"
+      const linkMatch = trimmed.match(/^(?:link|connect|login)\s+([^\s]+)/i);
+      if (linkMatch) {
+        const targetEmail = linkMatch[1].trim();
+        const foundByEmail = UserRepository.findByEmail(targetEmail);
+        if (foundByEmail) {
+          UserRepository.linkPhoneNumber(foundByEmail.id, rawSenderPhone);
+          return {
+            success: true,
+            action: 'HELP',
+            replyMessage: 
+`🎉 *WhatsApp Successfully Linked!*
+
+Your WhatsApp number (*+${rawSenderPhone}*) is now connected to *${foundByEmail.full_name}* (${foundByEmail.email}).
+
+Try sending your first expense now:
+• *"Spent 450 at Starbucks"*
+• *"Petrol 2000"*
+• *"Balance"*`,
+          };
+        } else {
+          return {
+            success: false,
+            action: 'UNLINKED_USER',
+            replyMessage: `⚠️ Could not find an Artha account for *${targetEmail}*.\n\nMake sure your email matches your registered Artha account, or link via the web dashboard at the WhatsApp tab.`,
+          };
+        }
+      }
+
+      // Check if auto-linking is enabled via env var or if there is a default demo user
+      const allUsers = UserRepository.findAll();
+      const autoLinkEnabled = process.env.WHATSAPP_AUTO_LINK === 'true';
+      if (autoLinkEnabled && allUsers.length > 0) {
+        const primaryUser = allUsers.find(u => u.id === 'usr_artha_demo') || allUsers[0];
+        UserRepository.linkPhoneNumber(primaryUser.id, rawSenderPhone);
+        user = UserRepository.findById(primaryUser.id)!;
+        console.log(`🔗 Auto-linked incoming WhatsApp +${rawSenderPhone} to user ${user.full_name} (${user.id})`);
+      } else {
+        return {
+          success: false,
+          action: 'UNLINKED_USER',
+          replyMessage: 
 `👋 *Welcome to Artha!*
 
 Your WhatsApp number (*+${rawSenderPhone}*) is not yet linked to an Artha account.
 
-To activate 1-second expense tracking:
-1️⃣ Log in to your Artha Web Dashboard
-2️⃣ Open the *WhatsApp* tab
-3️⃣ Enter your phone number and click *Link WhatsApp*
+*To link in 1 second, reply with:*
+*LINK <your-email>*
+_(e.g. *LINK ${allUsers[0]?.email || 'aditya@artha.internal'}*)_
 
-_Once linked, any message like "Spent 450 at Starbucks" will instantly log into your private ledger._`,
-      };
+Or log into the web dashboard, open the *WhatsApp* tab, and click *Link WhatsApp*.`,
+        };
+      }
     }
 
     // 2. Check for Informational & Financial Freedom Commands

@@ -37,10 +37,11 @@ export function runSeed(): void {
 
     // 2. Seed Default Demo User with Secure Password
     const { hash, salt } = Security.hashPassword('Demo@1234');
+    const defaultPhone = process.env.WHATSAPP_DEFAULT_PHONE || process.env.DEFAULT_PHONE_NUMBER || null;
     db.prepare(`
-      INSERT OR REPLACE INTO users (id, email, full_name, password_hash, password_salt, currency_code)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `).run(DEFAULT_USER_ID, 'aditya@artha.internal', 'Aditya Sharma', hash, salt, 'INR');
+      INSERT OR REPLACE INTO users (id, email, full_name, password_hash, password_salt, currency_code, phone_number, whatsapp_linked)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(DEFAULT_USER_ID, 'aditya@artha.internal', 'Aditya Sharma', hash, salt, 'INR', defaultPhone, defaultPhone ? 1 : 0);
 
     // 3. Seed Salary Profile
     db.prepare(`
