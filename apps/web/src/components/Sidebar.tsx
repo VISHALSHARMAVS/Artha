@@ -88,9 +88,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           >
             <Plus className="w-4 h-4" />
             <span>Quick Record</span>
-            <kbd className="ml-auto hidden xl:inline-block px-1.5 py-0.5 text-[10px] font-mono uppercase bg-slate-800 dark:bg-blue-700 text-slate-300 dark:text-blue-100 rounded">
-              E
-            </kbd>
           </button>
 
           <button
