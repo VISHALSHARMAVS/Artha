@@ -5,7 +5,7 @@
   "type": "module",
   "main": "src/server.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node -e \"import fs from 'node:fs'; fs.copyFileSync('src/database/schema.sql', 'dist/database/schema.sql');\"",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
     "seed": "tsx src/database/seed.ts",

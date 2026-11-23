@@ -1,5 +1,11 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables if .env exists
 try {
@@ -36,6 +42,24 @@ app.get('/api/health', (_req, res) => {
 
 // Mount modular API v1 router
 app.use('/api/v1', apiRoutes);
+
+// Optional static frontend serving for unified single-service deployment
+const candidateWebPaths = [
+  path.resolve(__dirname, '../../web/dist'),
+  path.resolve(process.cwd(), 'apps/web/dist'),
+  path.resolve(process.cwd(), 'dist'),
+];
+
+for (const p of candidateWebPaths) {
+  if (fs.existsSync(p) && fs.existsSync(path.join(p, 'index.html'))) {
+    app.use(express.static(p));
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api')) return next();
+      res.sendFile(path.join(p, 'index.html'));
+    });
+    break;
+  }
+}
 
 // Centralized Error Handling
 app.use(errorHandler);

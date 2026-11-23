@@ -39,7 +39,17 @@ export class DatabaseService {
 
   static initSchema(): void {
     const db = this.instance!;
-    const schemaPath = path.resolve(__dirname, 'schema.sql');
+    let schemaPath = path.resolve(__dirname, 'schema.sql');
+    if (!fs.existsSync(schemaPath)) {
+      schemaPath = path.resolve(__dirname, '../../src/database/schema.sql');
+    }
+    if (!fs.existsSync(schemaPath)) {
+      schemaPath = path.resolve(process.cwd(), 'apps/api/src/database/schema.sql');
+    }
+    if (!fs.existsSync(schemaPath)) {
+      schemaPath = path.resolve(process.cwd(), 'src/database/schema.sql');
+    }
+
     if (fs.existsSync(schemaPath)) {
       const sql = fs.readFileSync(schemaPath, 'utf8');
       db.exec(sql);
