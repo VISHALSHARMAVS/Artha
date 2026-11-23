@@ -55,16 +55,35 @@ export class UserRepository {
   static findByPhoneNumber(rawPhone: string): UserRecord | null {
     const db = getDb();
     const normalized = normalizePhoneNumber(rawPhone);
-    const row = db.prepare('SELECT id, email, full_name, phone_number, whatsapp_linked, currency_code, created_at, updated_at FROM users WHERE phone_number = ?').get(normalized) as unknown as UserRecord | undefined;
+    const digits = rawPhone.replace(/\D/g, '');
+    const last10 = digits.length >= 10 ? digits.slice(-10) : digits;
+
+    // Multi-format resilient phone matching: exact normalized, raw string, or matching last 10 digits
+    const row = db.prepare(`
+      SELECT id, email, full_name, phone_number, whatsapp_linked, currency_code, created_at, updated_at 
+      FROM users 
+      WHERE phone_number = ? 
+         OR phone_number = ? 
+         OR phone_number LIKE ?
+         OR REPLACE(REPLACE(phone_number, '+', ''), ' ', '') LIKE ?
+      LIMIT 1
+    `).get(normalized, rawPhone, `%${last10}`, `%${last10}`) as unknown as UserRecord | undefined;
+
     return row || null;
   }
 
   static linkPhoneNumber(userId: string, rawPhone: string): UserRecord {
     const db = getDb();
     const normalized = normalizePhoneNumber(rawPhone);
+    const digits = rawPhone.replace(/\D/g, '');
+    const last10 = digits.length >= 10 ? digits.slice(-10) : digits;
     
     // Check if phone number is already linked to another user
-    const existing = db.prepare('SELECT id FROM users WHERE phone_number = ? AND id != ?').get(normalized, userId) as { id: string } | undefined;
+    const existing = db.prepare(`
+      SELECT id FROM users 
+      WHERE (phone_number = ? OR phone_number LIKE ?) AND id != ?
+    `).get(normalized, `%${last10}`, userId) as { id: string } | undefined;
+
     if (existing) {
       throw new Error(`Phone number ${rawPhone} is already linked to another account.`);
     }
