@@ -12,7 +12,11 @@ export class WhatsAppController {
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
 
-    const expectedToken = process.env.WHATSAPP_VERIFY_TOKEN || 'artha_webhook_token';
+    const expectedToken =
+      process.env.WHATSAPP_VERIFY_TOKEN ||
+      process.env.META_VERIFY_TOKEN ||
+      process.env.META_WA_VERIFY_TOKEN ||
+      'artha_webhook_token';
 
     if (mode === 'subscribe' && token === expectedToken) {
       console.log('✅ Meta WhatsApp webhook verified successfully.');
@@ -166,11 +170,25 @@ export class WhatsAppController {
    * Sends reply back to Meta WhatsApp Business Cloud API if credentials configured.
    */
   private static async dispatchWhatsAppCloudMessage(recipientPhone: string, text: string): Promise<void> {
-    const token = process.env.WHATSAPP_CLOUD_API_TOKEN;
-    const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+    const token =
+      process.env.META_API_TOKEN ||
+      process.env.META_WA_ACCESS_TOKEN ||
+      process.env.META_ACCESS_TOKEN ||
+      process.env.META_TOKEN ||
+      process.env.WHATSAPP_CLOUD_API_TOKEN ||
+      process.env.WHATSAPP_ACCESS_TOKEN ||
+      process.env.WHATSAPP_API_TOKEN;
 
-    if (!token || !phoneId) {
-      console.warn('⚠️ Meta Cloud API credentials missing (WHATSAPP_CLOUD_API_TOKEN or WHATSAPP_PHONE_NUMBER_ID not set in environment).');
+    const phoneId =
+      process.env.META_PHONE_ID ||
+      process.env.META_PHONE_NUMBER_ID ||
+      process.env.META_WA_PHONE_NUMBER_ID ||
+      process.env.WHATSAPP_PHONE_NUMBER_ID ||
+      process.env.PHONE_NUMBER_ID ||
+      '1463067220221626';
+
+    if (!token) {
+      console.warn('⚠️ Meta Cloud API token missing. Set META_API_TOKEN or WHATSAPP_CLOUD_API_TOKEN in environment.');
       return;
     }
 
