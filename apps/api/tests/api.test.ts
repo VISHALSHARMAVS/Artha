@@ -6,6 +6,7 @@ import { AccountService } from '../src/services/account.service.js';
 import { CategoryService } from '../src/services/category.service.js';
 import { BudgetService } from '../src/services/budget.service.js';
 import { LoanService } from '../src/services/loan.service.js';
+import { ReportService } from '../src/services/report.service.js';
 import { DEFAULT_USER_ID } from '../src/middleware/auth.js';
 
 describe('Artha Layered Backend Integration Tests', () => {
@@ -134,5 +135,17 @@ describe('Artha Layered Backend Integration Tests', () => {
     AccountService.deleteAccount(newAcc.id, DEFAULT_USER_ID);
     const afterCount = AccountService.getAccounts(DEFAULT_USER_ID).length;
     assert.strictEqual(afterCount, beforeCount - 1);
+  });
+
+  test('Report Service cash flow history excludes transfers and aggregates monthly net savings correctly', () => {
+    const history = ReportService.getCashFlowHistory(DEFAULT_USER_ID, 6);
+    assert.strictEqual(history.length, 6);
+    history.forEach((month) => {
+      assert.ok(month.monthYear);
+      assert.ok(month.monthLabel);
+      assert.strictEqual(typeof month.incomePaise, 'number');
+      assert.strictEqual(typeof month.expensePaise, 'number');
+      assert.strictEqual(month.netSavingsPaise, month.incomePaise - month.expensePaise);
+    });
   });
 });

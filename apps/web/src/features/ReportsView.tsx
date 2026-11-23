@@ -48,6 +48,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ overview }) => {
   }, []);
 
   const netWorth = overview?.net_worth;
+  const hasNetWorth = netWorth && (netWorth.total_assets_paise > 0 || netWorth.total_liabilities_paise > 0 || netWorth.net_worth_paise !== 0);
+  const hasAnyCashFlow = cashFlow.some((cf) => cf.incomePaise > 0 || cf.expensePaise > 0);
   const maxFlow = Math.max(
     ...cashFlow.map((cf) => Math.max(cf.incomePaise, cf.expensePaise)),
     10000000
@@ -65,7 +67,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ overview }) => {
       </div>
 
       {/* Net Worth Hero Strip */}
-      {netWorth && (
+      {hasNetWorth ? (
         <div className="p-6 bg-slate-900 text-white rounded-lg shadow-card space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -93,6 +95,16 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ overview }) => {
             </div>
           </div>
         </div>
+      ) : (
+        <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-card text-center space-y-2">
+          <Layers className="w-8 h-8 mx-auto text-blue-500" />
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+            Consolidated Balance Sheet
+          </h3>
+          <p className="text-xs text-slate-500 max-w-md mx-auto">
+            Connect bank accounts, credit cards, or register investments to calculate your consolidated assets, liabilities, and true institutional net worth.
+          </p>
+        </div>
       )}
 
       {/* Real Cash Flow Inflow vs Outflow Histogram */}
@@ -115,37 +127,53 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ overview }) => {
           </div>
         </div>
 
-        <div className="pt-4 grid grid-cols-6 gap-2 sm:gap-4 items-end h-48 border-b border-slate-200 dark:border-slate-800 pb-2">
-          {cashFlow.map((cf) => {
-            const incomeHeight = Math.max(4, (cf.incomePaise / maxFlow) * 100);
-            const expenseHeight = Math.max(4, (cf.expensePaise / maxFlow) * 100);
+        {loading ? (
+          <div className="py-12 text-center text-xs text-slate-400">
+            Calculating historical cash flow telemetry...
+          </div>
+        ) : !hasAnyCashFlow ? (
+          <div className="py-12 text-center space-y-2">
+            <LineChart className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-700" />
+            <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              No Cash Flow Telemetry Yet
+            </div>
+            <p className="text-[11px] text-slate-500 max-w-sm mx-auto">
+              Record salary credits, recurring bills, or daily living expenses to plot monthly inflow vs outflow trends and net savings velocity across trailing months.
+            </p>
+          </div>
+        ) : (
+          <div className="pt-4 grid grid-cols-6 gap-2 sm:gap-4 items-end h-48 border-b border-slate-200 dark:border-slate-800 pb-2">
+            {cashFlow.map((cf) => {
+              const incomeHeight = cf.incomePaise > 0 ? Math.max(4, (cf.incomePaise / maxFlow) * 100) : 0;
+              const expenseHeight = cf.expensePaise > 0 ? Math.max(4, (cf.expensePaise / maxFlow) * 100) : 0;
 
-            return (
-              <div key={cf.monthYear} className="flex flex-col items-center h-full justify-end group">
-                <div className="flex items-end gap-1 sm:gap-2 w-full justify-center h-36">
-                  {/* Inflow bar */}
-                  <div
-                    className="w-1/2 max-w-[20px] bg-emerald-500/90 hover:bg-emerald-600 rounded-t transition-all relative group-hover:opacity-100"
-                    style={{ height: `${incomeHeight}%` }}
-                    title={`Inflow: ${formatPaise(cf.incomePaise)}`}
-                  />
-                  {/* Outflow bar */}
-                  <div
-                    className="w-1/2 max-w-[20px] bg-red-500/90 hover:bg-red-600 rounded-t transition-all relative group-hover:opacity-100"
-                    style={{ height: `${expenseHeight}%` }}
-                    title={`Outflow: ${formatPaise(cf.expensePaise)}`}
-                  />
+              return (
+                <div key={cf.monthYear} className="flex flex-col items-center h-full justify-end group">
+                  <div className="flex items-end gap-1 sm:gap-2 w-full justify-center h-36">
+                    {/* Inflow bar */}
+                    <div
+                      className="w-1/2 max-w-[20px] bg-emerald-500/90 hover:bg-emerald-600 rounded-t transition-all relative group-hover:opacity-100"
+                      style={{ height: `${incomeHeight}%` }}
+                      title={`Inflow: ${formatPaise(cf.incomePaise)}`}
+                    />
+                    {/* Outflow bar */}
+                    <div
+                      className="w-1/2 max-w-[20px] bg-red-500/90 hover:bg-red-600 rounded-t transition-all relative group-hover:opacity-100"
+                      style={{ height: `${expenseHeight}%` }}
+                      title={`Outflow: ${formatPaise(cf.expensePaise)}`}
+                    />
+                  </div>
+                  <span className="text-[11px] font-medium text-slate-500 mt-2 truncate">
+                    {cf.monthLabel}
+                  </span>
+                  <span className="text-[9px] text-slate-400 tnum hidden sm:block">
+                    {formatPaise(cf.netSavingsPaise, { includeDecimals: false, compact: true })}
+                  </span>
                 </div>
-                <span className="text-[11px] font-medium text-slate-500 mt-2 truncate">
-                  {cf.monthLabel}
-                </span>
-                <span className="text-[9px] text-slate-400 tnum hidden sm:block">
-                  {formatPaise(cf.netSavingsPaise, { includeDecimals: false, compact: true })}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Category Spending Breakdown */}
@@ -162,8 +190,14 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ overview }) => {
 
         <div className="space-y-3">
           {categoryBreakdown.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-400">
-              No category expense activity for this month.
+            <div className="py-10 text-center space-y-2">
+              <PieChart className="w-7 h-7 mx-auto text-slate-300 dark:text-slate-700" />
+              <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                No Category Expenses This Month
+              </div>
+              <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+                Categorized expenses (food, transit, utilities, etc.) will automatically generate your sector distribution profile here.
+              </p>
             </div>
           ) : (
             categoryBreakdown.map((cat) => (

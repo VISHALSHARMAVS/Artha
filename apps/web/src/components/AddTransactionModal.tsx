@@ -11,6 +11,7 @@ interface AddTransactionModalProps {
   onSuccess: () => void;
   accounts: Account[];
   categories: Category[];
+  onCreateAccount?: () => void;
 }
 
 export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
@@ -19,6 +20,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   onSuccess,
   accounts,
   categories,
+  onCreateAccount,
 }) => {
   const [type, setType] = useState<'EXPENSE' | 'INCOME' | 'TRANSFER'>('EXPENSE');
   const [amountPaise, setAmountPaise] = useState<number>(0);
@@ -46,6 +48,10 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (accounts.length === 0 || !accountId) {
+      setError('A valid financial account is required. Please create or connect an account first.');
+      return;
+    }
     if (amountPaise <= 0) {
       setError('Please enter a positive amount');
       return;
@@ -173,32 +179,36 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-              {type === 'TRANSFER' ? 'From Account' : 'Account'} <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={accountId}
-              onChange={(e) => setAccountId(e.target.value)}
-              className="w-full h-10 px-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
-            >
-              {accounts.map((acc) => (
-                <option key={acc.id} value={acc.id}>
-                  {acc.name}
-                </option>
-              ))}
-            </select>
+        {accounts.length === 0 ? (
+          <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-800 text-xs text-amber-800 dark:text-amber-300 space-y-2">
+            <div className="font-semibold flex items-center gap-1.5">
+              <Info className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>No Financial Accounts Connected</span>
+            </div>
+            <p className="leading-relaxed">
+              Recording an income, expense, or transfer requires at least one registered financial account.
+            </p>
+            {onCreateAccount && (
+              <Button
+                variant="primary"
+                size="sm"
+                type="button"
+                onClick={onCreateAccount}
+                className="w-full mt-1"
+              >
+                Create Financial Account
+              </Button>
+            )}
           </div>
-
-          {type === 'TRANSFER' ? (
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                To Account <span className="text-red-500">*</span>
+                {type === 'TRANSFER' ? 'From Account' : 'Account'} <span className="text-red-500">*</span>
               </label>
               <select
-                value={destAccountId}
-                onChange={(e) => setDestAccountId(e.target.value)}
+                value={accountId}
+                onChange={(e) => setAccountId(e.target.value)}
                 className="w-full h-10 px-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
                 {accounts.map((acc) => (
@@ -208,26 +218,45 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 ))}
               </select>
             </div>
-          ) : (
-            <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                Category
-              </label>
-              <select
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full h-10 px-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
-              >
-                <option value="">Uncategorized</option>
-                {filteredCategories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-        </div>
+
+            {type === 'TRANSFER' ? (
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  To Account <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={destAccountId}
+                  onChange={(e) => setDestAccountId(e.target.value)}
+                  className="w-full h-10 px-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+                >
+                  {accounts.map((acc) => (
+                    <option key={acc.id} value={acc.id}>
+                      {acc.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Category
+                </label>
+                <select
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                  className="w-full h-10 px-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+                >
+                  <option value="">Uncategorized</option>
+                  {filteredCategories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -260,7 +289,14 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
           <Button variant="outline" size="md" type="button" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="primary" size="md" type="submit" loading={loading}>
+          <Button
+            variant="primary"
+            size="md"
+            type="submit"
+            loading={loading}
+            disabled={accounts.length === 0}
+            title={accounts.length === 0 ? 'Create a financial account before recording transactions' : undefined}
+          >
             Record {type === 'TRANSFER' ? 'Transfer' : type === 'INCOME' ? 'Income' : 'Expense'}
           </Button>
         </div>

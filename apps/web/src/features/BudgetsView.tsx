@@ -149,8 +149,29 @@ export const BudgetsView: React.FC<BudgetsViewProps> = ({ categories }) => {
             Evaluating category budget performance...
           </div>
         ) : budgets.length === 0 ? (
-          <div className="col-span-2 py-12 text-center text-xs text-slate-400">
-            No budgets configured for this month. Click "Set Category Cap" to begin.
+          <div className="col-span-2 p-8 sm:p-10 text-center rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-4">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+              <TrendingUp className="w-6 h-6" />
+            </div>
+            <div className="max-w-md mx-auto space-y-1">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                Zero-Based Envelope Budgeting
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Give every rupee a job before the month starts. Establish discretionary caps for Groceries, Dining, Shopping, and Entertainment to control burn velocity and prevent month-end cash flow deficits.
+              </p>
+            </div>
+            <Button
+              variant="primary"
+              size="sm"
+              icon={<Plus className="w-3.5 h-3.5" />}
+              onClick={() => {
+                if (expenseCategories.length > 0) setSelectedCategory(expenseCategories[0].id);
+                setIsModalOpen(true);
+              }}
+            >
+              Set First Category Cap
+            </Button>
           </div>
         ) : (
           budgets.map((b) => {

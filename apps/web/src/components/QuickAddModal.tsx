@@ -10,6 +10,7 @@ interface QuickAddModalProps {
   onClose: () => void;
   onSuccess: () => void;
   accounts: Account[];
+  onCreateAccount?: () => void;
 }
 
 export const QuickAddModal: React.FC<QuickAddModalProps> = ({
@@ -17,6 +18,7 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
   onClose,
   onSuccess,
   accounts,
+  onCreateAccount,
 }) => {
   const [amountPaise, setAmountPaise] = useState<number>(0);
   const [description, setDescription] = useState<string>('');
@@ -53,6 +55,10 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (accounts.length === 0 || !accountId) {
+      setError('A payment account is required. Please create or connect an account first.');
+      return;
+    }
     if (amountPaise <= 0) {
       setError('Please enter a valid expense amount');
       return;
@@ -69,7 +75,7 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
       await api.quickAddExpense({
         amount_paise: amountPaise,
         description: description.trim(),
-        account_id: accountId || undefined,
+        account_id: accountId,
         category_id: suggestedCategory?.id || undefined,
       });
 
@@ -137,41 +143,71 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3 pt-1">
-          <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1">
-              <Wallet className="w-3.5 h-3.5 text-slate-400" /> Payment Account
-            </label>
-            <select
-              value={accountId}
-              onChange={(e) => setAccountId(e.target.value)}
-              className="w-full h-10 px-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
-            >
-              {accounts.map((acc) => (
-                <option key={acc.id} value={acc.id}>
-                  {acc.name} ({acc.account_type})
-                </option>
-              ))}
-            </select>
+        {accounts.length === 0 ? (
+          <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-800 text-xs text-amber-800 dark:text-amber-300 space-y-2">
+            <div className="font-semibold flex items-center gap-1.5">
+              <Wallet className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>No Financial Accounts Connected</span>
+            </div>
+            <p className="leading-relaxed">
+              An active bank account, cash wallet, or credit card is required to record expenses and maintain double-entry financial telemetry.
+            </p>
+            {onCreateAccount && (
+              <Button
+                variant="primary"
+                size="sm"
+                type="button"
+                onClick={onCreateAccount}
+                className="w-full mt-1"
+              >
+                Create Financial Account
+              </Button>
+            )}
           </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 pt-1">
+            <div>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1">
+                <Wallet className="w-3.5 h-3.5 text-slate-400" /> Payment Account
+              </label>
+              <select
+                value={accountId}
+                onChange={(e) => setAccountId(e.target.value)}
+                className="w-full h-10 px-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+              >
+                {accounts.map((acc) => (
+                  <option key={acc.id} value={acc.id}>
+                    {acc.name} ({acc.account_type})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5 text-slate-400" /> Date
-            </label>
-            <input
-              type="date"
-              defaultValue={new Date().toISOString().slice(0, 10)}
-              className="w-full h-10 px-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 tnum"
-            />
+            <div>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5 text-slate-400" /> Date
+              </label>
+              <input
+                type="date"
+                defaultValue={new Date().toISOString().slice(0, 10)}
+                className="w-full h-10 px-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 tnum"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
           <Button variant="outline" size="md" type="button" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="secondary" size="md" type="submit" loading={loading}>
+          <Button
+            variant="secondary"
+            size="md"
+            type="submit"
+            loading={loading}
+            disabled={accounts.length === 0}
+            title={accounts.length === 0 ? 'Create a financial account before saving expenses' : undefined}
+          >
             Save Expense
           </Button>
         </div>

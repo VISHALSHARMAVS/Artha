@@ -25,9 +25,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   // Step 1: Profile & Primary Account
   const [fullName, setFullName] = useState<string>(currentUser?.full_name || '');
   const [email, setEmail] = useState<string>(currentUser?.email || '');
-  const [accountName, setAccountName] = useState<string>('HDFC Salary Account');
+  const [accountName, setAccountName] = useState<string>('');
   const [accountType, setAccountType] = useState<string>('SAVINGS');
-  const [initialBalancePaise, setInitialBalancePaise] = useState<number>(10000000); // ₹1,00,000
+  const [initialBalancePaise, setInitialBalancePaise] = useState<number>(0);
 
   // Keep synced with currently logged in user
   useEffect(() => {
@@ -38,45 +38,76 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   }, [currentUser, isOpen]);
 
   // Step 2: Salary Profile
-  const [employerName, setEmployerName] = useState<string>('Freshworks Inc');
-  const [salaryPaise, setSalaryPaise] = useState<number>(17500000); // ₹1,75,000
+  const [employerName, setEmployerName] = useState<string>('');
+  const [salaryPaise, setSalaryPaise] = useState<number>(0);
   const [payDay, setPayDay] = useState<number>(1);
-  const [emergencyBufferPaise, setEmergencyBufferPaise] = useState<number>(10000000); // ₹1,00,000
+  const [emergencyBufferPaise, setEmergencyBufferPaise] = useState<number>(0);
 
   // Step 3: Monthly Obligations
-  const [obligations, setObligations] = useState<Array<{ title: string; amountPaise: number; dueDay: number }>>([
-    { title: 'Apartment Rent', amountPaise: 3500000, dueDay: 5 },
-    { title: 'Bescom Electricity', amountPaise: 250000, dueDay: 15 },
-  ]);
+  const [obligations, setObligations] = useState<Array<{ title: string; amountPaise: number; dueDay: number }>>([]);
 
   const addObligation = () => {
-    setObligations([...obligations, { title: 'New Obligation', amountPaise: 100000, dueDay: 10 }]);
+    setObligations([...obligations, { title: '', amountPaise: 0, dueDay: 1 }]);
   };
 
   const removeObligation = (index: number) => {
     setObligations(obligations.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async () => {
-    setLoading(true);
+  const handleNextStep = () => {
     setError(null);
+    if (step === 1) {
+      if (!accountName.trim()) {
+        setError('Please enter your primary account name (e.g. Salary Account, SBI Savings).');
+        return;
+      }
+      if (initialBalancePaise < 0) {
+        setError('Initial balance cannot be negative.');
+        return;
+      }
+    } else if (step === 2) {
+      if (salaryPaise < 0) {
+        setError('Salary amount cannot be negative.');
+        return;
+      }
+      if (emergencyBufferPaise < 0) {
+        setError('Emergency reserve target cannot be negative.');
+        return;
+      }
+    }
+    setStep(step + 1);
+  };
+
+  const handleSubmit = async () => {
+    setError(null);
+    if (!accountName.trim()) {
+      setStep(1);
+      setError('Primary account name is required.');
+      return;
+    }
+
+    const validObligations = obligations.filter(
+      (o) => o.title.trim().length > 0 && o.amountPaise > 0
+    );
+
+    setLoading(true);
     try {
       await api.submitOnboarding({
-        full_name: fullName,
-        email,
+        full_name: fullName.trim() || undefined,
+        email: email.trim() || undefined,
         account: {
-          name: accountName,
+          name: accountName.trim(),
           account_type: accountType,
           initial_balance_paise: initialBalancePaise,
         },
         salary_profile: {
-          employer_name: employerName,
+          employer_name: employerName.trim() || 'Primary Source',
           net_monthly_salary_paise: salaryPaise,
           pay_day_of_month: payDay,
           emergency_fund_target_paise: emergencyBufferPaise,
         },
-        obligations: obligations.map((o) => ({
-          title: o.title,
+        obligations: validObligations.map((o) => ({
+          title: o.title.trim(),
           amount_paise: o.amountPaise,
           due_day_of_month: o.dueDay,
         })),
@@ -290,54 +321,61 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               </Button>
             </div>
 
-            <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-              {obligations.map((obl, idx) => (
-                <div key={idx} className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-800/60 rounded-md border border-slate-200 dark:border-slate-700">
-                  <input
-                    type="text"
-                    value={obl.title}
-                    onChange={(e) => {
-                      const updated = [...obligations];
-                      updated[idx].title = e.target.value;
-                      setObligations(updated);
-                    }}
-                    className="flex-1 h-8 px-2.5 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-600"
-                    placeholder="e.g. Rent, Electricity, SIP"
-                  />
-                  <div className="w-32">
-                    <AmountInput
-                      size="sm"
-                      valuePaise={obl.amountPaise}
-                      onChangePaise={(val) => {
+            {obligations.length === 0 ? (
+              <div className="py-6 px-4 text-center border border-dashed border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-500 space-y-1">
+                <p className="font-medium text-slate-700 dark:text-slate-300">No recurring monthly commitments added</p>
+                <p className="text-[11px] text-slate-400">Click "+ Add Item" above to add fixed monthly rent, EMIs, or utility commitments to protect them from daily spending.</p>
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                {obligations.map((obl, idx) => (
+                  <div key={idx} className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-800/60 rounded-md border border-slate-200 dark:border-slate-700">
+                    <input
+                      type="text"
+                      value={obl.title}
+                      onChange={(e) => {
                         const updated = [...obligations];
-                        updated[idx].amountPaise = val;
+                        updated[idx].title = e.target.value;
                         setObligations(updated);
                       }}
+                      className="flex-1 h-8 px-2.5 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                      placeholder="e.g. Rent, Electricity, SIP"
                     />
+                    <div className="w-32">
+                      <AmountInput
+                        size="sm"
+                        valuePaise={obl.amountPaise}
+                        onChangePaise={(val) => {
+                          const updated = [...obligations];
+                          updated[idx].amountPaise = val;
+                          setObligations(updated);
+                        }}
+                      />
+                    </div>
+                    <select
+                      value={obl.dueDay}
+                      onChange={(e) => {
+                        const updated = [...obligations];
+                        updated[idx].dueDay = Number(e.target.value);
+                        setObligations(updated);
+                      }}
+                      className="h-8 px-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    >
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                        <option key={d} value={d}>Day {d}</option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => removeObligation(idx)}
+                      className="p-1.5 text-slate-400 hover:text-red-500"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-                  <select
-                    value={obl.dueDay}
-                    onChange={(e) => {
-                      const updated = [...obligations];
-                      updated[idx].dueDay = Number(e.target.value);
-                      setObligations(updated);
-                    }}
-                    className="h-8 px-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-600"
-                  >
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-                      <option key={d} value={d}>Day {d}</option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={() => removeObligation(idx)}
-                    className="p-1.5 text-slate-400 hover:text-red-500"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -363,7 +401,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               size="md"
               type="button"
               icon={<ArrowRight className="w-4 h-4" />}
-              onClick={() => setStep(step + 1)}
+              onClick={handleNextStep}
             >
               Next Step
             </Button>

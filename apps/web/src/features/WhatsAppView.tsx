@@ -164,14 +164,19 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
         </div>
 
         <div className="flex items-center gap-2">
-          {status?.whatsapp_linked ? (
+          {status?.integration_status === 'READY' || (status?.whatsapp_linked && status?.has_api_credentials) ? (
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              WhatsApp Active (+{status.phone_number})
+              WhatsApp Ready (+{status.phone_number})
+            </span>
+          ) : status?.whatsapp_linked ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20" title="Phone linked. Inbound simulation active. Live Meta Cloud token pending on server.">
+              <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+              Linked (+{status.phone_number}) • Server Token Pending
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-500/10 text-slate-400 border border-slate-500/20">
+              <span className="w-2 h-2 rounded-full bg-slate-400"></span>
               WhatsApp Not Linked
             </span>
           )}
@@ -452,7 +457,20 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
                   type="submit"
                   disabled={isSimulating || !inputMessage.trim()}
                   className="w-10 h-10 rounded-full bg-[#00a884] hover:bg-[#008f6f] text-white flex items-center justify-center transition-colors disabled:opacity-40 disabled:hover:bg-[#00a884]"
-                  title="Send to WhatsApp Bot"
+                  title={
+                    isSimulating
+                      ? 'Artha assistant is processing...'
+                      : !inputMessage.trim()
+                      ? 'Type an expense note or query to send'
+                      : 'Send message to assistant'
+                  }
+                  aria-label={
+                    isSimulating
+                      ? 'Processing'
+                      : !inputMessage.trim()
+                      ? 'Type an expense to enable send'
+                      : 'Send message'
+                  }
                 >
                   <svg className="w-5 h-5 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />

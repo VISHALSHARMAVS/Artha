@@ -168,6 +168,8 @@ export interface AuthResponse {
 export interface WhatsAppStatus {
   phone_number: string | null;
   whatsapp_linked: boolean;
+  has_api_credentials?: boolean;
+  integration_status?: 'READY' | 'NUMBER_NOT_LINKED' | 'CREDENTIALS_MISSING';
   webhook_url: string;
   verify_token: string;
   sandbox_instructions: {

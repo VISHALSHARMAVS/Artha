@@ -128,147 +128,175 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
         </Button>
       </div>
 
-      {/* Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-card">
-          <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
-            Total Liquid Capital in Banks
-          </span>
-          <div className="text-2xl font-bold text-slate-900 dark:text-white tnum mt-1">
-            {formatPaise(liquidTotal, { includeDecimals: false })}
+      {accounts.length === 0 ? (
+        <div className="p-8 sm:p-12 text-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-4">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+            <Landmark className="w-7 h-7" />
           </div>
-          <span className="text-xs text-slate-400">Excludes uncleared credit card dues</span>
-        </div>
-
-        <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-card">
-          <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
-            Uncleared Credit Card Liability
-          </span>
-          <div className="text-2xl font-bold text-red-600 dark:text-red-400 tnum mt-1">
-            {formatPaise(creditCardDebt, { includeDecimals: false })}
-          </div>
-          <span className="text-xs text-slate-400">Total revolving balance to be cleared</span>
-        </div>
-      </div>
-
-      {/* MONIKA HALAN 3-BUCKET WEALTH ARCHITECTURE */}
-      <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-subtle space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              <span>Monika Halan 3-Bucket Wealth Architecture</span>
-            </h3>
-            <p className="text-[11px] text-slate-500">
-              Compartmentalizes your banking so daily discretionary spending never compromises your rent, EMIs, or safety fund.
+          <div className="max-w-md mx-auto space-y-1.5">
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">
+              Connect Your First Financial Account
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              Artha organizes your accounts across Monika Halan's 3-bucket wealth architecture (Inflow & Bills, Daily Living, and Peace of Mind). Connect your savings bank account, credit card, or cash wallet to begin tracking liquid capital and safe-to-spend reserves.
             </p>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-          {/* Bucket 1 */}
-          <div className="p-3 rounded-lg bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60">
-            <div className="text-[10px] uppercase font-bold text-blue-800 dark:text-blue-300 tracking-wider">
-              Bucket 1: Inflow & Bills
-            </div>
-            <div className="text-lg font-bold text-slate-900 dark:text-white tnum mt-0.5">
-              {formatPaise(inflowBillsTotal, { includeDecimals: false })}
-            </div>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-              Salary account & auto-debits for rent & EMIs
-            </p>
-          </div>
-
-          {/* Bucket 2 */}
-          <div className="p-3 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60">
-            <div className="text-[10px] uppercase font-bold text-emerald-800 dark:text-emerald-300 tracking-wider">
-              Bucket 2: Daily Living
-            </div>
-            <div className="text-lg font-bold text-slate-900 dark:text-white tnum mt-0.5">
-              {formatPaise(dailySpendTotal, { includeDecimals: false })}
-            </div>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-              UPI, debit card & credit lines for food & cabs
-            </p>
-          </div>
-
-          {/* Bucket 3 */}
-          <div className="p-3 rounded-lg bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/60">
-            <div className="text-[10px] uppercase font-bold text-indigo-800 dark:text-indigo-300 tracking-wider">
-              Bucket 3: Peace of Mind
-            </div>
-            <div className="text-lg font-bold text-slate-900 dark:text-white tnum mt-0.5">
-              {formatPaise(peaceOfMindTotal, { includeDecimals: false })}
-            </div>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-              Untouchable emergency buffer & savings vault
-            </p>
+          <div className="pt-2">
+            <Button
+              variant="primary"
+              size="md"
+              icon={<Plus className="w-4 h-4" />}
+              onClick={() => setIsModalOpen(true)}
+            >
+              Add Financial Account
+            </Button>
           </div>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Summary KPI Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-card">
+              <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
+                Total Liquid Capital in Banks
+              </span>
+              <div className="text-2xl font-bold text-slate-900 dark:text-white tnum mt-1">
+                {formatPaise(liquidTotal, { includeDecimals: false })}
+              </div>
+              <span className="text-xs text-slate-400">Excludes uncleared credit card dues</span>
+            </div>
 
-      {/* Accounts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {accounts.map((acc) => {
-          const bucket = getAccountBucket(acc);
-          return (
-            <Card key={acc.id} padding="md" className="space-y-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
-                    {getAccountIcon(acc.account_type)}
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                      {acc.name}
-                    </h3>
-                    <div className="text-xs text-slate-500">
-                      {acc.institution_name || acc.account_type} {acc.account_number_mask && `• ${acc.account_number_mask}`}
+            <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-card">
+              <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
+                Uncleared Credit Card Liability
+              </span>
+              <div className="text-2xl font-bold text-red-600 dark:text-red-400 tnum mt-1">
+                {formatPaise(creditCardDebt, { includeDecimals: false })}
+              </div>
+              <span className="text-xs text-slate-400">Total revolving balance to be cleared</span>
+            </div>
+          </div>
+
+          {/* MONIKA HALAN 3-BUCKET WEALTH ARCHITECTURE */}
+          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-subtle space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <span>Monika Halan 3-Bucket Wealth Architecture</span>
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  Compartmentalizes your banking so daily discretionary spending never compromises your rent, EMIs, or safety fund.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              {/* Bucket 1 */}
+              <div className="p-3 rounded-lg bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/60">
+                <div className="text-[10px] uppercase font-bold text-blue-800 dark:text-blue-300 tracking-wider">
+                  Bucket 1: Inflow & Bills
+                </div>
+                <div className="text-lg font-bold text-slate-900 dark:text-white tnum mt-0.5">
+                  {formatPaise(inflowBillsTotal, { includeDecimals: false })}
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  Salary account & auto-debits for rent & EMIs
+                </p>
+              </div>
+
+              {/* Bucket 2 */}
+              <div className="p-3 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60">
+                <div className="text-[10px] uppercase font-bold text-emerald-800 dark:text-emerald-300 tracking-wider">
+                  Bucket 2: Daily Living
+                </div>
+                <div className="text-lg font-bold text-slate-900 dark:text-white tnum mt-0.5">
+                  {formatPaise(dailySpendTotal, { includeDecimals: false })}
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  UPI, debit card & credit lines for food & cabs
+                </p>
+              </div>
+
+              {/* Bucket 3 */}
+              <div className="p-3 rounded-lg bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/60">
+                <div className="text-[10px] uppercase font-bold text-indigo-800 dark:text-indigo-300 tracking-wider">
+                  Bucket 3: Peace of Mind
+                </div>
+                <div className="text-lg font-bold text-slate-900 dark:text-white tnum mt-0.5">
+                  {formatPaise(peaceOfMindTotal, { includeDecimals: false })}
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  Untouchable emergency buffer & savings vault
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Accounts Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {accounts.map((acc) => {
+              const bucket = getAccountBucket(acc);
+              return (
+                <Card key={acc.id} padding="md" className="space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                        {getAccountIcon(acc.account_type)}
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                          {acc.name}
+                        </h3>
+                        <div className="text-xs text-slate-500">
+                          {acc.institution_name || acc.account_type} {acc.account_number_mask && `• ${acc.account_number_mask}`}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${bucket.color}`}>
+                        {bucket.label.split(':')[0]}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(acc)}
+                        disabled={deletingId === acc.id}
+                        className="p-1 rounded text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors disabled:opacity-40"
+                        title={`Remove ${acc.name}`}
+                        aria-label={`Remove ${acc.name}`}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${bucket.color}`}>
-                    {bucket.label.split(':')[0]}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(acc)}
-                    disabled={deletingId === acc.id}
-                    className="p-1 rounded text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors disabled:opacity-40"
-                    title={`Remove ${acc.name}`}
-                    aria-label={`Remove ${acc.name}`}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+                      {acc.account_type === 'CREDIT_CARD' ? 'Current Balance / Due' : 'Available Balance'}
+                    </span>
+                    <div
+                      className={`text-xl font-bold tnum mt-0.5 ${
+                        acc.balance_paise < 0
+                          ? 'text-red-600 dark:text-red-400'
+                          : 'text-slate-900 dark:text-white'
+                      }`}
+                    >
+                      {formatPaise(acc.balance_paise)}
+                    </div>
 
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
-                  {acc.account_type === 'CREDIT_CARD' ? 'Current Balance / Due' : 'Available Balance'}
-                </span>
-                <div
-                  className={`text-xl font-bold tnum mt-0.5 ${
-                    acc.balance_paise < 0
-                      ? 'text-red-600 dark:text-red-400'
-                      : 'text-slate-900 dark:text-white'
-                  }`}
-                >
-                  {formatPaise(acc.balance_paise)}
-                </div>
-
-                {acc.account_type === 'CREDIT_CARD' && acc.credit_limit_paise > 0 && (
-                  <div className="mt-2 text-[11px] text-slate-500">
-                    Credit Limit: <strong className="tnum">{formatPaise(acc.credit_limit_paise, { includeDecimals: false })}</strong>
+                    {acc.account_type === 'CREDIT_CARD' && acc.credit_limit_paise > 0 && (
+                      <div className="mt-2 text-[11px] text-slate-500">
+                        Credit Limit: <strong className="tnum">{formatPaise(acc.credit_limit_paise, { includeDecimals: false })}</strong>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </Card>
-          );
-        })}
-      </div>
+                </Card>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {/* Add Account Modal */}
       <Modal

@@ -20,11 +20,14 @@ import {
   Clock,
   Coins,
   TrendingUp,
+  RefreshCw,
 } from 'lucide-react';
 
 interface DashboardViewProps {
   overview: DashboardOverview | null;
   loading: boolean;
+  error?: string | null;
+  onRetry?: () => void;
   onQuickAdd: () => void;
   onAddTransaction: () => void;
   onNavigateTab: (tab: any) => void;
@@ -34,17 +37,95 @@ interface DashboardViewProps {
 export const DashboardView: React.FC<DashboardViewProps> = ({
   overview,
   loading,
+  error,
+  onRetry,
   onQuickAdd,
   onAddTransaction,
   onNavigateTab,
   onStartOnboarding,
 }) => {
-  if (loading || !overview) {
+  if (loading && !overview) {
     return (
-      <div className="flex items-center justify-center min-h-[500px]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs text-slate-500 font-medium">Loading financial telemetry...</span>
+      <div className="space-y-6 max-w-6xl mx-auto pb-12 animate-pulse">
+        {/* Header Skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <div className="h-7 w-48 bg-slate-200 dark:bg-slate-800 rounded-md" />
+            <div className="h-4 w-72 bg-slate-100 dark:bg-slate-800/60 rounded-md" />
+          </div>
+          <div className="flex gap-2">
+            <div className="h-8 w-28 bg-slate-200 dark:bg-slate-800 rounded-md" />
+            <div className="h-8 w-28 bg-slate-200 dark:bg-slate-800 rounded-md" />
+          </div>
+        </div>
+
+        {/* Status / Loading notice */}
+        <div className="flex items-center gap-2 px-3 py-2 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 rounded-lg text-xs text-blue-700 dark:text-blue-300">
+          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+          <span>Synchronizing real-time financial telemetry...</span>
+        </div>
+
+        {/* 4 Cards Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-3">
+              <div className="flex justify-between items-center">
+                <div className="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="w-4 h-4 bg-slate-200 dark:bg-slate-800 rounded" />
+              </div>
+              <div className="h-7 w-36 bg-slate-300 dark:bg-slate-700 rounded" />
+              <div className="h-3 w-40 bg-slate-100 dark:bg-slate-800/60 rounded" />
+            </div>
+          ))}
+        </div>
+
+        {/* Banner Skeleton */}
+        <div className="h-32 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" />
+
+        {/* Split Grid Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 h-72 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" />
+          <div className="h-72 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !overview) {
+    return (
+      <div className="max-w-2xl mx-auto my-12 p-8 rounded-2xl border border-red-200 dark:border-red-900/50 bg-white dark:bg-slate-900 shadow-sm text-center space-y-4">
+        <div className="w-12 h-12 mx-auto rounded-full bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 flex items-center justify-center">
+          <AlertCircle className="w-6 h-6" />
+        </div>
+        <div className="space-y-1">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+            Telemetry Connection Error
+          </h2>
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            {error || 'Unable to retrieve live financial telemetry from your accounts.'}
+          </p>
+        </div>
+        <div className="flex items-center justify-center gap-3 pt-2">
+          {onRetry && (
+            <Button
+              variant="primary"
+              size="sm"
+              icon={<RefreshCw className="w-4 h-4" />}
+              onClick={onRetry}
+            >
+              Retry Telemetry Sync
+            </Button>
+          )}
+          {onStartOnboarding && (
+            <Button
+              variant="outline"
+              size="sm"
+              icon={<Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />}
+              onClick={onStartOnboarding}
+            >
+              Start Financial Setup
+            </Button>
+          )}
         </div>
       </div>
     );

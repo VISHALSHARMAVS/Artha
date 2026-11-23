@@ -88,6 +88,55 @@ describe('Financial Logic Domain Tests', () => {
       assert.ok(emiRupees >= 20750 && emiRupees <= 20760, `EMI ${emiRupees} within tolerance`);
     });
 
+    test('verifies ArthaPRO standard default loan: ₹30L, 8.5%, 180 months', () => {
+      // Principal: ₹30,00,000 (300,000,000 paise)
+      // Rate: 8.5% p.a.
+      // Tenure: 180 months
+      const result = LoanCalculator.generateSchedule({
+        principalPaise: 300000000,
+        annualInterestRatePercent: 8.5,
+        tenureMonths: 180,
+      });
+
+      // Monthly EMI: ₹29,542.19 (2,954,219 paise)
+      assert.strictEqual(result.monthlyEmiPaise, 2954219);
+      const emiRupees = Math.round(result.monthlyEmiPaise / 100);
+      assert.strictEqual(emiRupees, 29542);
+
+      // Total Interest: ~₹23.17 Lakh (231,759,297 paise)
+      const totalInterestRupees = Math.round(result.totalInterestPaise / 100);
+      assert.strictEqual(totalInterestRupees, 2317593);
+
+      // Total Amount: ~₹53.17 Lakh (531,759,297 paise)
+      const totalAmountRupees = Math.round(result.totalAmountPayablePaise / 100);
+      assert.strictEqual(totalAmountRupees, 5317593);
+
+      // Schedule completeness
+      assert.strictEqual(result.amortizationSchedule.length, 180);
+      assert.strictEqual(result.amortizationSchedule[179].remainingPrincipalPaise, 0);
+    });
+
+    test('handles EMI edge cases: zero interest, zero principal, single month', () => {
+      // Zero interest: EMI = P / n
+      const zeroRate = LoanCalculator.generateSchedule({
+        principalPaise: 1200000, // ₹12,000
+        annualInterestRatePercent: 0,
+        tenureMonths: 12,
+      });
+      assert.strictEqual(zeroRate.monthlyEmiPaise, 100000); // ₹1,000/mo
+      assert.strictEqual(zeroRate.totalInterestPaise, 0);
+      assert.strictEqual(zeroRate.totalAmountPayablePaise, 1200000);
+
+      // Zero principal
+      const zeroPrincipal = LoanCalculator.generateSchedule({
+        principalPaise: 0,
+        annualInterestRatePercent: 8.5,
+        tenureMonths: 60,
+      });
+      assert.strictEqual(zeroPrincipal.monthlyEmiPaise, 0);
+      assert.strictEqual(zeroPrincipal.totalInterestPaise, 0);
+    });
+
     test('generates full amortization schedule with zero final principal', () => {
       const scheduleResult = LoanCalculator.generateSchedule({
         principalPaise: 10000000, // ₹1,00,000

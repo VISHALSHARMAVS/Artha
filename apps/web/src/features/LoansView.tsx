@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { api, Loan, Account, formatPaise, AmortizationRow } from '../lib/api.js';
+import { LoanCalculator } from '@artha/domain';
 import { Card } from '../components/ui/Card.js';
 import { Button } from '../components/ui/Button.js';
 import { Modal } from '../components/ui/Modal.js';
@@ -57,12 +58,18 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
   const [calcPrincipalPaise, setCalcPrincipalPaise] = useState<number>(300000000); // ₹30,00,000
   const [calcRate, setCalcRate] = useState<number>(8.5);
   const [calcTenureMonths, setCalcTenureMonths] = useState<number>(180); // 15 years
-  const [calcResult, setCalcResult] = useState<{
-    monthlyEmiPaise: number;
-    totalInterestPaise: number;
-    totalAmountPayablePaise: number;
-    amortizationSchedule: AmortizationRow[];
-  } | null>(null);
+
+  // Synchronous client-side calculation using LoanCalculator (pure reducing-balance algorithm)
+  const calcResult = useMemo(() => {
+    const P = Math.max(0, calcPrincipalPaise || 0);
+    const r = Math.max(0, calcRate || 0);
+    const n = Math.max(1, calcTenureMonths || 1);
+    return LoanCalculator.generateSchedule({
+      principalPaise: P,
+      annualInterestRatePercent: r,
+      tenureMonths: n,
+    });
+  }, [calcPrincipalPaise, calcRate, calcTenureMonths]);
 
   // Create Loan Modal fields
   const [loanName, setLoanName] = useState<string>('');
@@ -115,24 +122,6 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
       setAccountId(accounts[0].id);
     }
   }, [accounts]);
-
-  // Update live preview
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      try {
-        const preview = await api.previewLoan({
-          principal_paise: calcPrincipalPaise,
-          annual_interest_rate: calcRate,
-          tenure_months: calcTenureMonths,
-        });
-        setCalcResult(preview);
-      } catch (err) {
-        console.error('Preview error:', err);
-      }
-    }, 200);
-
-    return () => clearTimeout(timer);
-  }, [calcPrincipalPaise, calcRate, calcTenureMonths]);
 
   const handleCreateLoan = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -282,8 +271,26 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
               Loading loan profiles...
             </div>
           ) : loans.length === 0 ? (
-            <div className="col-span-2 py-8 text-center text-xs text-slate-400">
-              No active loans registered.
+            <div className="col-span-2 p-8 text-center rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 space-y-3">
+              <div className="w-10 h-10 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center">
+                <Landmark className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                  No Active Loans Registered
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                  Register your existing home loans, vehicle loans, or EMIs to track debt-free dates, amortization, and interest-saving prepayment options. You can still test any scenario in the simulator below.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                icon={<Plus className="w-3.5 h-3.5" />}
+                onClick={() => setIsModalOpen(true)}
+              >
+                Register Existing Loan
+              </Button>
             </div>
           ) : (
             loans.map((loan) => (
@@ -397,30 +404,70 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
         </div>
 
         {/* Calculated Simulation Telemetry */}
-        {calcResult && (
-          <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <span className="text-xs text-slate-500 font-medium">Calculated Monthly EMI</span>
+        <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-700/60 pb-3">
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              Amortization Telemetry (Reducing-Balance)
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              icon={<TableIcon className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
+              onClick={() => {
+                setSelectedSchedule({
+                  loanName: `Simulated ₹${(calcPrincipalPaise / 10000000).toFixed(2)}L @ ${calcRate}% (${calcTenureMonths}m)`,
+                  rows: calcResult.amortizationSchedule,
+                });
+              }}
+            >
+              View Full Amortization Table
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800">
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Calculated Monthly EMI</span>
               <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 tnum mt-0.5">
                 {formatPaise(calcResult.monthlyEmiPaise)}
               </div>
             </div>
 
-            <div>
-              <span className="text-xs text-slate-500 font-medium">Total Interest Payable</span>
+            <div className="p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800">
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Interest Payable</span>
               <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 tnum mt-0.5">
                 {formatPaise(calcResult.totalInterestPaise, { includeDecimals: false })}
               </div>
             </div>
 
-            <div>
-              <span className="text-xs text-slate-500 font-medium">Total Amount (Principal + Interest)</span>
+            <div className="p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800">
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Repayment (Principal + Interest)</span>
               <div className="text-2xl font-bold text-slate-900 dark:text-white tnum mt-0.5">
                 {formatPaise(calcResult.totalAmountPayablePaise, { includeDecimals: false })}
               </div>
             </div>
           </div>
-        )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 text-xs text-slate-600 dark:text-slate-400 border-t border-slate-200/60 dark:border-slate-700/60">
+            <div>
+              <span className="text-slate-400 text-[11px] block">Principal Amount</span>
+              <span className="font-semibold text-slate-800 dark:text-slate-200 tnum">
+                {formatPaise(calcPrincipalPaise, { includeDecimals: false })}
+              </span>
+            </div>
+            <div>
+              <span className="text-slate-400 text-[11px] block">Annual Interest Rate</span>
+              <span className="font-semibold text-slate-800 dark:text-slate-200 tnum">
+                {calcRate}% p.a. ({((calcRate / 12)).toFixed(3)}% monthly)
+              </span>
+            </div>
+            <div>
+              <span className="text-slate-400 text-[11px] block">Loan Tenure</span>
+              <span className="font-semibold text-slate-800 dark:text-slate-200 tnum">
+                {calcTenureMonths} instalments ({(calcTenureMonths / 12).toFixed(1)} years)
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Amortization Schedule Modal */}

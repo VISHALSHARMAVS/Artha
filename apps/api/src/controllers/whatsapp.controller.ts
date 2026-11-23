@@ -145,13 +145,38 @@ export class WhatsAppController {
     const protocol = req.protocol;
     const host = req.get('host') || 'localhost:3000';
     const webhookUrl = `${protocol}://${host}/api/v1/webhooks/whatsapp`;
-    const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN || 'artha_webhook_token';
+    const verifyToken =
+      process.env.WHATSAPP_VERIFY_TOKEN ||
+      process.env.META_VERIFY_TOKEN ||
+      process.env.META_WA_VERIFY_TOKEN ||
+      'artha_webhook_token';
+
+    const hasToken = Boolean(
+      process.env.META_API_TOKEN ||
+      process.env.META_WA_ACCESS_TOKEN ||
+      process.env.META_ACCESS_TOKEN ||
+      process.env.META_TOKEN ||
+      process.env.WHATSAPP_CLOUD_API_TOKEN ||
+      process.env.WHATSAPP_ACCESS_TOKEN ||
+      process.env.WHATSAPP_API_TOKEN
+    );
+
+    let integrationStatus: 'READY' | 'NUMBER_NOT_LINKED' | 'CREDENTIALS_MISSING' = 'NUMBER_NOT_LINKED';
+    if (!user.whatsapp_linked) {
+      integrationStatus = 'NUMBER_NOT_LINKED';
+    } else if (!hasToken) {
+      integrationStatus = 'CREDENTIALS_MISSING';
+    } else {
+      integrationStatus = 'READY';
+    }
 
     res.status(200).json({
       success: true,
       data: {
         phone_number: user.phone_number || null,
         whatsapp_linked: Boolean(user.whatsapp_linked),
+        has_api_credentials: hasToken,
+        integration_status: integrationStatus,
         webhook_url: webhookUrl,
         verify_token: verifyToken,
         sandbox_instructions: {

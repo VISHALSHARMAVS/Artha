@@ -3,7 +3,7 @@ import { api, Transaction, Account, Category, formatPaise } from '../lib/api.js'
 import { CategoryIcon } from '../components/CategoryIcon.js';
 import { Badge } from '../components/ui/Badge.js';
 import { Button } from '../components/ui/Button.js';
-import { Search, Plus, Trash2, Filter } from 'lucide-react';
+import { Search, Plus, Trash2, Filter, AlertCircle, RefreshCw, Receipt } from 'lucide-react';
 
 interface TransactionsViewProps {
   onAddTransaction: () => void;
@@ -19,6 +19,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Filters
   const [typeFilter, setTypeFilter] = useState<string>('');
@@ -28,8 +29,19 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
   const [page, setPage] = useState<number>(1);
   const limit = 15;
 
+  const hasActiveFilters = Boolean(typeFilter || accountFilter || categoryFilter || searchTerm);
+
+  const handleClearFilters = () => {
+    setTypeFilter('');
+    setAccountFilter('');
+    setCategoryFilter('');
+    setSearchTerm('');
+    setPage(1);
+  };
+
   const loadTransactions = async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await api.getTransactions({
         page,
@@ -40,8 +52,9 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
         search: searchTerm || undefined,
       });
       setTransactions(data);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load transactions:', err);
+      setError(err?.message || 'Unable to retrieve transactions ledger.');
     } finally {
       setLoading(false);
     }
@@ -173,13 +186,54 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
               {loading ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-slate-400">
-                    Loading ledger records...
+                    <div className="flex flex-col items-center gap-2">
+                      <RefreshCw className="w-5 h-5 animate-spin text-blue-600" />
+                      <span>Loading ledger records...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={6} className="py-10 text-center">
+                    <div className="flex flex-col items-center gap-2 max-w-sm mx-auto">
+                      <AlertCircle className="w-6 h-6 text-red-500" />
+                      <span className="text-xs text-red-600 dark:text-red-400">{error}</span>
+                      <Button variant="outline" size="sm" onClick={loadTransactions} className="mt-1">
+                        Retry Loading
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ) : transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-400">
-                    No transactions match the selected criteria.
+                  <td colSpan={6} className="py-12 text-center">
+                    {hasActiveFilters ? (
+                      <div className="flex flex-col items-center gap-2 max-w-sm mx-auto">
+                        <Filter className="w-6 h-6 text-slate-400" />
+                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                          No Matching Transactions
+                        </span>
+                        <p className="text-xs text-slate-500">
+                          No transactions found for the applied search or filter criteria.
+                        </p>
+                        <Button variant="outline" size="sm" onClick={handleClearFilters} className="mt-1">
+                          Clear All Filters
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 max-w-sm mx-auto">
+                        <Receipt className="w-6 h-6 text-slate-400" />
+                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                          No Transactions Recorded Yet
+                        </span>
+                        <p className="text-xs text-slate-500">
+                          Begin recording your income, expenses, or transfers to populate your ledger.
+                        </p>
+                        <Button variant="primary" size="sm" onClick={onAddTransaction} icon={<Plus className="w-3.5 h-3.5" />} className="mt-1">
+                          Record First Transaction
+                        </Button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ) : (

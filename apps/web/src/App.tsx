@@ -26,6 +26,7 @@ export const App: React.FC = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [overviewError, setOverviewError] = useState<string | null>(null);
 
   // Modals
   const [isQuickAddOpen, setIsQuickAddOpen] = useState<boolean>(false);
@@ -73,17 +74,32 @@ export const App: React.FC = () => {
   };
 
   const refreshAllData = async () => {
+    setLoading(true);
+    setOverviewError(null);
     try {
-      const [ovData, accData, catData] = await Promise.all([
+      // 12-second timeout to prevent permanent loading hang if server connection drops
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Connection timed out while loading financial telemetry. Please check your network or server status.')), 12000)
+      );
+
+      const fetchDataPromise = Promise.all([
         api.getDashboardOverview(),
         api.getAccounts(),
         api.getCategories(),
       ]);
+
+      const [ovData, accData, catData] = (await Promise.race([
+        fetchDataPromise,
+        timeoutPromise,
+      ])) as [DashboardOverview, Account[], Category[]];
+
       setOverview(ovData);
       setAccounts(accData);
       setCategories(catData);
-    } catch (err) {
+      setOverviewError(null);
+    } catch (err: any) {
       console.error('Data refresh error:', err);
+      setOverviewError(err?.message || 'Unable to retrieve financial telemetry. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -137,6 +153,8 @@ export const App: React.FC = () => {
           <DashboardView
             overview={overview}
             loading={loading}
+            error={overviewError}
+            onRetry={refreshAllData}
             onQuickAdd={() => setIsQuickAddOpen(true)}
             onAddTransaction={() => setIsAddTxOpen(true)}
             onNavigateTab={setCurrentTab}
@@ -202,6 +220,10 @@ export const App: React.FC = () => {
         onClose={() => setIsQuickAddOpen(false)}
         onSuccess={refreshAllData}
         accounts={accounts}
+        onCreateAccount={() => {
+          setIsQuickAddOpen(false);
+          setCurrentTab('accounts');
+        }}
       />
 
       {/* Comprehensive Add Transaction Modal */}
@@ -211,6 +233,10 @@ export const App: React.FC = () => {
         onSuccess={refreshAllData}
         accounts={accounts}
         categories={categories}
+        onCreateAccount={() => {
+          setIsAddTxOpen(false);
+          setCurrentTab('accounts');
+        }}
       />
 
       {/* Onboarding Wizard Modal (Journey A) */}
