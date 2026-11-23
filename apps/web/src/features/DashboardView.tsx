@@ -15,6 +15,11 @@ import {
   AlertCircle,
   ExternalLink,
   Sparkles,
+  Compass,
+  Hourglass,
+  Clock,
+  Coins,
+  TrendingUp,
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -197,11 +202,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <div className="flex items-baseline gap-6 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-current/20">
             <div>
-              <div className="text-[10px] uppercase font-medium opacity-75 tracking-wider">
-                Total Safe Capital
+              <div className="text-[10px] uppercase font-medium opacity-75 tracking-wider flex items-center gap-1">
+                <span>Guilt-Free Capital</span>
+                <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-semibold">100% Free</span>
               </div>
               <div className="text-2xl font-bold tnum">
-                {formatPaise(safe.safeAmountPaise, { includeDecimals: false })}
+                {formatPaise(safe.guiltFreePaise ?? safe.safeAmountPaise, { includeDecimals: false })}
               </div>
             </div>
 
@@ -227,9 +233,76 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <span>
             — Emergency Reserve: <strong className="tnum">{formatPaise(safe.emergencyReserveBufferPaise, { includeDecimals: false })}</strong>
           </span>
+          {safe.hourlyWagePaise && safe.hourlyWagePaise > 0 ? (
+            <span className="text-blue-700 dark:text-blue-300 font-medium">
+              ⚡ Life Energy: <strong>{formatPaise(safe.hourlyWagePaise, { includeDecimals: false })}/hr</strong> wage
+            </span>
+          ) : null}
           <span className="ml-auto font-medium">
             Next Payday in {safe.daysUntilSalary} days
           </span>
+        </div>
+      </div>
+
+      {/* FINANCIAL FREEDOM SUITE (Morgan Housel, Ramit Sethi, George Clason) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Freedom Runway Gauge */}
+        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-subtle flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <Compass className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>Freedom Runway</span>
+            </div>
+            <div className="text-2xl font-bold text-slate-900 dark:text-white tnum flex items-baseline gap-1">
+              <span>{safe.freedomRunwayMonths || 0}</span>
+              <span className="text-sm font-medium text-slate-500">Months</span>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              ≈ {safe.freedomRunwayDays || 0} days living without earning
+            </p>
+          </div>
+          <div className="p-3 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+            <Hourglass className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* Pay Yourself First Allocation */}
+        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-subtle flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <Coins className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>Pay Yourself First</span>
+            </div>
+            <div className="text-2xl font-bold text-slate-900 dark:text-white tnum flex items-baseline gap-1">
+              <span>{answers.savings_rate_percent}%</span>
+              <span className="text-sm font-medium text-slate-500">Retained</span>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Net saved: {formatPaise(answers.net_savings_mtd_paise, { includeDecimals: false })} MTD
+            </p>
+          </div>
+          <div className="p-3 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
+            <TrendingUp className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* Total Institutional Net Worth */}
+        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-subtle flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              <span>Total Net Worth</span>
+            </div>
+            <div className="text-2xl font-bold text-slate-900 dark:text-white tnum">
+              {formatPaise(net_worth.net_worth_paise, { includeDecimals: false })}
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Assets: {formatPaise(net_worth.total_assets_paise, { includeDecimals: false })} · Debts: {formatPaise(net_worth.total_liabilities_paise, { includeDecimals: false })}
+            </p>
+          </div>
+          <div className="p-3 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+            <Wallet className="w-5 h-5" />
+          </div>
         </div>
       </div>
 

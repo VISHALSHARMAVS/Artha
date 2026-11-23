@@ -81,4 +81,90 @@ export class LoanCalculator {
       amortizationSchedule: schedule,
     };
   }
+
+  /**
+   * Computes the exact calendar Debt Freedom Date (Dave Ramsey - The Total Money Makeover).
+   */
+  static calculateDebtFreedomDate(startDate: string | Date, remainingTenureMonths: number): {
+    debtFreeDate: string; // 'YYYY-MM-DD'
+    monthsRemaining: number;
+    yearsRemaining: number;
+    formatted: string;
+  } {
+    const start = new Date(startDate);
+    const freedomDate = new Date(start.getFullYear(), start.getMonth() + remainingTenureMonths, start.getDate());
+    const debtFreeDate = freedomDate.toISOString().slice(0, 10);
+    const yearsRemaining = Number((remainingTenureMonths / 12).toFixed(1));
+
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short' };
+    const formatted = freedomDate.toLocaleDateString('en-IN', options);
+
+    return {
+      debtFreeDate,
+      monthsRemaining: remainingTenureMonths,
+      yearsRemaining,
+      formatted,
+    };
+  }
+
+  /**
+   * Simulates Dave Ramsey's Extra Prepayment Accelerator.
+   * Demonstrates how adding extra monthly prepayment directly shortens tenure and saves interest.
+   */
+  static simulatePrepayment(
+    input: LoanCalculationInput,
+    extraMonthlyPrepaymentPaise: number
+  ): {
+    originalTenureMonths: number;
+    acceleratedTenureMonths: number;
+    monthsSaved: number;
+    originalTotalInterestPaise: number;
+    acceleratedTotalInterestPaise: number;
+    interestSavedPaise: number;
+    newEmiPaise: number;
+  } {
+    const original = this.generateSchedule(input);
+    if (extraMonthlyPrepaymentPaise <= 0) {
+      return {
+        originalTenureMonths: input.tenureMonths,
+        acceleratedTenureMonths: input.tenureMonths,
+        monthsSaved: 0,
+        originalTotalInterestPaise: original.totalInterestPaise,
+        acceleratedTotalInterestPaise: original.totalInterestPaise,
+        interestSavedPaise: 0,
+        newEmiPaise: original.monthlyEmiPaise,
+      };
+    }
+
+    const monthlyRate = input.annualInterestRatePercent / (12 * 100);
+    let currentBalance = input.principalPaise;
+    let acceleratedMonths = 0;
+    let acceleratedInterest = 0;
+    const totalMonthlyPayment = original.monthlyEmiPaise + extraMonthlyPrepaymentPaise;
+
+    while (currentBalance > 0 && acceleratedMonths < input.tenureMonths * 2) {
+      acceleratedMonths++;
+      const interest = Math.round(currentBalance * monthlyRate);
+      let principal = totalMonthlyPayment - interest;
+      if (principal > currentBalance) {
+        principal = currentBalance;
+      }
+      currentBalance = Math.max(0, currentBalance - principal);
+      acceleratedInterest += interest;
+      if (currentBalance === 0) break;
+    }
+
+    const monthsSaved = Math.max(0, input.tenureMonths - acceleratedMonths);
+    const interestSavedPaise = Math.max(0, original.totalInterestPaise - acceleratedInterest);
+
+    return {
+      originalTenureMonths: input.tenureMonths,
+      acceleratedTenureMonths: acceleratedMonths,
+      monthsSaved,
+      originalTotalInterestPaise: original.totalInterestPaise,
+      acceleratedTotalInterestPaise: acceleratedInterest,
+      interestSavedPaise,
+      newEmiPaise: totalMonthlyPayment,
+    };
+  }
 }

@@ -53,6 +53,8 @@ router.post('/budgets', validateBody(CreateBudgetSchema), BudgetController.creat
 
 // Loans & Debt
 router.get('/loans', LoanController.list);
+router.get('/loans/freedom-summary', LoanController.freedomSummary);
+router.post('/loans/simulate-prepayment', LoanController.simulatePrepayment);
 router.get('/loans/:id/schedule', LoanController.getSchedule);
 router.post('/loans/preview', LoanController.preview);
 router.post('/loans', validateBody(CreateLoanSchema), LoanController.create);

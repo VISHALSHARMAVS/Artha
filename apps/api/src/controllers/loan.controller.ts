@@ -42,4 +42,27 @@ export class LoanController {
       next(error);
     }
   }
+
+  static freedomSummary(req: Request, res: Response, next: NextFunction): void {
+    try {
+      const summary = LoanService.getDebtFreedomSummary(req.userId);
+      res.json({ success: true, data: summary });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static simulatePrepayment(req: Request, res: Response, next: NextFunction): void {
+    try {
+      const { loan_id, extra_monthly_paise } = req.body;
+      const result = LoanService.simulatePrepayment(
+        loan_id,
+        Number(extra_monthly_paise || 0),
+        req.userId
+      );
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

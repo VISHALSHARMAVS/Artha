@@ -1,13 +1,14 @@
-import { Money } from '@artha/domain';
+import { Money, SafeToSpendCalculator } from '@artha/domain';
 import { UserRepository, UserRecord } from '../repositories/user.repository.js';
 import { AccountRepository } from '../repositories/account.repository.js';
 import { TransactionService } from './transaction.service.js';
 import { CategoryService } from './category.service.js';
 import { DashboardService } from './dashboard.service.js';
+import { LoanService } from './loan.service.js';
 
 export interface WhatsAppParsedResult {
   success: boolean;
-  action: 'TRANSACTION_RECORDED' | 'BATCH_TRANSACTIONS_RECORDED' | 'BALANCE_CHECK' | 'HELP' | 'UNLINKED_USER' | 'PARSE_ERROR';
+  action: 'TRANSACTION_RECORDED' | 'BATCH_TRANSACTIONS_RECORDED' | 'BALANCE_CHECK' | 'FREEDOM_RUNWAY' | 'GUILT_FREE' | 'DEBT_FREEDOM' | 'HELP' | 'UNLINKED_USER' | 'PARSE_ERROR';
   replyMessage: string;
   transaction?: {
     id: string;
@@ -61,8 +62,20 @@ _Once linked, any message like "Spent 450 at Starbucks" will instantly log into 
       };
     }
 
-    // 2. Check for Informational Commands (Balance, Safe-to-Spend, Help)
+    // 2. Check for Informational & Financial Freedom Commands
     const lower = trimmed.toLowerCase();
+    if (this.isRunwayQuery(lower)) {
+      return this.handleRunwayQuery(user);
+    }
+
+    if (this.isGuiltFreeQuery(lower)) {
+      return this.handleGuiltFreeQuery(user);
+    }
+
+    if (this.isDebtQuery(lower)) {
+      return this.handleDebtQuery(user);
+    }
+
     if (this.isBalanceQuery(lower)) {
       return this.handleBalanceQuery(user);
     }
@@ -72,7 +85,7 @@ _Once linked, any message like "Spent 450 at Starbucks" will instantly log into 
         success: true,
         action: 'HELP',
         replyMessage:
-`🤖 *Artha WhatsApp Assistant Commands*
+`🤖 *Artha Financial Freedom WhatsApp Commands*
 
 Simply message how you spend naturally:
 • *"Spent 450 at Starbucks"*
@@ -81,6 +94,9 @@ Simply message how you spend naturally:
 • *"Received 75000 salary"*
 • *"Transferred 5000 to ICICI"*
 • *"Balance"* — Check safe-to-spend & liquid funds
+• *"Runway"* — Check months of living freedom (Morgan Housel)
+• *"Guilt Free"* — Check 100% guilt-free spending pool (Ramit Sethi)
+• *"Debt Free"* — Check Dave Ramsey loan countdown date
 • Paste any bank/UPI debit SMS!
 
 _Zero manual forms. Categorized automatically._`,
@@ -98,6 +114,21 @@ _Zero manual forms. Categorized automatically._`,
 
     // 4. Parse Single Financial Transaction
     return this.parseAndRecordTransaction(user, trimmed);
+  }
+
+  private static isRunwayQuery(text: string): boolean {
+    const patterns = ['runway', 'freedom', 'freedom runway', 'months', 'kab tak', 'kitne din'];
+    return patterns.some(p => text === p || text.startsWith(p));
+  }
+
+  private static isGuiltFreeQuery(text: string): boolean {
+    const patterns = ['guilt free', 'guilt-free', 'guilt', 'free money', 'spending money'];
+    return patterns.some(p => text === p || text.startsWith(p));
+  }
+
+  private static isDebtQuery(text: string): boolean {
+    const patterns = ['debt free', 'debt-free', 'debt', 'loans', 'loan', 'karz', 'emi'];
+    return patterns.some(p => text === p || text.startsWith(p));
   }
 
   private static isBalanceQuery(text: string): boolean {
@@ -121,6 +152,84 @@ _Zero manual forms. Categorized automatically._`,
     return text === 'help' || text === 'hi' || text === 'hello' || text === 'start' || text === '?';
   }
 
+  private static handleRunwayQuery(user: UserRecord): WhatsAppParsedResult {
+    const overview = DashboardService.getOverview(user.id);
+    const safe = overview.answers.safe_to_spend;
+    const liquid = Money.fromPaise(overview.answers.total_liquid_paise).format();
+    const months = safe.freedomRunwayMonths || 0;
+    const days = safe.freedomRunwayDays || 0;
+
+    const reply =
+`🏖️ *Artha Freedom Runway (Morgan Housel)*
+_For ${user.full_name}_
+
+💰 *Liquid Reserves:* ${liquid}
+⏳ *Survival Runway:* *${months} Months* (≈ ${days} days)
+
+_If you stop working today, your liquid reserves will support your lifestyle for over ${months} months without earning a single rupee._`;
+
+    return {
+      success: true,
+      action: 'FREEDOM_RUNWAY',
+      replyMessage: reply,
+    };
+  }
+
+  private static handleGuiltFreeQuery(user: UserRecord): WhatsAppParsedResult {
+    const overview = DashboardService.getOverview(user.id);
+    const safe = overview.answers.safe_to_spend;
+    const guiltFree = Money.fromPaise(safe.guiltFreePaise ?? safe.safeAmountPaise).format();
+    const safeDaily = Money.fromPaise(safe.dailySafePaise).format();
+
+    const reply =
+`🎁 *100% Guilt-Free Capital (Ramit Sethi)*
+_For ${user.full_name}_
+
+🎉 *Guilt-Free Pool:* *${guiltFree}*
+⚡ *Safe Daily Pace:* ${safeDaily} / day
+
+_Your rent, EMIs, and monthly savings allocation are already 100% locked and safe. You have permission to spend this on anything that brings you joy—zero guilt!_`;
+
+    return {
+      success: true,
+      action: 'GUILT_FREE',
+      replyMessage: reply,
+    };
+  }
+
+  private static handleDebtQuery(user: UserRecord): WhatsAppParsedResult {
+    const summary = LoanService.getDebtFreedomSummary(user.id);
+
+    let reply = '';
+    if (summary.isDebtFree) {
+      reply =
+`🎯 *Debt Freedom Status (Dave Ramsey)*
+_For ${user.full_name}_
+
+🎉 *You are 100% DEBT FREE!*
+Zero active loan facilities or revolving liabilities. Every rupee you earn stays in your wealth vault!`;
+    } else {
+      reply =
+`🎯 *Debt Freedom Countdown (Dave Ramsey)*
+_For ${user.full_name}_
+
+💳 *Active Facilities:* ${summary.activeLoansCount}
+📉 *Total Debt Outstanding:* ${Money.fromPaise(summary.totalOutstandingPaise).format()}
+💸 *Total Monthly EMI:* ${Money.fromPaise(summary.totalMonthlyEmiPaise).format()} / month
+
+🏁 *Official Debt-Free Day:* *${summary.formattedFreedomDate}*
+⏳ *Time Remaining:* ${summary.longestRemainingMonths} months (${summary.yearsRemaining || 0} years)
+
+_Tip: Prepaying just ₹2,500 extra toward your principal each month can shave months off this finish line!_`;
+    }
+
+    return {
+      success: true,
+      action: 'DEBT_FREEDOM',
+      replyMessage: reply,
+    };
+  }
+
   private static handleBalanceQuery(user: UserRecord): WhatsAppParsedResult {
     const overview = DashboardService.getOverview(user.id);
     const liquid = Money.fromPaise(overview.answers.total_liquid_paise).format();
@@ -129,6 +238,7 @@ _Zero manual forms. Categorized automatically._`,
     const safeDaily = Money.fromPaise(overview.answers.safe_to_spend.dailySafePaise).format();
     const safeTotal = Money.fromPaise(overview.answers.safe_to_spend.safeAmountPaise).format();
     const daysLeft = overview.answers.safe_to_spend.daysUntilSalary;
+    const runway = overview.answers.safe_to_spend.freedomRunwayMonths || 0;
 
     const reply = 
 `📊 *Artha Financial Health Snapshot*
@@ -139,7 +249,8 @@ _For ${user.full_name}_
 📉 *Spent This Month:* ${expense}
 
 🛡️ *Safe to Spend:* ${safeDaily} / day
-_(Total ${safeTotal} available for next ${daysLeft} days)_`;
+🏖️ *Freedom Runway:* ${runway} Months
+🎁 *Guilt-Free Money:* ${safeTotal} (for next ${daysLeft} days)`;
 
     return {
       success: true,
@@ -336,11 +447,20 @@ ${totalSummary}
 
     const categoryText = categorySuggestion ? `${categorySuggestion.name}` : 'Uncategorized';
 
+    const hourlyWage = overview.answers.safe_to_spend.hourlyWagePaise || 0;
+    let lifeEnergyLine = '';
+    if (hourlyWage > 0 && txType === 'EXPENSE') {
+      const energy = SafeToSpendCalculator.calculateLifeEnergy(extractedAmount.amountPaise, hourlyWage);
+      if (energy.formatted && energy.formatted !== '0m') {
+        lifeEnergyLine = `\n⚡ *Life Energy:* ≈ ${energy.formatted} of work`;
+      }
+    }
+
     const replyMessage =
 `✅ *${emoji} ${label}: ${formattedAmount}*
 📝 *Note:* ${description}
 🏷️ *Category:* ${categoryText}
-🏦 *Account:* ${selectedAccount.name}
+🏦 *Account:* ${selectedAccount.name}${lifeEnergyLine}
 
 💰 *Liquid Balance:* ${updatedLiquid}
 🛡️ *Safe to Spend:* ${safeDaily} / day`;

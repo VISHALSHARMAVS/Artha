@@ -65,13 +65,14 @@ export class DashboardService {
       };
     });
 
-    // 5. How much can I safely spend? (Domain algorithm)
+    // 5. How much can I safely spend? (Domain algorithm with Freedom Runway & Guilt-Free metrics)
     const safeToSpend = SafeToSpendCalculator.calculate({
       liquidBalancePaise: totalLiquidPaise,
       upcomingObligations,
       emergencyReserveBufferPaise: emergencyBufferPaise,
       nextSalaryDate: nextSalaryDateStr,
       currentDate: todayStr,
+      monthlySalaryPaise: salaryProfile?.net_monthly_salary_paise || 0,
     });
 
     // Recent transactions for immediate verification

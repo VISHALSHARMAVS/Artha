@@ -41,6 +41,35 @@ describe('Financial Logic Domain Tests', () => {
       assert.strictEqual(result.safeAmountPaise, 0);
       assert.strictEqual(result.status, 'DEFICIT');
     });
+
+    test('calculates guilt-free capital, freedom runway and life energy', () => {
+      const result = SafeToSpendCalculator.calculate({
+        liquidBalancePaise: 15000000, // ₹1,50,000 liquid
+        upcomingObligations: [
+          { id: '1', title: 'Rent', amountPaise: 3000000, dueDate: '2026-11-28', daysRemaining: 6 }, // ₹30,000
+        ],
+        emergencyReserveBufferPaise: 2000000, // ₹20,000 buffer
+        nextSalaryDate: '2026-11-30',
+        currentDate: '2026-11-22',
+        monthlySalaryPaise: 10000000, // ₹1,00,000 monthly salary
+      });
+
+      // Guilt-Free Capital equals unencumbered safe amount (₹1,00,000)
+      assert.strictEqual(result.guiltFreePaise, 10000000);
+      // Hourly wage = 100,000 / 160 hrs = ₹625/hr (62500 paise)
+      assert.strictEqual(result.hourlyWagePaise, 62500);
+      // Freedom runway > 0
+      assert.ok(result.freedomRunwayMonths > 0);
+
+      // Life Energy calculation: ₹1,250 coffee / dining bill
+      const energy = SafeToSpendCalculator.calculateLifeEnergy(125000, result.hourlyWagePaise);
+      assert.strictEqual(energy.hours, 2);
+      assert.strictEqual(energy.formatted, '2h');
+
+      // Pay yourself first: 15% of ₹1,00,000 = ₹15,000
+      const wealthAlloc = SafeToSpendCalculator.calculatePayYourselfFirst(10000000, 15);
+      assert.strictEqual(wealthAlloc, 1500000);
+    });
   });
 
   describe('LoanCalculator', () => {
@@ -74,6 +103,27 @@ describe('Financial Logic Domain Tests', () => {
         scheduleResult.totalAmountPayablePaise,
         10000000 + scheduleResult.totalInterestPaise
       );
+    });
+
+    test('calculates debt freedom date and simulates prepayment accelerator', () => {
+      // 36 months loan starting from 2026-01-01
+      const freedom = LoanCalculator.calculateDebtFreedomDate('2026-01-01', 36);
+      assert.strictEqual(freedom.monthsRemaining, 36);
+      assert.strictEqual(freedom.yearsRemaining, 3.0);
+      assert.ok(freedom.formatted.includes('2029'));
+
+      // Prepayment simulation: Extra ₹2,000/mo on a ₹5,00,000 loan
+      const simulation = LoanCalculator.simulatePrepayment(
+        {
+          principalPaise: 50000000,
+          annualInterestRatePercent: 10.5,
+          tenureMonths: 60,
+        },
+        200000 // ₹2,000 extra monthly prepayment
+      );
+
+      assert.ok(simulation.monthsSaved > 0, 'Prepayment reduces tenure');
+      assert.ok(simulation.interestSavedPaise > 0, 'Prepayment saves substantial interest');
     });
   });
 

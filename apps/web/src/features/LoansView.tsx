@@ -4,7 +4,19 @@ import { Card } from '../components/ui/Card.js';
 import { Button } from '../components/ui/Button.js';
 import { Modal } from '../components/ui/Modal.js';
 import { AmountInput } from '../components/ui/AmountInput.js';
-import { Landmark, Calendar, Percent, Plus, Table as TableIcon } from 'lucide-react';
+import {
+  Landmark,
+  Calendar,
+  Percent,
+  Plus,
+  Table as TableIcon,
+  PartyPopper,
+  Sparkles,
+  Zap,
+  TrendingDown,
+  Clock,
+  ShieldCheck,
+} from 'lucide-react';
 
 interface LoansViewProps {
   accounts: Account[];
@@ -14,6 +26,26 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  // Dave Ramsey Debt Freedom State
+  const [freedomSummary, setFreedomSummary] = useState<{
+    isDebtFree: boolean;
+    totalOutstandingPaise: number;
+    totalMonthlyEmiPaise: number;
+    longestRemainingMonths: number;
+    freedomDate: string;
+    formattedFreedomDate: string;
+    yearsRemaining?: number;
+    activeLoansCount: number;
+  } | null>(null);
+
+  // Prepayment Accelerator state
+  const [extraPrepaymentPaise, setExtraPrepaymentPaise] = useState<number>(250000); // ₹2,500/mo extra
+  const [acceleratorResult, setAcceleratorResult] = useState<{
+    monthsSaved: number;
+    interestSavedPaise: number;
+    acceleratedTenureMonths: number;
+  } | null>(null);
 
   // Selected schedule view modal
   const [selectedSchedule, setSelectedSchedule] = useState<{
@@ -45,14 +77,37 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
   const loadLoans = async () => {
     setLoading(true);
     try {
-      const data = await api.getLoans();
+      const [data, summary] = await Promise.all([
+        api.getLoans(),
+        api.getDebtFreedomSummary().catch(() => null),
+      ]);
       setLoans(data);
+      if (summary) setFreedomSummary(summary);
     } catch (err) {
       console.error('Failed to load loans:', err);
     } finally {
       setLoading(false);
     }
   };
+
+  // Run prepayment accelerator simulation on active loans
+  useEffect(() => {
+    if (loans.length > 0 && extraPrepaymentPaise > 0) {
+      const largestLoan = [...loans].sort(
+        (a, b) => b.current_outstanding_paise - a.current_outstanding_paise
+      )[0];
+      if (largestLoan) {
+        api.simulatePrepayment({
+          loan_id: largestLoan.id,
+          extra_monthly_paise: extraPrepaymentPaise,
+        })
+          .then((res) => {
+            setAcceleratorResult(res);
+          })
+          .catch(() => {});
+      }
+    }
+  }, [loans, extraPrepaymentPaise]);
 
   useEffect(() => {
     loadLoans();
@@ -137,6 +192,83 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
           Register Active Loan
         </Button>
       </div>
+
+      {/* DAVE RAMSEY DEBT FREEDOM COUNTDOWN & ACCELERATOR */}
+      {freedomSummary && (
+        <div className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-gradient-to-r from-slate-900 to-indigo-950 text-white shadow-card space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                <span className="text-xs font-bold tracking-wider uppercase text-emerald-400">
+                  Dave Ramsey Debt-Freedom Engine
+                </span>
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold tracking-tight">
+                {freedomSummary.isDebtFree
+                  ? '🎉 You Are 100% Debt Free!'
+                  : `Projected Debt Freedom: ${freedomSummary.formattedFreedomDate}`}
+              </h2>
+              <p className="text-xs text-slate-300 max-w-xl">
+                {freedomSummary.isDebtFree
+                  ? 'Zero active loan liabilities. Every rupee you earn stays in your pocket to build multi-generational wealth.'
+                  : `At your current EMI pace, all ${freedomSummary.activeLoansCount} loan facilities will be fully extinguished in ${freedomSummary.longestRemainingMonths} months.`}
+              </p>
+            </div>
+
+            {!freedomSummary.isDebtFree && (
+              <div className="flex items-baseline gap-6 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-700">
+                <div>
+                  <div className="text-[10px] uppercase font-medium text-slate-400 tracking-wider">
+                    Total Outstanding Debt
+                  </div>
+                  <div className="text-xl font-bold tnum text-white">
+                    {formatPaise(freedomSummary.totalOutstandingPaise, { includeDecimals: false })}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase font-medium text-slate-400 tracking-wider">
+                    Total Monthly EMI
+                  </div>
+                  <div className="text-xl font-bold tnum text-red-400">
+                    {formatPaise(freedomSummary.totalMonthlyEmiPaise, { includeDecimals: false })}
+                    <span className="text-xs font-normal text-slate-400">/mo</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Prepayment Accelerator Simulator */}
+          {!freedomSummary.isDebtFree && loans.length > 0 && (
+            <div className="pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs bg-slate-800/40 p-3 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-amber-400 shrink-0" />
+                <div>
+                  <span className="font-semibold text-white">Prepayment Accelerator: </span>
+                  <span className="text-slate-300">
+                    Pay an extra{' '}
+                    <strong className="text-amber-300">
+                      {formatPaise(extraPrepaymentPaise, { includeDecimals: false })}/mo
+                    </strong>{' '}
+                    towards principal.
+                  </span>
+                </div>
+              </div>
+
+              {acceleratorResult && acceleratorResult.monthsSaved > 0 && (
+                <div className="flex items-center gap-2 text-emerald-300 font-medium">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>
+                    Frees you <strong>{acceleratorResult.monthsSaved} months sooner</strong> & saves{' '}
+                    <strong>{formatPaise(acceleratorResult.interestSavedPaise, { includeDecimals: false })}</strong> in interest!
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Active Loans Section */}
       <div className="space-y-3">

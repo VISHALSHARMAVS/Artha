@@ -86,4 +86,59 @@ export class LoanService {
       return loan;
     });
   }
+
+  /**
+   * Debt Freedom Summary (Dave Ramsey):
+   * Calculates total outstanding debt, total monthly EMI burden, and exact Debt Freedom Date.
+   */
+  static getDebtFreedomSummary(userId: string) {
+    const loans = LoanRepository.listForUser(userId);
+    const totalOutstandingPaise = loans.reduce((sum, l) => sum + l.current_outstanding_paise, 0);
+    const totalMonthlyEmiPaise = loans.reduce((sum, l) => sum + l.emi_amount_paise, 0);
+
+    if (loans.length === 0 || totalOutstandingPaise === 0) {
+      return {
+        isDebtFree: true,
+        totalOutstandingPaise: 0,
+        totalMonthlyEmiPaise: 0,
+        longestRemainingMonths: 0,
+        freedomDate: new Date().toISOString().slice(0, 10),
+        formattedFreedomDate: 'Already 100% Debt Free! 🎉',
+        activeLoansCount: 0,
+      };
+    }
+
+    const maxRemainingMonths = Math.max(...loans.map((l) => l.remaining_months || l.tenure_months));
+    const freedom = LoanCalculator.calculateDebtFreedomDate(new Date(), maxRemainingMonths);
+
+    return {
+      isDebtFree: false,
+      totalOutstandingPaise,
+      totalMonthlyEmiPaise,
+      longestRemainingMonths: maxRemainingMonths,
+      freedomDate: freedom.debtFreeDate,
+      formattedFreedomDate: freedom.formatted,
+      yearsRemaining: freedom.yearsRemaining,
+      activeLoansCount: loans.length,
+    };
+  }
+
+  /**
+   * Simulates Dave Ramsey Prepayment Accelerator for a specific loan or overall loan.
+   */
+  static simulatePrepayment(loanId: string, extraMonthlyPrepaymentPaise: number, userId: string) {
+    const loan = LoanRepository.findById(loanId, userId);
+    if (!loan) {
+      throw new Error('Loan not found');
+    }
+
+    return LoanCalculator.simulatePrepayment(
+      {
+        principalPaise: loan.current_outstanding_paise,
+        annualInterestRatePercent: loan.annual_interest_rate,
+        tenureMonths: loan.remaining_months || loan.tenure_months,
+      },
+      extraMonthlyPrepaymentPaise
+    );
+  }
 }

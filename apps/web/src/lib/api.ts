@@ -48,6 +48,10 @@ export interface SafeToSpendDetails {
   daysUntilSalary: number;
   status: 'HEALTHY' | 'MODERATE' | 'TIGHT' | 'DEFICIT';
   advisoryMessage: string;
+  guiltFreePaise?: number;
+  freedomRunwayMonths?: number;
+  freedomRunwayDays?: number;
+  hourlyWagePaise?: number;
 }
 
 export interface DashboardOverview {
@@ -290,6 +294,30 @@ export const api = {
 
   // Loans
   getLoans: () => request<Loan[]>('/loans'),
+  getDebtFreedomSummary: () =>
+    request<{
+      isDebtFree: boolean;
+      totalOutstandingPaise: number;
+      totalMonthlyEmiPaise: number;
+      longestRemainingMonths: number;
+      freedomDate: string;
+      formattedFreedomDate: string;
+      yearsRemaining?: number;
+      activeLoansCount: number;
+    }>('/loans/freedom-summary'),
+  simulatePrepayment: (data: { loan_id: string; extra_monthly_paise: number }) =>
+    request<{
+      originalTenureMonths: number;
+      acceleratedTenureMonths: number;
+      monthsSaved: number;
+      originalTotalInterestPaise: number;
+      acceleratedTotalInterestPaise: number;
+      interestSavedPaise: number;
+      newEmiPaise: number;
+    }>('/loans/simulate-prepayment', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
   getLoanSchedule: (id: string) =>
     request<{ monthlyEmiPaise: number; totalInterestPaise: number; totalAmountPayablePaise: number; amortizationSchedule: AmortizationRow[] }>(`/loans/${id}/schedule`),
   previewLoan: (data: { principal_paise: number; annual_interest_rate: number; tenure_months: number }) =>
