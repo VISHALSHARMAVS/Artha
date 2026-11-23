@@ -14,6 +14,7 @@ import {
   ArrowLeftRight,
   AlertCircle,
   ExternalLink,
+  Sparkles,
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -22,6 +23,7 @@ interface DashboardViewProps {
   onQuickAdd: () => void;
   onAddTransaction: () => void;
   onNavigateTab: (tab: any) => void;
+  onStartOnboarding?: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -30,6 +32,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onQuickAdd,
   onAddTransaction,
   onNavigateTab,
+  onStartOnboarding,
 }) => {
   if (loading || !overview) {
     return (
@@ -72,6 +75,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {onStartOnboarding && (
+            <Button
+              variant="outline"
+              size="sm"
+              icon={<Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
+              onClick={onStartOnboarding}
+              className="border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 bg-blue-50/50 hover:bg-blue-100 dark:bg-blue-950/40"
+              title="Configure your salary, bank balance, and monthly recurring bills"
+            >
+              Financial Setup
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -94,6 +109,34 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </Button>
         </div>
       </div>
+
+      {/* First-time baseline onboarding prompt banner */}
+      {answers.total_liquid_paise === 0 && answers.income_mtd_paise === 0 && onStartOnboarding && (
+        <div className="p-4 sm:p-5 rounded-xl border border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 via-indigo-50/40 to-slate-50 dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 bg-blue-600 text-white rounded-lg shadow-sm shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                Set up your Financial Baseline
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                Configure your starting bank account, liquid balance, monthly salary, and recurring obligations in 3 quick steps to power Artha's 5 core financial questions.
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="primary"
+            size="sm"
+            icon={<Sparkles className="w-3.5 h-3.5" />}
+            onClick={onStartOnboarding}
+            className="shrink-0 whitespace-nowrap self-start sm:self-center shadow-sm"
+          >
+            Start Financial Setup
+          </Button>
+        </div>
+      )}
 
       {/* CORE MANDATE 5 QUESTIONS GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

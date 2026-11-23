@@ -55,6 +55,11 @@ export const App: React.FC = () => {
     try {
       const u = await api.getMe();
       setUser(u);
+      // Auto-open onboarding if user has not completed onboarding yet
+      const hasOnboarded = localStorage.getItem(`artha_onboarded_${u.id}`);
+      if (!hasOnboarded) {
+        setIsOnboardingOpen(true);
+      }
     } catch {
       localStorage.removeItem('artha_token');
       setUser(null);
@@ -135,6 +140,7 @@ export const App: React.FC = () => {
             onQuickAdd={() => setIsQuickAddOpen(true)}
             onAddTransaction={() => setIsAddTxOpen(true)}
             onNavigateTab={setCurrentTab}
+            onStartOnboarding={() => setIsOnboardingOpen(true)}
           />
         )}
 
@@ -185,6 +191,8 @@ export const App: React.FC = () => {
         onSuccess={(u) => {
           setUser(u);
           refreshAllData();
+          // Immediately show financial onboarding upon login/registration
+          setIsOnboardingOpen(true);
         }}
       />
 
@@ -209,6 +217,7 @@ export const App: React.FC = () => {
       <OnboardingModal
         isOpen={isOnboardingOpen}
         onClose={() => setIsOnboardingOpen(false)}
+        currentUser={user}
         onComplete={() => {
           refreshAllData();
           setCurrentTab('dashboard');

@@ -1,31 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal } from './ui/Modal.js';
 import { Button } from './ui/Button.js';
 import { AmountInput } from './ui/AmountInput.js';
-import { api } from '../lib/api.js';
+import { api, AuthUser } from '../lib/api.js';
 import { ShieldCheck, ArrowRight, ArrowLeft, CheckCircle2, Plus, Trash2 } from 'lucide-react';
 
 interface OnboardingModalProps {
   isOpen: boolean;
   onClose: () => void;
   onComplete: () => void;
+  currentUser?: AuthUser | null;
 }
 
 export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   isOpen,
   onClose,
   onComplete,
+  currentUser,
 }) => {
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // Step 1: Profile & Primary Account
-  const [fullName, setFullName] = useState<string>('Priya Nair');
-  const [email, setEmail] = useState<string>('priya@artha.internal');
+  const [fullName, setFullName] = useState<string>(currentUser?.full_name || '');
+  const [email, setEmail] = useState<string>(currentUser?.email || '');
   const [accountName, setAccountName] = useState<string>('HDFC Salary Account');
   const [accountType, setAccountType] = useState<string>('SAVINGS');
-  const [initialBalancePaise, setInitialBalancePaise] = useState<number>(12000000); // ₹1,20,000
+  const [initialBalancePaise, setInitialBalancePaise] = useState<number>(10000000); // ₹1,00,000
+
+  // Keep synced with currently logged in user
+  useEffect(() => {
+    if (currentUser) {
+      if (currentUser.full_name) setFullName(currentUser.full_name);
+      if (currentUser.email) setEmail(currentUser.email);
+    }
+  }, [currentUser, isOpen]);
 
   // Step 2: Salary Profile
   const [employerName, setEmployerName] = useState<string>('Freshworks Inc');
@@ -71,6 +81,12 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           due_day_of_month: o.dueDay,
         })),
       });
+
+      if (currentUser?.id) {
+        localStorage.setItem(`artha_onboarded_${currentUser.id}`, 'true');
+      } else {
+        localStorage.setItem('artha_onboarded_guest', 'true');
+      }
 
       onComplete();
       onClose();
