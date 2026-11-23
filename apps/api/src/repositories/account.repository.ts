@@ -82,6 +82,26 @@ export class AccountRepository {
     `).run(deltaPaise, id);
   }
 
+  /**
+   * Deletes an account. If no transactions reference it, it is hard-deleted.
+   * If transactions reference it, it is soft-deleted (is_active = 0) to preserve ledger integrity.
+   */
+  static delete(id: string, userId: string): boolean {
+    const db = getDb();
+    const txCount = db.prepare(`
+      SELECT COUNT(*) as cnt FROM transactions 
+      WHERE (account_id = ? OR destination_account_id = ?) AND user_id = ?
+    `).get(id, id, userId) as { cnt: number };
+
+    if (txCount.cnt === 0) {
+      const res = db.prepare('DELETE FROM accounts WHERE id = ? AND user_id = ?').run(id, userId);
+      return res.changes > 0;
+    } else {
+      const res = db.prepare('UPDATE accounts SET is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?').run(id, userId);
+      return res.changes > 0;
+    }
+  }
+
   static getLiquidBalance(userId: string): number {
     const db = getDb();
     // Liquid Balance = Sum of (SAVINGS, CHECKING, CASH) minus (CREDIT_CARD balances if negative/liability)

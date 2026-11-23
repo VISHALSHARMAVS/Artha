@@ -29,4 +29,12 @@ export class AccountService {
       credit_limit_paise: dto.credit_limit_paise || 0,
     });
   }
+
+  static deleteAccount(id: string, userId: string): void {
+    const account = AccountRepository.findById(id, userId);
+    if (!account) {
+      throw new AppError('Financial account not found', 404, 'ACCOUNT_NOT_FOUND');
+    }
+    AccountRepository.delete(id, userId);
+  }
 }

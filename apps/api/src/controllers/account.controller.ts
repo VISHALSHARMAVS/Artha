@@ -28,4 +28,13 @@ export class AccountController {
       next(error);
     }
   }
+
+  static delete(req: Request, res: Response, next: NextFunction): void {
+    try {
+      AccountService.deleteAccount(req.params.id, req.userId);
+      res.json({ success: true, message: 'Account deleted successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

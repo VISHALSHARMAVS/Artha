@@ -234,6 +234,7 @@ export const api = {
     initial_balance_paise?: number;
     credit_limit_paise?: number;
   }) => request<Account>('/accounts', { method: 'POST', body: JSON.stringify(data) }),
+  deleteAccount: (id: string) => request<{ success: boolean; message: string }>(`/accounts/${id}`, { method: 'DELETE' }),
 
   // Transactions
   getTransactions: (params: {

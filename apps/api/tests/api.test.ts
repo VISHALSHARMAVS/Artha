@@ -119,4 +119,20 @@ describe('Artha Layered Backend Integration Tests', () => {
     assert.strictEqual(preview.amortizationSchedule.length, 60);
     assert.strictEqual(preview.amortizationSchedule[59].remainingPrincipalPaise, 0);
   });
+
+  test('Account Service allows creating and deleting accounts', () => {
+    const newAcc = AccountService.createAccount({
+      name: 'Temporary Account To Delete',
+      account_type: 'SAVINGS',
+      institution_name: 'Test Bank',
+      initial_balance_paise: 500000,
+    }, DEFAULT_USER_ID);
+
+    assert.ok(newAcc.id);
+    const beforeCount = AccountService.getAccounts(DEFAULT_USER_ID).length;
+
+    AccountService.deleteAccount(newAcc.id, DEFAULT_USER_ID);
+    const afterCount = AccountService.getAccounts(DEFAULT_USER_ID).length;
+    assert.strictEqual(afterCount, beforeCount - 1);
+  });
 });

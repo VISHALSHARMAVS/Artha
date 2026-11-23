@@ -35,6 +35,7 @@ router.get('/dashboard/overview', DashboardController.getOverview);
 router.get('/accounts', AccountController.list);
 router.get('/accounts/:id', AccountController.getById);
 router.post('/accounts', validateBody(CreateAccountSchema), AccountController.create);
+router.delete('/accounts/:id', AccountController.delete);
 
 // Transactions
 router.get('/transactions', TransactionController.list);

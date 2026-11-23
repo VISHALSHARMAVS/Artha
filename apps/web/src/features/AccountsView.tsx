@@ -4,7 +4,7 @@ import { Card } from '../components/ui/Card.js';
 import { Button } from '../components/ui/Button.js';
 import { Modal } from '../components/ui/Modal.js';
 import { AmountInput } from '../components/ui/AmountInput.js';
-import { Landmark, CreditCard, Wallet, Plus, ShieldCheck } from 'lucide-react';
+import { Landmark, CreditCard, Wallet, Plus, ShieldCheck, Trash2 } from 'lucide-react';
 
 interface AccountsViewProps {
   accounts: Account[];
@@ -20,6 +20,22 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
   const [initialBalancePaise, setInitialBalancePaise] = useState<number>(0);
   const [creditLimitPaise, setCreditLimitPaise] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (account: Account) => {
+    if (!window.confirm(`Are you sure you want to remove "${account.name}"?`)) {
+      return;
+    }
+    setDeletingId(account.id);
+    try {
+      await api.deleteAccount(account.id);
+      onRefresh();
+    } catch (err: any) {
+      alert(err.message || 'Failed to remove account');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const getAccountIcon = (type: string) => {
     switch (type) {
@@ -212,9 +228,21 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
                   </div>
                 </div>
 
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${bucket.color}`}>
-                  {bucket.label.split(':')[0]}
-                </span>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${bucket.color}`}>
+                    {bucket.label.split(':')[0]}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(acc)}
+                    disabled={deletingId === acc.id}
+                    className="p-1 rounded text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors disabled:opacity-40"
+                    title={`Remove ${acc.name}`}
+                    aria-label={`Remove ${acc.name}`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
 
               <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
