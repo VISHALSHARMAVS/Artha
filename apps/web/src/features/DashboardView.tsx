@@ -85,8 +85,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             size="sm"
             icon={<Plus className="w-3.5 h-3.5" />}
             onClick={onQuickAdd}
+            title="Press 'E' on your keyboard anytime to quick record an expense"
           >
-            Quick Record (E)
+            <span>Quick Record</span>
+            <kbd className="ml-1.5 px-1.5 py-0.5 text-[10px] font-mono bg-blue-700/80 dark:bg-blue-800/80 text-blue-100 rounded border border-blue-500/30 font-semibold">
+              E
+            </kbd>
           </Button>
         </div>
       </div>

@@ -7,7 +7,7 @@ import { DashboardService } from './dashboard.service.js';
 
 export interface WhatsAppParsedResult {
   success: boolean;
-  action: 'TRANSACTION_RECORDED' | 'BALANCE_CHECK' | 'HELP' | 'UNLINKED_USER' | 'PARSE_ERROR';
+  action: 'TRANSACTION_RECORDED' | 'BATCH_TRANSACTIONS_RECORDED' | 'BALANCE_CHECK' | 'HELP' | 'UNLINKED_USER' | 'PARSE_ERROR';
   replyMessage: string;
   transaction?: {
     id: string;
@@ -17,6 +17,14 @@ export interface WhatsAppParsedResult {
     categoryName?: string;
     accountName: string;
   };
+  transactions?: Array<{
+    id: string;
+    type: 'EXPENSE' | 'INCOME' | 'TRANSFER';
+    amountPaise: number;
+    description: string;
+    categoryName?: string;
+    accountName: string;
+  }>;
 }
 
 export class WhatsAppParserService {
@@ -79,7 +87,16 @@ _Zero manual forms. Categorized automatically._`,
       };
     }
 
-    // 3. Parse Financial Transaction
+    // 3. Check for Multi-line Batch Transactions (e.g. user sends several expenses at once)
+    const lines = trimmed.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (lines.length > 1) {
+      const linesWithAmounts = lines.filter(l => this.extractAmount(l) !== null);
+      if (linesWithAmounts.length >= 2) {
+        return this.parseAndRecordBatchTransactions(user, linesWithAmounts);
+      }
+    }
+
+    // 4. Parse Single Financial Transaction
     return this.parseAndRecordTransaction(user, trimmed);
   }
 
@@ -128,6 +145,124 @@ _(Total ${safeTotal} available for next ${daysLeft} days)_`;
       success: true,
       action: 'BALANCE_CHECK',
       replyMessage: reply,
+    };
+  }
+
+  /**
+   * Batch Processing for multi-line messages where each line is an expense or income entry.
+   * e.g.:
+   * Spent 450 at Starbucks
+   * Petrol 2000
+   * Paid 1.5 k for groceries
+   */
+  static parseAndRecordBatchTransactions(user: UserRecord, lines: string[]): WhatsAppParsedResult {
+    const accounts = AccountRepository.findByUserId(user.id);
+    if (!accounts || accounts.length === 0) {
+      return {
+        success: false,
+        action: 'PARSE_ERROR',
+        replyMessage: `⚠️ You do not have any active accounts configured in Artha yet. Please log into the web dashboard and add your first bank account.`,
+      };
+    }
+
+    const defaultAccount = accounts.find(a => a.account_type === 'SAVINGS') || accounts[0];
+    const today = new Date().toISOString().slice(0, 10);
+    const recordedList: Array<{
+      id: string;
+      type: 'EXPENSE' | 'INCOME' | 'TRANSFER';
+      amountPaise: number;
+      description: string;
+      categoryName?: string;
+      accountName: string;
+    }> = [];
+
+    let totalExpensePaise = 0;
+    let totalIncomePaise = 0;
+
+    for (const line of lines) {
+      const extractedAmount = this.extractAmount(line);
+      if (!extractedAmount) continue;
+
+      const txType = this.detectTransactionType(line);
+      const description = this.extractDescription(line, extractedAmount.rawMatch, txType);
+      const categorySuggestion = CategoryService.suggestCategory(description, user.id);
+
+      // Account selection for this line
+      const lowerLine = line.toLowerCase();
+      let accountForLine = defaultAccount;
+      if (lowerLine.includes('card') || lowerLine.includes('credit')) {
+        const cardAcc = accounts.find(a => a.account_type === 'CREDIT_CARD');
+        if (cardAcc) accountForLine = cardAcc;
+      }
+
+      const recorded = TransactionService.recordTransaction({
+        account_id: accountForLine.id,
+        category_id: categorySuggestion?.id,
+        type: txType,
+        amount_paise: extractedAmount.amountPaise,
+        description,
+        transaction_date: today,
+      }, user.id);
+
+      if (txType === 'EXPENSE') {
+        totalExpensePaise += extractedAmount.amountPaise;
+      } else if (txType === 'INCOME') {
+        totalIncomePaise += extractedAmount.amountPaise;
+      }
+
+      recordedList.push({
+        id: recorded.id,
+        type: txType,
+        amountPaise: extractedAmount.amountPaise,
+        description,
+        categoryName: categorySuggestion?.name,
+        accountName: accountForLine.name,
+      });
+    }
+
+    if (recordedList.length === 0) {
+      return {
+        success: false,
+        action: 'PARSE_ERROR',
+        replyMessage: `❓ Could not parse valid amounts from your multi-line message. Try sending one expense per line, e.g.:\nSpent 450 at Starbucks\nPetrol 2000`,
+      };
+    }
+
+    // Immediate financial health velocity feedback
+    const overview = DashboardService.getOverview(user.id);
+    const safeDaily = Money.fromPaise(overview.answers.safe_to_spend.dailySafePaise).format();
+    const updatedLiquid = Money.fromPaise(overview.answers.total_liquid_paise).format();
+
+    const lineItems = recordedList.map((item, idx) => {
+      const formatted = Money.fromPaise(item.amountPaise).format();
+      const cat = item.categoryName ? ` (${item.categoryName})` : '';
+      const prefix = item.type === 'INCOME' ? '➕ ' : '• ';
+      return `${prefix}*${formatted}* — ${item.description}${cat}`;
+    }).join('\n');
+
+    let totalSummary = '';
+    if (totalExpensePaise > 0 && totalIncomePaise > 0) {
+      totalSummary = `💳 *Spent:* ${Money.fromPaise(totalExpensePaise).format()} | 💵 *Income:* ${Money.fromPaise(totalIncomePaise).format()}`;
+    } else if (totalExpensePaise > 0) {
+      totalSummary = `💳 *Total Logged:* ${Money.fromPaise(totalExpensePaise).format()}`;
+    } else if (totalIncomePaise > 0) {
+      totalSummary = `💵 *Total Received:* ${Money.fromPaise(totalIncomePaise).format()}`;
+    }
+
+    const replyMessage =
+`✅ *${recordedList.length} Transactions Logged:*
+
+${lineItems}
+
+${totalSummary}
+💰 *Liquid Balance:* ${updatedLiquid}
+🛡️ *Safe to Spend:* ${safeDaily} / day`;
+
+    return {
+      success: true,
+      action: 'BATCH_TRANSACTIONS_RECORDED',
+      replyMessage,
+      transactions: recordedList,
     };
   }
 
@@ -379,9 +514,11 @@ _(Total ${safeTotal} available for next ${daysLeft} days)_`;
   }
 
   private static cleanText(str: string): string {
-    return str
+    const s = str
       .replace(/[^\w\s&'-]/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
+    if (!s) return s;
+    return s.charAt(0).toUpperCase() + s.slice(1);
   }
 }

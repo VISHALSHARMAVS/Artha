@@ -126,4 +126,19 @@ describe('WhatsApp Conversational Expense Engine Tests', () => {
       "Neha's expenses must be 100% isolated from Aryan's WhatsApp actions"
     );
   });
+
+  test('Batch multi-line message logs all entries and updates ledger atomically', () => {
+    const multiLineMessage = `Spent 450 at Starbucks\nPetrol 2000\nPaid 1.5 k for groceries`;
+    const batchRes = WhatsAppParserService.processIncomingMessage(userPhone, multiLineMessage);
+
+    assert.strictEqual(batchRes.success, true);
+    assert.strictEqual(batchRes.action, 'BATCH_TRANSACTIONS_RECORDED');
+    assert.strictEqual(batchRes.transactions?.length, 3);
+    assert.strictEqual(batchRes.transactions?.[0].amountPaise, 45000);
+    assert.strictEqual(batchRes.transactions?.[1].amountPaise, 200000);
+    assert.strictEqual(batchRes.transactions?.[2].amountPaise, 150000);
+    assert.ok(batchRes.replyMessage.includes('3 Transactions Logged'));
+    assert.ok(batchRes.replyMessage.includes('Total Logged'));
+    assert.ok(batchRes.replyMessage.includes('3,950.00'));
+  });
 });

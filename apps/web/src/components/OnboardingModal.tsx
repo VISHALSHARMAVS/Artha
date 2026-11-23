@@ -146,9 +146,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 </label>
                 <input
                   type="text"
+                  placeholder="e.g. Aryan Sharma"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white"
+                  className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
               </div>
               <div>
@@ -157,9 +158,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 </label>
                 <input
                   type="email"
+                  placeholder="aryan@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white"
+                  className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
               </div>
             </div>
@@ -173,9 +175,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   </label>
                   <input
                     type="text"
+                    placeholder="e.g. HDFC Salary Account"
                     value={accountName}
                     onChange={(e) => setAccountName(e.target.value)}
-                    className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white"
+                    className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
                   />
                 </div>
                 <div>
@@ -185,7 +188,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   <select
                     value={accountType}
                     onChange={(e) => setAccountType(e.target.value)}
-                    className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white"
+                    className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
                   >
                     <option value="SAVINGS">Savings Account</option>
                     <option value="CHECKING">Checking Account</option>
@@ -213,9 +216,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               </label>
               <input
                 type="text"
+                placeholder="e.g. Google India Pvt Ltd"
                 value={employerName}
                 onChange={(e) => setEmployerName(e.target.value)}
-                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white"
+                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
             </div>
 
@@ -281,8 +285,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                       updated[idx].title = e.target.value;
                       setObligations(updated);
                     }}
-                    className="flex-1 h-8 px-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded"
-                    placeholder="Title"
+                    className="flex-1 h-8 px-2.5 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    placeholder="e.g. Rent, Electricity, SIP"
                   />
                   <div className="w-32">
                     <AmountInput
@@ -302,7 +306,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                       updated[idx].dueDay = Number(e.target.value);
                       setObligations(updated);
                     }}
-                    className="h-8 px-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded"
+                    className="h-8 px-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-600"
                   >
                     {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
                       <option key={d} value={d}>Day {d}</option>

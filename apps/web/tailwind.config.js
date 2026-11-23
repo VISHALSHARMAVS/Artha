@@ -14,13 +14,25 @@ export default {
           secondary: '#2563EB',
           accent: '#3B82F6',
         },
+        primary: {
+          DEFAULT: '#2563EB',
+          hover: '#1D4ED8',
+        },
         surface: {
           app: 'var(--bg-app)',
           card: 'var(--bg-surface)',
           elevated: 'var(--bg-surface-elevated)',
           subtle: 'var(--bg-surface-subtle)',
+          primary: 'var(--bg-surface)',
+          secondary: 'var(--bg-surface-subtle)',
+        },
+        text: {
+          primary: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
+          muted: 'var(--text-tertiary)',
         },
         border: {
+          default: 'var(--border-subtle)',
           subtle: 'var(--border-subtle)',
           medium: 'var(--border-medium)',
           focus: 'var(--border-focus)',

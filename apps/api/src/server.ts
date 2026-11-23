@@ -1,5 +1,13 @@
 import express from 'express';
 import cors from 'cors';
+
+// Load environment variables if .env exists
+try {
+  process.loadEnvFile();
+} catch {
+  // .env is optional
+}
+
 import { router as apiRoutes } from './routes/index.js';
 import { requestLogger } from './middleware/logger.js';
 import { authMiddleware } from './middleware/auth.js';

@@ -355,7 +355,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
                 value={loanName}
                 onChange={(e) => setLoanName(e.target.value)}
                 placeholder="e.g. Home Loan, Car Loan"
-                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white"
+                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 required
               />
             </div>
@@ -368,7 +368,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
                 value={lenderName}
                 onChange={(e) => setLenderName(e.target.value)}
                 placeholder="e.g. HDFC Ltd, SBI, ICICI"
-                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white"
+                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 required
               />
             </div>

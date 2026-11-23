@@ -133,17 +133,17 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border-default pb-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-500 font-semibold text-lg">
               💬
             </span>
-            <h1 className="text-2xl font-bold tracking-tight text-text-primary">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               WhatsApp Conversational Ledger
             </h1>
           </div>
-          <p className="text-text-secondary text-sm mt-1">
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
             Log expenses in 1 second via natural WhatsApp messages. No app opening required.
           </p>
         </div>
@@ -167,21 +167,21 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
         {/* Left Column: Link Phone Number & Setup Guidance */}
         <div className="lg:col-span-5 space-y-6">
           {/* Card 1: Link Phone */}
-          <div className="bg-surface-primary border border-border-default rounded-xl p-5 shadow-sm">
-            <h2 className="text-base font-semibold text-text-primary mb-1">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white mb-1">
               Link Your WhatsApp Number
             </h2>
-            <p className="text-xs text-text-muted mb-4">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
               Enter your Indian mobile number (+91). Messages from this number will automatically log to your private ledger.
             </p>
 
             <form onSubmit={handleLinkPhone} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                   Mobile Number
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-text-muted text-sm font-medium">
+                  <span className="absolute left-3 top-2.5 text-slate-400 dark:text-slate-500 text-sm font-medium">
                     +91
                   </span>
                   <input
@@ -189,20 +189,20 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
                     placeholder="9876543210"
                     value={phoneNumberInput.replace(/^91/, '')}
                     onChange={(e) => setPhoneNumberInput(e.target.value)}
-                    className="w-full pl-12 pr-4 py-2 bg-surface-secondary border border-border-default rounded-lg text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-primary font-mono"
+                    className="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
                     maxLength={10}
                   />
                 </div>
               </div>
 
               {linkError && (
-                <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs">
+                <div className="p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 text-xs">
                   {linkError}
                 </div>
               )}
 
               {linkSuccess && (
-                <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+                <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 text-xs">
                   {linkSuccess}
                 </div>
               )}
@@ -218,37 +218,37 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
           </div>
 
           {/* Card 2: Meta Developer Sandbox Guide (Zero SIM Cost) */}
-          <div className="bg-surface-primary border border-border-default rounded-xl p-5 shadow-sm space-y-3">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
             <div className="flex items-center gap-2">
-              <span className="text-emerald-400 text-base">🛡️</span>
-              <h2 className="text-sm font-semibold text-text-primary">
+              <span className="text-emerald-500 text-base">🛡️</span>
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
                 Meta Cloud API Sandbox (No SIM Needed)
               </h2>
             </div>
             
-            <p className="text-xs text-text-secondary leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               Meta gives every developer a <strong>free test number</strong> with 1,000 free conversations per month. You do NOT need to buy a SIM card to run or test Artha.
             </p>
 
-            <div className="bg-surface-secondary/70 border border-border-subtle rounded-lg p-3 text-xs space-y-2">
-              <div className="flex justify-between items-center text-text-muted">
+            <div className="bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-xs space-y-2">
+              <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
                 <span>Webhook URL:</span>
-                <span className="font-mono text-text-primary select-all">
+                <span className="font-mono text-slate-900 dark:text-slate-100 select-all">
                   {status?.webhook_url || '/api/v1/webhooks/whatsapp'}
                 </span>
               </div>
-              <div className="flex justify-between items-center text-text-muted">
+              <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
                 <span>Verify Token:</span>
-                <span className="font-mono text-emerald-400 select-all font-semibold">
+                <span className="font-mono text-emerald-600 dark:text-emerald-400 select-all font-semibold">
                   {status?.verify_token || 'artha_webhook_token'}
                 </span>
               </div>
             </div>
 
-            <div className="text-xs text-text-muted space-y-1.5 pt-1">
-              <p className="font-medium text-text-secondary">Quick Setup in 3 Minutes:</p>
+            <div className="text-xs text-slate-500 dark:text-slate-400 space-y-1.5 pt-1">
+              <p className="font-medium text-slate-700 dark:text-slate-300">Quick Setup in 3 Minutes:</p>
               <ol className="list-decimal pl-4 space-y-1">
-                <li>Create free Meta for Developers account at <code className="text-text-primary">developers.facebook.com</code></li>
+                <li>Create free Meta for Developers account at <code className="text-blue-600 dark:text-blue-400">developers.facebook.com</code></li>
                 <li>Add WhatsApp product and copy the free Meta Sandbox test number</li>
                 <li>Paste the Webhook URL & Verify Token above into Configuration</li>
               </ol>

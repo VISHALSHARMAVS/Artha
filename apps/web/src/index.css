@@ -107,3 +107,37 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
 }
+
+/* Universal Form Control Styling & Contrast Enforcement */
+input,
+select,
+textarea {
+  color: var(--text-primary);
+  background-color: var(--bg-surface);
+  border-color: var(--border-medium);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-tertiary) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  color: #F9FAFB !important;
+  background-color: #111827;
+  border-color: #374151;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #9CA3AF !important;
+  opacity: 1 !important;
+}
+
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="month"] {
+  color-scheme: dark;
+}

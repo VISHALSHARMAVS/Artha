@@ -175,7 +175,7 @@ export class WhatsAppController {
     }
 
     try {
-      await fetch(`https://graph.facebook.com/v21.0/${phoneId}/messages`, {
+      const response = await fetch(`https://graph.facebook.com/v21.0/${phoneId}/messages`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -189,8 +189,14 @@ export class WhatsAppController {
           text: { body: text },
         }),
       });
+      const data = await response.json();
+      if (!response.ok) {
+        console.warn('⚠️ Meta Cloud API error:', data);
+      } else {
+        console.log('✅ Meta Cloud WhatsApp message dispatched successfully:', data);
+      }
     } catch (error) {
-      console.warn('⚠️ Meta Cloud API dispatch failed (check credentials):', error);
+      console.warn('⚠️ Meta Cloud API dispatch failed (network error):', error);
     }
   }
 }
