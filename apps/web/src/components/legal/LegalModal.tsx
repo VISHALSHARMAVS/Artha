@@ -40,6 +40,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({
             onClick={onClose}
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#272727] transition-colors"
             title="Close"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>

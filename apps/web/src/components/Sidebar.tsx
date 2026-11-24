@@ -245,6 +245,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 onClick={() => setIsMobileDrawerOpen(false)}
                 className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                aria-label="Close menu"
               >
                 <X className="w-5 h-5" />
               </button>

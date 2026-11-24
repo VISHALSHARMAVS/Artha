@@ -95,16 +95,17 @@ const TaglineRevealSection: React.FC = () => {
           {words.map((word, idx) => {
             const isRevealed = prefersReducedMotion || idx < activeWordIndex;
             return (
-              <span
-                key={idx}
-                className={`inline-block mr-2.5 transition-all duration-500 ease-out-expo ${
-                  isRevealed
-                    ? 'text-slate-900 dark:text-white opacity-100'
-                    : 'text-slate-400 dark:text-[#9B9B9B] opacity-30'
-                }`}
-              >
-                {word}
-              </span>
+              <React.Fragment key={idx}>
+                <span
+                  className={`inline-block transition-all duration-500 ease-out-expo ${
+                    isRevealed
+                      ? 'text-slate-900 dark:text-white opacity-100'
+                      : 'text-slate-400 dark:text-[#9B9B9B] opacity-30'
+                  }`}
+                >
+                  {word}
+                </span>{' '}
+              </React.Fragment>
             );
           })}
         </h2>
@@ -345,7 +346,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           </div>
 
           {/* Right Action Buttons */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
             <button
               onClick={onToggleTheme}
               aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
@@ -358,6 +359,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
               variant="outline"
               size="sm"
               onClick={onOpenApp}
+              className="hidden sm:inline-flex"
             >
               Open web ledger
             </Button>
@@ -367,8 +369,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
               size="sm"
               onClick={onOpenWhatsApp}
               icon={<MessageSquare className="w-3.5 h-3.5" />}
+              className="whitespace-nowrap"
             >
-              Try on WhatsApp
+              <span className="hidden xs:inline">Try on </span>WhatsApp
             </Button>
           </div>
         </nav>
@@ -747,8 +750,8 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-[#313131] bg-white dark:bg-[#1F1F1F] shadow-card">
-            <table className="w-full text-left border-collapse caption-2">
+          <div className="w-full max-w-full overflow-x-auto rounded-2xl border border-slate-200 dark:border-[#313131] bg-white dark:bg-[#1F1F1F] shadow-card">
+            <table className="w-full min-w-[580px] sm:min-w-full text-left border-collapse caption-2">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-[#313131] bg-slate-50/80 dark:bg-[#181818]">
                   <th className="py-4 px-5 text-slate-500 dark:text-[#9B9B9B] font-medium">Feature or capability</th>
