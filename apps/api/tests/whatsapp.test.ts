@@ -249,5 +249,23 @@ describe('WhatsApp Conversational Expense Engine Tests', () => {
     assert.strictEqual(sharedSplitInfo.isSplit, true);
     assert.strictEqual(sharedSplitInfo.personalSharePaise, 40000);
     assert.strictEqual(sharedSplitInfo.splits.length, 2);
+
+    // Case D: "split in" with space-separated multiple friends "Taxi split in Nitin Aryan arpit AJ" -> 5 people
+    const taxiSplit = WhatsAppParserService.extractSplitInfo('Taxi 3000 split in Nitin Aryan arpit AJ', 300000);
+    assert.strictEqual(taxiSplit.isSplit, true);
+    assert.strictEqual(taxiSplit.splits.length, 4);
+    assert.strictEqual(taxiSplit.personalSharePaise, 60000);
+    assert.strictEqual(taxiSplit.splits[0].friend_name, 'Nitin');
+    assert.strictEqual(taxiSplit.splits[1].friend_name, 'Aryan');
+    assert.strictEqual(taxiSplit.splits[2].friend_name, 'Arpit');
+    assert.strictEqual(taxiSplit.splits[3].friend_name, 'AJ');
+
+    // Case E: "divide in" with 2 space-separated friends "Pizza 5000 divide in Nitin Aryan" -> 3 people
+    const pizzaSplit = WhatsAppParserService.extractSplitInfo('Pizza 5000 divide in Nitin Aryan', 500000);
+    assert.strictEqual(pizzaSplit.isSplit, true);
+    assert.strictEqual(pizzaSplit.splits.length, 2);
+    assert.strictEqual(pizzaSplit.personalSharePaise, 166668); // 500000 - (166666 * 2)
+    assert.strictEqual(pizzaSplit.splits[0].friend_name, 'Nitin');
+    assert.strictEqual(pizzaSplit.splits[1].friend_name, 'Aryan');
   });
 });

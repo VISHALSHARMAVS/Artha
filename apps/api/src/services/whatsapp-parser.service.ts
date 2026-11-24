@@ -830,20 +830,42 @@ _(Reply *"Undo"* anytime to revert this entry)_`;
       }
     }
 
-    // Pattern 2: "split with Rahul and Aman", "spit with Nitin and Vishal", "divide with...", "shared with..."
-    const namesMatch = text.match(/(?:split|spit|divide|divided|shared?|dutch|half)\s+(?:with\s+)?([a-zA-Z\s,&]+?)(?:\s+for|\s+at|\s+₹|\s+rs|\s+\d|$)/i);
+    // Pattern 2: "split with Rahul and Aman", "spit with Nitin and Vishal", "divide in Nitin Aryan", "split in Nitin Aryan arpit AJ"
+    const namesMatch = text.match(/(?:split|spit|divide|divided|shared?|dutch|half)\s+(?:with\s+|among\s+|between\s+|in\s+)?([a-zA-Z0-9\s,&+]+?)(?:\s+for|\s+at|\s+₹|\s+rs|\s+\d|$)/i);
     if (namesMatch) {
-      const rawNames = namesMatch[1];
-      const names = rawNames
-        .split(/(?:and|&|,)/i)
+      let rawNames = namesMatch[1].trim();
+      // Clean leading prepositions if any slipped through
+      rawNames = rawNames.replace(/^(?:with|in|between|among)\s+/i, '');
+
+      let names: string[] = [];
+      const hasDelimiters = /(?:and|&|,|\+)/i.test(rawNames);
+
+      if (hasDelimiters) {
+        names = rawNames
+          .split(/(?:and|&|,|\+)/i)
+          .map(n => n.trim())
+          .filter(n => n.length > 0);
+      } else {
+        // Space-separated names (e.g. "Nitin Aryan", "Nitin Aryan arpit AJ")
+        const words = rawNames.split(/\s+/).map(n => n.trim()).filter(Boolean);
+        const isDivideInOrMultiple = words.length > 2 || /(?:divide|split|shared)\s+(?:in|between|among)/i.test(text);
+        if (isDivideInOrMultiple && words.length >= 2) {
+          names = words;
+        } else {
+          names = [rawNames];
+        }
+      }
+
+      // Filter out non-name noise
+      names = names
         .map(n => n.trim())
-        .filter(n => n.length > 1 && !/^(ways|people|half|equally|evenly|me|i)$/i.test(n));
+        .filter(n => n.length > 0 && !/^(ways|people|half|equally|evenly|me|i|in|with|and)$/i.test(n));
 
       if (names.length > 0) {
         const totalPeople = names.length + 1; // friends + user
         const perPerson = Math.floor(totalAmountPaise / totalPeople);
         const splits = names.map(n => ({
-          friend_name: n.charAt(0).toUpperCase() + n.slice(1).toLowerCase(),
+          friend_name: n.length <= 3 ? n.toUpperCase() : (n.charAt(0).toUpperCase() + n.slice(1).toLowerCase()),
           amount_paise: perPerson,
         }));
         const personalSharePaise = totalAmountPaise - (perPerson * names.length);
