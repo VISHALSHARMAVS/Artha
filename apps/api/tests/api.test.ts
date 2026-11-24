@@ -137,6 +137,59 @@ describe('Artha Layered Backend Integration Tests', () => {
     assert.strictEqual(preview.amortizationSchedule[59].remainingPrincipalPaise, 0);
   });
 
+  test('Transaction Service allows updating a transaction with atomic balance reversals and recategorization', () => {
+    const accounts = AccountService.getAccounts(DEFAULT_USER_ID);
+    const acc1 = accounts[0];
+    const acc2 = accounts[1];
+    const initialAcc1Bal = acc1.balance_paise;
+    const initialAcc2Bal = acc2.balance_paise;
+
+    // 1. Create initial transaction: ₹500 expense on acc1
+    const tx = TransactionService.recordTransaction({
+      account_id: acc1.id,
+      type: 'EXPENSE',
+      amount_paise: 50000,
+      description: 'Original Tea Expense',
+      transaction_date: '2026-11-20',
+    }, DEFAULT_USER_ID);
+
+    assert.strictEqual(tx.amount_paise, 50000);
+    const afterCreateAcc1 = AccountService.getAccount(acc1.id, DEFAULT_USER_ID);
+    assert.strictEqual(afterCreateAcc1.balance_paise, initialAcc1Bal - 50000);
+
+    // 2. Update transaction: Change amount to ₹1,200 and description to 'Dinner'
+    const updatedTx = TransactionService.updateTransaction(tx.id, {
+      amount_paise: 120000,
+      description: 'Updated Dinner Expense',
+    }, DEFAULT_USER_ID);
+
+    assert.strictEqual(updatedTx.amount_paise, 120000);
+    assert.strictEqual(updatedTx.description, 'Updated Dinner Expense');
+
+    const afterUpdateAcc1 = AccountService.getAccount(acc1.id, DEFAULT_USER_ID);
+    assert.strictEqual(afterUpdateAcc1.balance_paise, initialAcc1Bal - 120000);
+
+    // 3. Update transaction: Switch to acc2 with amount ₹2,000
+    const switchedTx = TransactionService.updateTransaction(tx.id, {
+      account_id: acc2.id,
+      amount_paise: 200000,
+    }, DEFAULT_USER_ID);
+
+    assert.strictEqual(switchedTx.account_id, acc2.id);
+    assert.strictEqual(switchedTx.amount_paise, 200000);
+
+    // acc1 must be completely restored, acc2 must be debited ₹2,000
+    const restoredAcc1 = AccountService.getAccount(acc1.id, DEFAULT_USER_ID);
+    const debitedAcc2 = AccountService.getAccount(acc2.id, DEFAULT_USER_ID);
+    assert.strictEqual(restoredAcc1.balance_paise, initialAcc1Bal);
+    assert.strictEqual(debitedAcc2.balance_paise, initialAcc2Bal - 200000);
+
+    // 4. Cleanup: delete transaction
+    TransactionService.deleteTransaction(tx.id, DEFAULT_USER_ID);
+    const finalAcc2 = AccountService.getAccount(acc2.id, DEFAULT_USER_ID);
+    assert.strictEqual(finalAcc2.balance_paise, initialAcc2Bal);
+  });
+
   test('Account Service allows creating and deleting accounts', () => {
     const newAcc = AccountService.createAccount({
       name: 'Temporary Account To Delete',

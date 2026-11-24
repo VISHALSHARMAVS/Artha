@@ -57,6 +57,27 @@ export class TransactionRepository {
     return row || null;
   }
 
+  static findLatestByUserId(userId: string): TransactionRecord | null {
+    const db = getDb();
+    const row = db.prepare(`
+      SELECT t.*, 
+             a.name as account_name, 
+             da.name as destination_account_name,
+             c.name as category_name, 
+             c.icon_name as category_icon, 
+             c.color_hex as category_color
+      FROM transactions t
+      JOIN accounts a ON a.id = t.account_id
+      LEFT JOIN accounts da ON da.id = t.destination_account_id
+      LEFT JOIN categories c ON c.id = t.category_id
+      WHERE t.user_id = ?
+      ORDER BY t.created_at DESC, t.rowid DESC
+      LIMIT 1
+    `).get(userId) as unknown as TransactionRecord | undefined;
+
+    return row || null;
+  }
+
   static list(params: TransactionFilterParams): { transactions: TransactionRecord[]; total: number } {
     const db = getDb();
     const conditions: string[] = ['t.user_id = ?'];
@@ -176,6 +197,91 @@ export class TransactionRepository {
       }
 
       return this.findById(data.id, data.user_id)!;
+    });
+  }
+
+  /**
+   * Atomic update of transaction + recalculation of ledger balance impact.
+   */
+  static update(id: string, userId: string, data: {
+    account_id?: string;
+    destination_account_id?: string | null;
+    category_id?: string | null;
+    type?: TransactionType;
+    amount_paise?: number;
+    description?: string;
+    notes?: string | null;
+    transaction_date?: string;
+  }): TransactionRecord {
+    return transaction(() => {
+      const existing = this.findById(id, userId);
+      if (!existing) {
+        throw new Error('Transaction not found');
+      }
+
+      const db = getDb();
+
+      // 1. Reverse previous balance impact on existing accounts
+      if (existing.type === 'INCOME') {
+        AccountRepository.adjustBalance(existing.account_id, -existing.amount_paise);
+      } else if (existing.type === 'EXPENSE') {
+        AccountRepository.adjustBalance(existing.account_id, existing.amount_paise);
+      } else if (existing.type === 'TRANSFER' && existing.destination_account_id) {
+        AccountRepository.adjustBalance(existing.account_id, existing.amount_paise);
+        AccountRepository.adjustBalance(existing.destination_account_id, -existing.amount_paise);
+      }
+
+      // Determine merged fields
+      const newType = data.type ?? existing.type;
+      const newAccountId = data.account_id ?? existing.account_id;
+      const newDestAccountId = data.destination_account_id !== undefined ? data.destination_account_id : existing.destination_account_id;
+      const newCategoryId = data.category_id !== undefined ? data.category_id : existing.category_id;
+      const newAmountPaise = data.amount_paise ?? existing.amount_paise;
+      const newDescription = data.description ?? existing.description;
+      const newNotes = data.notes !== undefined ? (data.notes || '') : existing.notes;
+      const newDate = data.transaction_date ?? existing.transaction_date;
+
+      if (newType === 'TRANSFER' && (!newDestAccountId || newDestAccountId === newAccountId)) {
+        throw new Error('Transfer requires a distinct destination account');
+      }
+
+      // 2. Apply new balance impact on new accounts
+      if (newType === 'INCOME') {
+        AccountRepository.adjustBalance(newAccountId, newAmountPaise);
+      } else if (newType === 'EXPENSE') {
+        AccountRepository.adjustBalance(newAccountId, -newAmountPaise);
+      } else if (newType === 'TRANSFER') {
+        AccountRepository.adjustBalance(newAccountId, -newAmountPaise);
+        AccountRepository.adjustBalance(newDestAccountId!, newAmountPaise);
+      }
+
+      // 3. Update database record
+      db.prepare(`
+        UPDATE transactions
+        SET account_id = ?,
+            destination_account_id = ?,
+            category_id = ?,
+            type = ?,
+            amount_paise = ?,
+            description = ?,
+            notes = ?,
+            transaction_date = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `).run(
+        newAccountId,
+        newDestAccountId,
+        newCategoryId,
+        newType,
+        newAmountPaise,
+        newDescription,
+        newNotes,
+        newDate,
+        id,
+        userId
+      );
+
+      return this.findById(id, userId)!;
     });
   }
 

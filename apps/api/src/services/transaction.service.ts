@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { TransactionRepository, TransactionRecord, TransactionFilterParams } from '../repositories/transaction.repository.js';
 import { AccountRepository } from '../repositories/account.repository.js';
 import { CategoryService } from './category.service.js';
-import type { CreateTransactionDTO, QuickAddTransactionDTO } from '@artha/domain';
+import type { CreateTransactionDTO, QuickAddTransactionDTO, UpdateTransactionDTO } from '@artha/domain';
 import { AppError } from '../middleware/error-handler.js';
 
 export class TransactionService {
@@ -93,11 +93,54 @@ export class TransactionService {
     }, userId);
   }
 
+  static updateTransaction(id: string, dto: UpdateTransactionDTO, userId: string): TransactionRecord {
+    const existing = TransactionRepository.findById(id, userId);
+    if (!existing) {
+      throw new AppError('Transaction record not found', 404, 'TRANSACTION_NOT_FOUND');
+    }
+
+    const targetAccountId = dto.account_id ?? existing.account_id;
+    const sourceAccount = AccountRepository.findById(targetAccountId, userId);
+    if (!sourceAccount) {
+      throw new AppError('Account does not exist or does not belong to you', 404, 'ACCOUNT_NOT_FOUND');
+    }
+
+    const targetType = dto.type ?? existing.type;
+    const targetDestAccountId = dto.destination_account_id !== undefined ? dto.destination_account_id : existing.destination_account_id;
+
+    if (targetType === 'TRANSFER') {
+      if (!targetDestAccountId) {
+        throw new AppError('Destination account is required for transfers', 400, 'DESTINATION_REQUIRED');
+      }
+      if (targetDestAccountId === targetAccountId) {
+        throw new AppError('Source and destination accounts must be distinct', 400, 'SAME_ACCOUNT_TRANSFER');
+      }
+      const destAccount = AccountRepository.findById(targetDestAccountId, userId);
+      if (!destAccount) {
+        throw new AppError('Destination account does not exist or does not belong to you', 404, 'DEST_ACCOUNT_NOT_FOUND');
+      }
+    }
+
+    return TransactionRepository.update(id, userId, dto);
+  }
+
   static deleteTransaction(id: string, userId: string): boolean {
     const success = TransactionRepository.delete(id, userId);
     if (!success) {
       throw new AppError('Transaction not found or could not be deleted', 404, 'DELETE_FAILED');
     }
     return true;
+  }
+
+  static undoLatestTransaction(userId: string): TransactionRecord {
+    const latest = TransactionRepository.findLatestByUserId(userId);
+    if (!latest) {
+      throw new AppError('No transactions found to undo', 404, 'NO_TRANSACTIONS');
+    }
+    const success = TransactionRepository.delete(latest.id, userId);
+    if (!success) {
+      throw new AppError('Failed to undo latest transaction', 500, 'UNDO_FAILED');
+    }
+    return latest;
   }
 }

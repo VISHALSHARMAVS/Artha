@@ -277,6 +277,19 @@ export const api = {
     transaction_date?: string;
   }) => request<Transaction>('/transactions/quick-add', { method: 'POST', body: JSON.stringify(data) }),
 
+  updateTransaction: (id: string, data: {
+    account_id?: string;
+    destination_account_id?: string;
+    category_id?: string;
+    type?: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+    amount_paise?: number;
+    description?: string;
+    notes?: string;
+    transaction_date?: string;
+  }) => request<Transaction>(`/transactions/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  undoLatestTransaction: () => request<Transaction>('/transactions/undo', { method: 'POST' }),
+
   deleteTransaction: (id: string) => request<{ success: boolean }>(`/transactions/${id}`, { method: 'DELETE' }),
 
   // Categories

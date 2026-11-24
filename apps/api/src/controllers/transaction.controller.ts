@@ -61,10 +61,28 @@ export class TransactionController {
     }
   }
 
+  static update(req: Request, res: Response, next: NextFunction): void {
+    try {
+      const tx = TransactionService.updateTransaction(req.params.id, req.body, req.userId);
+      res.json({ success: true, data: tx, message: 'Transaction updated and account balance updated successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static delete(req: Request, res: Response, next: NextFunction): void {
     try {
       TransactionService.deleteTransaction(req.params.id, req.userId);
       res.json({ success: true, message: 'Transaction deleted and account balance updated successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static undo(req: Request, res: Response, next: NextFunction): void {
+    try {
+      const tx = TransactionService.undoLatestTransaction(req.userId);
+      res.json({ success: true, data: tx, message: 'Latest transaction undone and account balance restored' });
     } catch (error) {
       next(error);
     }

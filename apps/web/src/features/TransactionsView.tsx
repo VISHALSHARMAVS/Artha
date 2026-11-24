@@ -3,7 +3,8 @@ import { api, Transaction, Account, Category, formatPaise } from '../lib/api.js'
 import { CategoryIcon } from '../components/CategoryIcon.js';
 import { Badge } from '../components/ui/Badge.js';
 import { Button } from '../components/ui/Button.js';
-import { Search, Plus, Trash2, Filter, AlertCircle, RefreshCw, Receipt } from 'lucide-react';
+import { Search, Plus, Trash2, Filter, AlertCircle, RefreshCw, Receipt, Pencil } from 'lucide-react';
+import { EditTransactionModal } from '../components/EditTransactionModal.js';
 
 interface TransactionsViewProps {
   onAddTransaction: () => void;
@@ -20,6 +21,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   // Filters
   const [typeFilter, setTypeFilter] = useState<string>('');
@@ -179,7 +181,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                 <th className="py-3 px-4">Category</th>
                 <th className="py-3 px-4">Account Movement</th>
                 <th className="py-3 px-4 text-right">Amount</th>
-                <th className="py-3 px-4 text-center w-12">Action</th>
+                <th className="py-3 px-4 text-center w-20">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -303,13 +305,22 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                     </td>
 
                     <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={() => handleDelete(tx.id)}
-                        className="p-1 text-slate-400 hover:text-red-600 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                        title="Delete transaction and reverse balance impact"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => setEditingTransaction(tx)}
+                          className="p-1 text-slate-400 hover:text-blue-600 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                          title="Edit transaction details"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(tx.id)}
+                          className="p-1 text-slate-400 hover:text-red-600 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                          title="Delete transaction and reverse balance impact"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -339,6 +350,15 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
           </div>
         </div>
       </div>
+
+      <EditTransactionModal
+        isOpen={!!editingTransaction}
+        onClose={() => setEditingTransaction(null)}
+        onSuccess={loadTransactions}
+        transaction={editingTransaction}
+        accounts={accounts}
+        categories={categories}
+      />
     </div>
   );
 };

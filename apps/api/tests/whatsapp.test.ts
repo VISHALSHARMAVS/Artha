@@ -149,4 +149,20 @@ describe('WhatsApp Conversational Expense Engine Tests', () => {
     assert.ok(batchRes.replyMessage.includes('Total Logged'));
     assert.ok(batchRes.replyMessage.includes('3,950.00'));
   });
+
+  test('User sends "undo" or "delete" -> removes latest transaction and restores balance', () => {
+    // 1. Send single transaction
+    const addRes = WhatsAppParserService.processIncomingMessage(userPhone, 'Bought shirt 1200');
+    assert.strictEqual(addRes.success, true);
+    assert.strictEqual(addRes.action, 'TRANSACTION_RECORDED');
+    assert.strictEqual(addRes.transaction?.amountPaise, 120000);
+    assert.strictEqual(addRes.transaction?.categoryName, 'Shopping');
+
+    // 2. Send "undo"
+    const undoRes = WhatsAppParserService.processIncomingMessage(userPhone, 'undo');
+    assert.strictEqual(undoRes.success, true);
+    assert.strictEqual(undoRes.action, 'TRANSACTION_UNDONE');
+    assert.ok(undoRes.replyMessage.includes('Transaction Undone & Removed!'));
+    assert.ok(undoRes.replyMessage.includes('1,200.00'));
+  });
 });

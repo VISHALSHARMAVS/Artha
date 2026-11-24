@@ -78,6 +78,19 @@ export const CreateTransactionSchema = z.object({
 );
 export type CreateTransactionDTO = z.infer<typeof CreateTransactionSchema>;
 
+// Update transaction schema
+export const UpdateTransactionSchema = z.object({
+  account_id: z.string().min(1, 'Source account is required').optional(),
+  destination_account_id: z.string().optional().nullable(),
+  category_id: z.string().optional().nullable(),
+  type: TransactionTypeEnum.optional(),
+  amount_paise: z.number().int().positive('Amount must be a positive integer in paise').optional(),
+  description: z.string().min(1, 'Description is required').max(100).optional(),
+  notes: z.string().max(500).optional().nullable(),
+  transaction_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+});
+export type UpdateTransactionDTO = z.infer<typeof UpdateTransactionSchema>;
+
 // Quick-Add expense schema (Journey B)
 export const QuickAddTransactionSchema = z.object({
   amount_paise: z.number().int().positive('Amount must be a positive integer in paise'),

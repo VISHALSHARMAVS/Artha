@@ -15,6 +15,7 @@ import {
   LoginSchema,
   CreateAccountSchema,
   CreateTransactionSchema,
+  UpdateTransactionSchema,
   QuickAddTransactionSchema,
   CreateBudgetSchema,
   CreateLoanSchema,
@@ -39,9 +40,11 @@ router.delete('/accounts/:id', AccountController.delete);
 
 // Transactions
 router.get('/transactions', TransactionController.list);
+router.post('/transactions/undo', TransactionController.undo);
 router.get('/transactions/:id', TransactionController.getById);
 router.post('/transactions', validateBody(CreateTransactionSchema), TransactionController.create);
 router.post('/transactions/quick-add', validateBody(QuickAddTransactionSchema), TransactionController.quickAdd);
+router.put('/transactions/:id', validateBody(UpdateTransactionSchema), TransactionController.update);
 router.delete('/transactions/:id', TransactionController.delete);
 
 // Categories

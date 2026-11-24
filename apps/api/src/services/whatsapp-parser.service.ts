@@ -8,7 +8,7 @@ import { LoanService } from './loan.service.js';
 
 export interface WhatsAppParsedResult {
   success: boolean;
-  action: 'TRANSACTION_RECORDED' | 'BATCH_TRANSACTIONS_RECORDED' | 'BALANCE_CHECK' | 'FREEDOM_RUNWAY' | 'GUILT_FREE' | 'DEBT_FREEDOM' | 'HELP' | 'UNLINKED_USER' | 'PARSE_ERROR';
+  action: 'TRANSACTION_RECORDED' | 'BATCH_TRANSACTIONS_RECORDED' | 'BALANCE_CHECK' | 'FREEDOM_RUNWAY' | 'GUILT_FREE' | 'DEBT_FREEDOM' | 'HELP' | 'UNLINKED_USER' | 'PARSE_ERROR' | 'TRANSACTION_UNDONE';
   replyMessage: string;
   transaction?: {
     id: string;
@@ -102,6 +102,10 @@ Or log into the web dashboard, open the *WhatsApp* tab, and click *Link WhatsApp
 
     // 2. Check for Informational & Financial Freedom Commands
     const lower = trimmed.toLowerCase();
+    if (this.isUndoQuery(lower)) {
+      return this.handleUndoQuery(user);
+    }
+
     if (this.isRunwayQuery(lower)) {
       return this.handleRunwayQuery(user);
     }
@@ -135,6 +139,7 @@ Simply message how you spend naturally:
 • *"Runway"* — Check months of living freedom (Morgan Housel)
 • *"Guilt Free"* — Check 100% guilt-free spending pool (Ramit Sethi)
 • *"Debt Free"* — Check Dave Ramsey loan countdown date
+• *"Undo"* or *"Delete"* — Revert & remove your last logged entry
 • Paste any bank/UPI debit SMS!
 
 _Zero manual forms. Categorized automatically._`,
@@ -152,6 +157,69 @@ _Zero manual forms. Categorized automatically._`,
 
     // 4. Parse Single Financial Transaction
     return this.parseAndRecordTransaction(user, trimmed);
+  }
+
+  private static isUndoQuery(text: string): boolean {
+    const patterns = [
+      'undo',
+      'undo last',
+      'cancel',
+      'cancel last',
+      'delete last',
+      'delete entry',
+      'delete transaction',
+      'delete',
+      'revert',
+      'revert last',
+      'galat',
+      'galat ho gaya',
+      'wrong entry',
+      'mistake',
+      'hata do',
+    ];
+    return patterns.some(p => text === p || text.startsWith(p));
+  }
+
+  private static handleUndoQuery(user: UserRecord): WhatsAppParsedResult {
+    try {
+      const undone = TransactionService.undoLatestTransaction(user.id);
+      const overview = DashboardService.getOverview(user.id);
+      const formattedAmount = Money.fromPaise(undone.amount_paise).format();
+      const updatedLiquid = Money.fromPaise(overview.answers.total_liquid_paise).format();
+      const safeDaily = Money.fromPaise(overview.answers.safe_to_spend.dailySafePaise).format();
+
+      const replyMessage =
+`🗑️ *Transaction Undone & Removed!*
+
+• *Removed:* ${formattedAmount} (${undone.description})
+• *Account:* ${undone.account_name || 'Bank Account'}
+• *Reversed:* Bank balance has been restored.
+
+💰 *Updated Liquid Balance:* ${updatedLiquid}
+🛡️ *Safe to Spend:* ${safeDaily} / day
+
+_To edit or recategorize transactions, you can also open the Transactions tab on your web dashboard._`;
+
+      return {
+        success: true,
+        action: 'TRANSACTION_UNDONE',
+        replyMessage,
+        transaction: {
+          id: undone.id,
+          type: undone.type,
+          amountPaise: undone.amount_paise,
+          description: undone.description,
+          categoryName: undone.category_name,
+          accountName: undone.account_name || '',
+        },
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        action: 'PARSE_ERROR',
+        replyMessage: `⚠️ Could not undo transaction: ${err.message || 'No recent transaction found'}.`,
+      };
+    }
   }
 
   private static isRunwayQuery(text: string): boolean {
@@ -405,7 +473,9 @@ ${lineItems}
 
 ${totalSummary}
 💰 *Liquid Balance:* ${updatedLiquid}
-🛡️ *Safe to Spend:* ${safeDaily} / day`;
+🛡️ *Safe to Spend:* ${safeDaily} / day
+
+_(Reply *"Undo"* anytime to revert this entry)_`;
 
     return {
       success: true,
@@ -501,7 +571,9 @@ ${totalSummary}
 🏦 *Account:* ${selectedAccount.name}${lifeEnergyLine}
 
 💰 *Liquid Balance:* ${updatedLiquid}
-🛡️ *Safe to Spend:* ${safeDaily} / day`;
+🛡️ *Safe to Spend:* ${safeDaily} / day
+
+_(Reply *"Undo"* anytime to revert this entry)_`;
 
     return {
       success: true,
