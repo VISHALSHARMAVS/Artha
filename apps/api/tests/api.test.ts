@@ -100,6 +100,14 @@ describe('Artha Layered Backend Integration Tests', () => {
     const grocerySuggestion = CategoryService.suggestCategory('Blinkit instant milk delivery', DEFAULT_USER_ID);
     assert.ok(grocerySuggestion);
     assert.strictEqual(grocerySuggestion?.name, 'Groceries');
+
+    const shirtSuggestion = CategoryService.suggestCategory('1500 for shirt', DEFAULT_USER_ID);
+    assert.ok(shirtSuggestion);
+    assert.strictEqual(shirtSuggestion?.name, 'Shopping');
+
+    const jeansSuggestion = CategoryService.suggestCategory('Zara Jeans', DEFAULT_USER_ID);
+    assert.ok(jeansSuggestion);
+    assert.strictEqual(jeansSuggestion?.name, 'Shopping');
   });
 
   test('Quick-Add Expense Workflow (Journey B)', () => {

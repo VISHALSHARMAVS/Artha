@@ -106,9 +106,29 @@ export class CategoryService {
       {
         categoryMatch: 'Shopping',
         keywords: [
-          'amazon', 'flipkart', 'myntra', 'ajio', 'meesho', 'nykaa', 'zara', 'h&m', 'uniqlo',
-          'westside', 'shopping', 'clothes', 'clothing', 'shoes', 'footwear', 'electronics',
-          'gadgets', 'croma', 'reliance digital', 'vijay sales', 'ikea'
+          // Clothing & Apparel
+          'shirt', 'shirts', 't-shirt', 'tshirt', 't shirt', 't-shirts', 'tshirts', 'top', 'tops',
+          'pant', 'pants', 'trouser', 'trousers', 'jeans', 'denim', 'shorts', 'cargo', 'joggers',
+          'trackpants', 'leggings', 'dress', 'skirt', 'suit', 'blazer', 'coat', 'jacket', 'hoodie',
+          'sweater', 'sweatshirt', 'kurta', 'kurti', 'kurtas', 'saree', 'sari', 'sarees', 'lehenga',
+          'salwar', 'dupatta', 'sherwani', 'socks', 'innerwear', 'underwear', 'clothes', 'clothing',
+          'apparel', 'fashion',
+          // Footwear
+          'shoes', 'sneakers', 'boots', 'sandals', 'slippers', 'chappal', 'chappals', 'heels',
+          'crocs', 'footwear', 'bata', 'woodland', 'nike', 'adidas', 'puma',
+          // Accessories, Bags, Jewelry
+          'watch', 'smartwatch', 'sunglasses', 'glasses', 'specs', 'lenskart', 'titan', 'fastrack',
+          'bag', 'backpack', 'handbag', 'purse', 'wallet', 'belt', 'luggage', 'suitcase',
+          'jewelry', 'jewellery', 'ring', 'necklace', 'earrings', 'gold', 'silver', 'tanishq', 'caratlane',
+          'perfume', 'deodorant', 'makeup', 'cosmetics', 'skincare',
+          // Electronics & Gadgets
+          'electronics', 'gadgets', 'laptop', 'phone', 'mobile', 'iphone', 'macbook', 'ipad',
+          'tablet', 'headphones', 'earphones', 'earbuds', 'airpods', 'charger', 'cable', 'powerbank',
+          'mouse', 'keyboard', 'monitor', 'croma', 'reliance digital', 'vijay sales',
+          // Malls, Brands & E-commerce
+          'shopping', 'amazon', 'flipkart', 'myntra', 'ajio', 'meesho', 'nykaa', 'zara', 'h&m',
+          'uniqlo', 'westside', 'pantaloons', 'max fashion', 'trends', 'shoppers stop', 'lifestyle',
+          'snitch', 'bewakoof', 'souled store', 'decathlon', 'ikea'
         ],
       },
       {
