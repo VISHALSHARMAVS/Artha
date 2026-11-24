@@ -227,6 +227,11 @@ export class UserRepository {
     }
   }
 
+  static updateFullName(id: string, full_name: string): void {
+    const db = getDb();
+    db.prepare('UPDATE users SET full_name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(full_name.trim(), id);
+  }
+
   static getSalaryProfile(userId: string): SalaryProfileRecord | null {
     const db = getDb();
     const row = db.prepare('SELECT * FROM salary_profiles WHERE user_id = ?').get(userId) as unknown as SalaryProfileRecord | undefined;

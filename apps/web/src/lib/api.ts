@@ -437,6 +437,7 @@ export const api = {
   },
 
   // Onboarding (Journey A)
+  getOnboardingCurrent: () => request<any>('/onboarding/current'),
   submitOnboarding: (data: any) =>
     request<any>('/onboarding', { method: 'POST', body: JSON.stringify(data) }),
 

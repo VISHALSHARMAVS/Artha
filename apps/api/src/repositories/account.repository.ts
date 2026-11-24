@@ -82,6 +82,33 @@ export class AccountRepository {
     `).run(deltaPaise, id);
   }
 
+  static updateDetails(id: string, userId: string, data: { name?: string; account_type?: string; institution_name?: string; balance_paise?: number }): void {
+    const db = getDb();
+    const updates: string[] = [];
+    const params: any[] = [];
+    if (data.name !== undefined) {
+      updates.push('name = ?');
+      params.push(data.name);
+    }
+    if (data.account_type !== undefined) {
+      updates.push('account_type = ?');
+      params.push(data.account_type);
+    }
+    if (data.institution_name !== undefined) {
+      updates.push('institution_name = ?');
+      params.push(data.institution_name);
+    }
+    if (data.balance_paise !== undefined) {
+      updates.push('balance_paise = ?');
+      params.push(data.balance_paise);
+    }
+    if (updates.length > 0) {
+      updates.push('updated_at = CURRENT_TIMESTAMP');
+      params.push(id, userId);
+      db.prepare(`UPDATE accounts SET ${updates.join(', ')} WHERE id = ? AND user_id = ?`).run(...params);
+    }
+  }
+
   /**
    * Deletes an account. If no transactions reference it, it is hard-deleted.
    * If transactions reference it, it is soft-deleted (is_active = 0) to preserve ledger integrity.

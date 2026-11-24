@@ -10,6 +10,7 @@ import { LoanService } from '../src/services/loan.service.js';
 import { ReportService } from '../src/services/report.service.js';
 import { SplitService } from '../src/services/split.service.js';
 import { PdfStatementService } from '../src/services/pdf-statement.service.js';
+import { OnboardingService } from '../src/services/onboarding.service.js';
 import { DEFAULT_USER_ID } from '../src/middleware/auth.js';
 
 describe('Artha Layered Backend Integration Tests', () => {
@@ -341,5 +342,76 @@ describe('Artha Layered Backend Integration Tests', () => {
 
     const restoredAcc = AccountService.getAccount(acc.id, DEFAULT_USER_ID);
     assert.strictEqual(restoredAcc.balance_paise, initialBal, 'Account balance must be cleanly restored');
+  });
+
+  test('Financial setup idempotency: re-running setup updates salary and obligations without duplicate salary entries or accounts', () => {
+    const testUserId = `usr_setup_test_${Date.now()}`;
+    const payload = {
+      full_name: 'Idempotent User',
+      email: `${testUserId}@example.com`,
+      account: {
+        name: 'HDFC Primary',
+        account_type: 'SAVINGS' as const,
+        initial_balance_paise: 5000000,
+      },
+      salary_profile: {
+        employer_name: 'Acme Corp',
+        net_monthly_salary_paise: 10000000, // ₹1,00,000
+        pay_day_of_month: 1,
+        emergency_fund_target_paise: 30000000,
+        monthly_savings_target_paise: 20000000,
+      },
+      obligations: [
+        { title: 'Apartment Rent', amount_paise: 2500000, due_day_of_month: 5 },
+      ],
+    };
+
+    // 1. First run of financial setup
+    const run1 = OnboardingService.completeOnboarding(payload, testUserId);
+    assert.ok(run1.user);
+    assert.strictEqual(run1.obligationsCount, 1);
+
+    // Verify 1 account exists
+    const accsAfterRun1 = AccountService.getAccounts(testUserId);
+    assert.strictEqual(accsAfterRun1.length, 1);
+
+    // Verify exactly 1 salary transaction exists
+    const { transactions: txs1 } = TransactionRepository.list({ userId: testUserId });
+    const salaryTxs1 = txs1.filter(t => t.type === 'INCOME' && t.description.startsWith('Salary'));
+    assert.strictEqual(salaryTxs1.length, 1);
+    assert.strictEqual(salaryTxs1[0].amount_paise, 10000000);
+
+    // 2. User changes/edits financial setup (e.g. changes salary to ₹1,20,000 and adds an obligation)
+    const payload2 = {
+      ...payload,
+      salary_profile: {
+        ...payload.salary_profile,
+        employer_name: 'Acme Corp Senior',
+        net_monthly_salary_paise: 12000000, // ₹1,20,000
+      },
+      obligations: [
+        { title: 'Apartment Rent', amount_paise: 2500000, due_day_of_month: 5 },
+        { title: 'Gym Membership', amount_paise: 300000, due_day_of_month: 10 },
+      ],
+    };
+
+    const run2 = OnboardingService.completeOnboarding(payload2, testUserId);
+    assert.strictEqual(run2.obligationsCount, 2);
+
+    // Must STILL have exactly 1 account (reused and updated, NOT duplicated!)
+    const accsAfterRun2 = AccountService.getAccounts(testUserId);
+    assert.strictEqual(accsAfterRun2.length, 1);
+
+    // Must STILL have exactly 1 salary transaction (updated to new amount, NOT duplicated!)
+    const { transactions: txs2 } = TransactionRepository.list({ userId: testUserId });
+    const salaryTxs2 = txs2.filter(t => t.type === 'INCOME' && t.description.startsWith('Salary'));
+    assert.strictEqual(salaryTxs2.length, 1, 'Salary transaction must not be duplicated when setup is edited');
+    assert.strictEqual(salaryTxs2[0].amount_paise, 12000000, 'Salary amount must update to new value');
+    assert.strictEqual(salaryTxs2[0].description, 'Salary — Acme Corp Senior');
+
+    // 3. Verify getCurrentSetup returns the updated profile
+    const currentSetup = OnboardingService.getCurrentSetup(testUserId);
+    assert.strictEqual(currentSetup.salary_profile?.net_monthly_salary_paise, 12000000);
+    assert.strictEqual(currentSetup.obligations.length, 2);
   });
 });

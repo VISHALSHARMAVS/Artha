@@ -30,12 +30,55 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   const [accountType, setAccountType] = useState<string>('SAVINGS');
   const [initialBalancePaise, setInitialBalancePaise] = useState<number>(0);
 
-  // Keep synced with currently logged in user
+  // Keep synced with currently logged in user and prefill current setup if editing
   useEffect(() => {
+    if (!isOpen) return;
+
     if (currentUser) {
       if (currentUser.full_name) setFullName(currentUser.full_name);
       if (currentUser.email) setEmail(currentUser.email);
     }
+
+    // Prepopulate existing financial setup so user can edit cleanly without retyping
+    api.getOnboardingCurrent()
+      .then((data) => {
+        if (!data) return;
+        if (data.user) {
+          if (data.user.full_name) setFullName(data.user.full_name);
+          if (data.user.email) setEmail(data.user.email);
+        }
+        if (data.account) {
+          if (data.account.name) setAccountName(data.account.name);
+          if (data.account.account_type) setAccountType(data.account.account_type);
+          if (typeof data.account.balance_paise === 'number') {
+            setInitialBalancePaise(data.account.balance_paise);
+          }
+        }
+        if (data.salary_profile) {
+          if (data.salary_profile.employer_name) setEmployerName(data.salary_profile.employer_name);
+          if (typeof data.salary_profile.net_monthly_salary_paise === 'number') {
+            setSalaryPaise(data.salary_profile.net_monthly_salary_paise);
+          }
+          if (typeof data.salary_profile.pay_day_of_month === 'number') {
+            setPayDay(data.salary_profile.pay_day_of_month);
+          }
+          if (typeof data.salary_profile.emergency_fund_target_paise === 'number') {
+            setEmergencyBufferPaise(data.salary_profile.emergency_fund_target_paise);
+          }
+        }
+        if (Array.isArray(data.obligations) && data.obligations.length > 0) {
+          setObligations(
+            data.obligations.map((o: any) => ({
+              title: o.title || '',
+              amountPaise: o.amount_paise || 0,
+              dueDay: o.due_day_of_month || 1,
+            }))
+          );
+        }
+      })
+      .catch(() => {
+        // Fallback for fresh guest setup
+      });
   }, [currentUser, isOpen]);
 
   // Step 2: Salary Profile

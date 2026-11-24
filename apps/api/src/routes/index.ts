@@ -83,6 +83,7 @@ router.get('/reports/category-breakdown', ReportController.getCategoryBreakdown)
 router.get('/reports/export', ReportController.exportData);
 
 // Journey A Onboarding
+router.get('/onboarding/current', OnboardingController.getCurrent);
 router.post('/onboarding', validateBody(OnboardingPayloadSchema), OnboardingController.submit);
 
 // WhatsApp Expense Bot Integration & Webhooks
