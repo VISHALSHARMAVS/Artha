@@ -38,25 +38,25 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#000000]/60 backdrop-blur-sm animate-in fade-in duration-300 ease-out-expo">
       <div
-        className={`w-full ${maxWidthClasses[maxWidth]} bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-modal overflow-hidden animate-in zoom-in-95 duration-150`}
+        className={`w-full ${maxWidthClasses[maxWidth]} bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-xl shadow-modal overflow-hidden animate-in zoom-in-95 duration-300 ease-out-expo`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-[#313131]">
           <div>
-            <h3 id="modal-title" className="text-base font-semibold text-slate-900 dark:text-white">
+            <h3 id="modal-title" className="title-3 font-semibold text-slate-900 dark:text-white">
               {title}
             </h3>
             {description && (
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{description}</p>
+              <p className="caption-2 text-slate-500 dark:text-slate-400 mt-0.5">{description}</p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#272727] active:scale-[0.98] transition-all duration-300 ease-out-expo focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />

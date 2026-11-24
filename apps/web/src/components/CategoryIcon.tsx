@@ -63,7 +63,7 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
 
   return (
     <div
-      className={`shrink-0 flex items-center justify-center border border-slate-200/60 dark:border-slate-800 ${containerSizes[size]}`}
+      className={`shrink-0 flex items-center justify-center border border-slate-200/60 dark:border-[#313131] ${containerSizes[size]}`}
       style={{
         backgroundColor: colorHex ? `${colorHex}15` : 'rgba(15, 23, 42, 0.05)',
         color: colorHex || '#475569',

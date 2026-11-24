@@ -202,7 +202,7 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
             onClick={() => setType('EXPENSE')}
             className={`flex-1 py-1.5 flex items-center justify-center gap-1.5 rounded transition-all ${
               type === 'EXPENSE'
-                ? 'bg-white dark:bg-slate-900 text-red-600 dark:text-red-400 shadow-sm font-semibold'
+                ? 'bg-white dark:bg-[#1F1F1F] text-red-600 dark:text-red-400 shadow-sm font-semibold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
@@ -213,7 +213,7 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
             onClick={() => setType('INCOME')}
             className={`flex-1 py-1.5 flex items-center justify-center gap-1.5 rounded transition-all ${
               type === 'INCOME'
-                ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm font-semibold'
+                ? 'bg-white dark:bg-[#1F1F1F] text-emerald-600 dark:text-emerald-400 shadow-sm font-semibold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
@@ -224,7 +224,7 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
             onClick={() => setType('TRANSFER')}
             className={`flex-1 py-1.5 flex items-center justify-center gap-1.5 rounded transition-all ${
               type === 'TRANSFER'
-                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm font-semibold'
+                ? 'bg-white dark:bg-[#1F1F1F] text-slate-900 dark:text-white shadow-sm font-semibold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
             }`}
           >
@@ -262,7 +262,7 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="e.g. Chai, Grocery, Shopping, Shirt..."
-            className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
             required
           />
         </div>
@@ -276,7 +276,7 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
             <select
               value={accountId}
               onChange={(e) => setAccountId(e.target.value)}
-              className="w-full h-10 px-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full h-10 px-2.5 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
               {accounts.map((acc) => (
                 <option key={acc.id} value={acc.id}>
@@ -294,7 +294,7 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
               <select
                 value={destAccountId}
                 onChange={(e) => setDestAccountId(e.target.value)}
-                className="w-full h-10 px-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full h-10 px-2.5 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
                 {accounts.map((acc) => (
                   <option key={acc.id} value={acc.id}>
@@ -311,7 +311,7 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full h-10 px-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full h-10 px-2.5 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
                 <option value="">Uncategorized</option>
                 {filteredCategories.map((cat) => (
@@ -358,7 +358,7 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
                         className={`flex-1 py-1 rounded text-xs font-medium border transition-colors ${
                           peopleCount === count
                             ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm font-semibold'
-                            : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                            : 'bg-white dark:bg-[#1F1F1F] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                         }`}
                       >
                         {count} People
@@ -383,10 +383,10 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
                           );
                         }}
                         placeholder="Friend Name"
-                        className="flex-1 h-8 px-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-900 dark:text-white"
+                        className="flex-1 h-8 px-2.5 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-900 dark:text-white"
                         required
                       />
-                      <div className="w-28 flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 h-8">
+                      <div className="w-28 flex items-center bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-slate-700 rounded px-2 h-8">
                         <span className="text-slate-400 text-xs mr-1">₹</span>
                         <input
                           type="number"
@@ -408,7 +408,7 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
                 </div>
 
                 {/* Real-time Financial Impact Breakdown */}
-                <div className="p-2.5 bg-white dark:bg-slate-900 rounded border border-slate-200 dark:border-slate-700 text-[11px] space-y-1">
+                <div className="p-2.5 bg-white dark:bg-[#1F1F1F] rounded border border-slate-200 dark:border-slate-700 text-[11px] space-y-1">
                   <div className="flex justify-between items-center text-slate-500">
                     <span>Total Paid from Bank:</span>
                     <span className="font-semibold text-slate-800 dark:text-slate-200 tnum">{formatPaise(amountPaise)}</span>
@@ -437,7 +437,7 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
               type="date"
               value={transactionDate}
               onChange={(e) => setTransactionDate(e.target.value)}
-              className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
               required
             />
           </div>
@@ -451,13 +451,13 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Optional reference notes"
-              className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800">
+        <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-[#313131]">
           <button
             type="button"
             onClick={handleDelete}

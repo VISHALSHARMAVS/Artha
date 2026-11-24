@@ -78,11 +78,12 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
     if (!confirm('Are you sure you want to delete this transaction? Account balances will update automatically.')) {
       return;
     }
+    setError(null);
     try {
       await api.deleteTransaction(id);
       loadTransactions();
     } catch (err: any) {
-      alert(err.message || 'Failed to delete transaction');
+      setError(err.message || 'Failed to delete transaction. Please try again.');
     }
   };
 
@@ -90,10 +91,10 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Transactions Ledger
+          <h1 className="heading-4 sm:heading-3 tracking-tight hero-heading-light dark:hero-heading-dark">
+            Transactions ledger
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="caption-1 text-slate-500 dark:text-slate-400 mt-0.5">
             Audit-safe record of all inflows, outflows, and transfers.
           </p>
         </div>
@@ -105,7 +106,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
             icon={<Upload className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
             onClick={() => setIsImportModalOpen(true)}
           >
-            Import Bank Statement (PDF)
+            Import bank statement (PDF)
           </Button>
 
           <Button
@@ -114,13 +115,22 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
             icon={<Plus className="w-3.5 h-3.5" />}
             onClick={onAddTransaction}
           >
-            Record Transaction
+            Record transaction
           </Button>
         </div>
       </div>
 
+      {error && (
+        <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl flex items-center justify-between gap-2 caption-2 text-red-700 dark:text-red-300">
+          <span>{error}</span>
+          <button onClick={() => setError(null)} className="caption-3 font-semibold hover:underline">
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Filter Toolbar */}
-      <div className="bg-white dark:bg-slate-900 p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-card flex flex-wrap items-center gap-3">
+      <div className="bg-white dark:bg-[#1F1F1F] p-3.5 rounded-lg border border-slate-200 dark:border-[#313131] shadow-card flex flex-wrap items-center gap-3">
         {/* Search Input */}
         <form onSubmit={handleSearchSubmit} className="relative flex-1 min-w-[200px]">
           <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
@@ -184,10 +194,10 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
       </div>
 
       {/* Ledger Table */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-card overflow-hidden">
+      <div className="bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-lg shadow-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-medium">
+            <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-[#313131] text-slate-500 font-medium">
               <tr>
                 <th className="py-3 px-4">Date</th>
                 <th className="py-3 px-4">Description</th>
@@ -288,7 +298,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                           {tx.category_name}
                         </span>
                       ) : (
-                        <span className="text-slate-400 italic">Uncategorized</span>
+                        <span className="caption-4 text-slate-400">Uncategorized</span>
                       )}
                     </td>
 
@@ -355,20 +365,20 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
         </div>
 
         {/* Pagination Controls */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 text-xs text-slate-500">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-[#313131] bg-slate-50/50 dark:bg-slate-800/30 text-xs text-slate-500">
           <span>Showing page {page}</span>
           <div className="flex items-center gap-2">
             <button
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
-              className="px-2.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded disabled:opacity-40"
+              className="px-2.5 py-1 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-slate-700 rounded disabled:opacity-40"
             >
               Previous
             </button>
             <button
               disabled={transactions.length < limit}
               onClick={() => setPage(page + 1)}
-              className="px-2.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded disabled:opacity-40"
+              className="px-2.5 py-1 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-slate-700 rounded disabled:opacity-40"
             >
               Next
             </button>

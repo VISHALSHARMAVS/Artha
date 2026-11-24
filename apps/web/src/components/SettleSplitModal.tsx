@@ -98,7 +98,7 @@ export const SettleSplitModal: React.FC<SettleSplitModalProps> = ({
           <select
             value={accountId}
             onChange={(e) => setAccountId(e.target.value)}
-            className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+            className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
           >
             {accounts.map((acc) => (
               <option key={acc.id} value={acc.id}>
@@ -116,12 +116,12 @@ export const SettleSplitModal: React.FC<SettleSplitModalProps> = ({
             type="date"
             value={settledDate}
             onChange={(e) => setSettledDate(e.target.value)}
-            className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+            className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
             required
           />
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-200 dark:border-slate-800">
+        <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-200 dark:border-[#313131]">
           <Button variant="outline" size="sm" type="button" onClick={onClose} disabled={loading}>
             Cancel
           </Button>

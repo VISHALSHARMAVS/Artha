@@ -51,12 +51,13 @@ export const SplitsView: React.FC<SplitsViewProps> = ({
     if (!confirm(`Are you sure you want to remove the receivable from ${friendName}?`)) {
       return;
     }
+    setError(null);
     try {
       await api.deleteSplit(id);
       loadData();
       if (onRefresh) onRefresh();
     } catch (err: any) {
-      alert(err.message || 'Failed to delete split receivable');
+      setError(err.message || 'Failed to delete split receivable. Please try again.');
     }
   };
 
@@ -65,11 +66,11 @@ export const SplitsView: React.FC<SplitsViewProps> = ({
       {/* View Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+          <h1 className="heading-4 sm:heading-3 tracking-tight hero-heading-light dark:hero-heading-dark flex items-center gap-2.5">
             <Users className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-            <span>Split Payments & Receivables</span>
+            <span>Split payments and receivables</span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="caption-1 text-slate-500 dark:text-slate-400 mt-0.5">
             Track money friends owe you. Recoveries credit your bank without inflating your taxable income.
           </p>
         </div>
@@ -81,10 +82,19 @@ export const SplitsView: React.FC<SplitsViewProps> = ({
             icon={<Plus className="w-3.5 h-3.5" />}
             onClick={onRecordSplit}
           >
-            Record Split Expense
+            Record split expense
           </Button>
         )}
       </div>
+
+      {error && (
+        <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl flex items-center justify-between gap-2 caption-2 text-red-700 dark:text-red-300">
+          <span>{error}</span>
+          <button onClick={() => setError(null)} className="caption-3 font-semibold hover:underline">
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -134,7 +144,7 @@ export const SplitsView: React.FC<SplitsViewProps> = ({
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 pb-2">
+      <div className="flex items-center gap-1.5 border-b border-slate-200 dark:border-[#313131] pb-2">
         <button
           onClick={() => setFilter('pending')}
           className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
@@ -168,10 +178,10 @@ export const SplitsView: React.FC<SplitsViewProps> = ({
       </div>
 
       {/* Receivables Ledger Table */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-card overflow-hidden">
+      <div className="bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-lg shadow-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-medium">
+            <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-[#313131] text-slate-500 font-medium">
               <tr>
                 <th className="py-3 px-4">Friend / Debtor</th>
                 <th className="py-3 px-4">Related Expense</th>
@@ -287,7 +297,7 @@ export const SplitsView: React.FC<SplitsViewProps> = ({
                               Settle
                             </Button>
                           ) : (
-                            <span className="text-[11px] text-slate-400 italic">
+                            <span className="caption-5 text-slate-400">
                               {s.settled_account_name ? `→ ${s.settled_account_name}` : 'Paid'}
                             </span>
                           )}

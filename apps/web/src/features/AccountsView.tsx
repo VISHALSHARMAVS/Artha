@@ -21,17 +21,20 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
   const [creditLimitPaise, setCreditLimitPaise] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [viewError, setViewError] = useState<string | null>(null);
+  const [modalError, setModalError] = useState<string | null>(null);
 
   const handleDelete = async (account: Account) => {
     if (!window.confirm(`Are you sure you want to remove "${account.name}"?`)) {
       return;
     }
     setDeletingId(account.id);
+    setViewError(null);
     try {
       await api.deleteAccount(account.id);
       onRefresh();
     } catch (err: any) {
-      alert(err.message || 'Failed to remove account');
+      setViewError(err.message || 'Failed to remove account. Please try again.');
     } finally {
       setDeletingId(null);
     }
@@ -50,6 +53,7 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
     if (!name.trim()) return;
 
     setLoading(true);
+    setModalError(null);
     try {
       await api.createAccount({
         name: name.trim(),
@@ -68,7 +72,7 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
       setIsModalOpen(false);
       onRefresh();
     } catch (err: any) {
-      alert(err.message || 'Failed to create account');
+      setModalError(err.message || 'Failed to create account. Please check details.');
     } finally {
       setLoading(false);
     }
@@ -110,10 +114,10 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Financial Accounts
+          <h1 className="heading-4 sm:heading-3 tracking-tight hero-heading-light dark:hero-heading-dark">
+            Financial accounts
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="caption-1 text-slate-500 dark:text-slate-400 mt-0.5">
             Aggregated banking, credit lines, and liquid cash vaults.
           </p>
         </div>
@@ -122,14 +126,26 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
           variant="primary"
           size="sm"
           icon={<Plus className="w-3.5 h-3.5" />}
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setModalError(null);
+            setIsModalOpen(true);
+          }}
         >
-          Add Financial Account
+          Add financial account
         </Button>
       </div>
 
+      {viewError && (
+        <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl flex items-center justify-between gap-2 caption-2 text-red-700 dark:text-red-300">
+          <span>{viewError}</span>
+          <button onClick={() => setViewError(null)} className="caption-3 font-semibold hover:underline">
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {accounts.length === 0 ? (
-        <div className="p-8 sm:p-12 text-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-4">
+        <div className="p-8 sm:p-12 text-center rounded-2xl border border-dashed border-slate-200 dark:border-[#313131] bg-white dark:bg-[#1F1F1F] shadow-sm space-y-4">
           <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
             <Landmark className="w-7 h-7" />
           </div>
@@ -156,7 +172,7 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
         <>
           {/* Summary KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-card">
+            <div className="p-4 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-lg shadow-card">
               <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
                 Total Liquid Capital in Banks
               </span>
@@ -166,7 +182,7 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
               <span className="text-xs text-slate-400">Excludes uncleared credit card dues</span>
             </div>
 
-            <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-card">
+            <div className="p-4 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-lg shadow-card">
               <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
                 Uncleared Credit Card Liability
               </span>
@@ -178,8 +194,8 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
           </div>
 
           {/* MONIKA HALAN 3-BUCKET WEALTH ARCHITECTURE */}
-          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-subtle space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+          <div className="p-4 rounded-xl border border-slate-200 dark:border-[#313131] bg-white dark:bg-[#1F1F1F] shadow-subtle space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-[#313131]">
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -271,7 +287,7 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <div className="pt-2 border-t border-slate-100 dark:border-[#313131]">
                     <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
                       {acc.account_type === 'CREDIT_CARD' ? 'Current Balance / Due' : 'Available Balance'}
                     </span>
@@ -302,44 +318,49 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Connect New Financial Account"
+        title="Connect new financial account"
         description="Add a savings account, credit line, or cash reserve to Artha."
         maxWidth="md"
       >
         <form onSubmit={handleCreate} className="space-y-4">
+          {modalError && (
+            <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-lg caption-4 text-red-700 dark:text-red-300">
+              {modalError}
+            </div>
+          )}
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Account Label / Name <span className="text-red-500">*</span>
+            <label className="block caption-4 text-slate-700 dark:text-slate-300 mb-1">
+              Account label / name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. HDFC Salary, ICICI Savings, Axis CC"
-              className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-[#313131] rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Account Type
+              <label className="block caption-4 text-slate-700 dark:text-slate-300 mb-1">
+                Account type
               </label>
               <select
                 value={accountType}
                 onChange={(e) => setAccountType(e.target.value)}
-                className="w-full h-10 px-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full h-10 px-2.5 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-[#313131] rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
-                <option value="SAVINGS">Savings Bank</option>
-                <option value="CHECKING">Checking Account</option>
-                <option value="CREDIT_CARD">Credit Card</option>
-                <option value="CASH">Cash Wallet</option>
+                <option value="SAVINGS">Savings bank</option>
+                <option value="CHECKING">Checking account</option>
+                <option value="CREDIT_CARD">Credit card</option>
+                <option value="CASH">Cash wallet</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block caption-4 text-slate-700 dark:text-slate-300 mb-1">
                 Institution
               </label>
               <input
@@ -347,14 +368,14 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
                 value={institutionName}
                 onChange={(e) => setInstitutionName(e.target.value)}
                 placeholder="e.g. HDFC Bank, SBI"
-                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-[#313131] rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
             </div>
           </div>
 
           <div>
             <AmountInput
-              label={accountType === 'CREDIT_CARD' ? 'Current Outstanding Balance (Paise)' : 'Initial Balance'}
+              label={accountType === 'CREDIT_CARD' ? 'Current outstanding balance (Paise)' : 'Initial balance'}
               valuePaise={initialBalancePaise}
               onChangePaise={setInitialBalancePaise}
             />
@@ -363,19 +384,19 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
           {accountType === 'CREDIT_CARD' && (
             <div>
               <AmountInput
-                label="Total Credit Limit"
+                label="Total credit limit"
                 valuePaise={creditLimitPaise}
                 onChangePaise={setCreditLimitPaise}
               />
             </div>
           )}
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-[#313131]">
             <Button variant="outline" size="md" type="button" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
             <Button variant="primary" size="md" type="submit" loading={loading}>
-              Create Account
+              Create account
             </Button>
           </div>
         </form>

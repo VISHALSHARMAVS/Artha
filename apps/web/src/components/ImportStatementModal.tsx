@@ -213,7 +213,7 @@ export const ImportStatementModal: React.FC<ImportStatementModalProps> = ({
                 <select
                   value={selectedAccountId}
                   onChange={(e) => setSelectedAccountId(e.target.value)}
-                  className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
                 >
                   {accounts.map((acc) => (
                     <option key={acc.id} value={acc.id}>
@@ -262,7 +262,7 @@ export const ImportStatementModal: React.FC<ImportStatementModalProps> = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="e.g. PAN card in uppercase, DOB DDMMYYYY"
-                  className="w-full h-10 pl-9 pr-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full h-10 pl-9 pr-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
               </div>
               <p className="text-[11px] text-slate-400 mt-1">
@@ -271,7 +271,7 @@ export const ImportStatementModal: React.FC<ImportStatementModalProps> = ({
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-[#313131]">
               <Button variant="outline" size="sm" onClick={handleResetModal}>
                 Cancel
               </Button>
@@ -309,9 +309,9 @@ export const ImportStatementModal: React.FC<ImportStatementModalProps> = ({
             </div>
 
             {/* Candidate Table */}
-            <div className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden max-h-96 overflow-y-auto">
+            <div className="border border-slate-200 dark:border-[#313131] rounded-lg overflow-hidden max-h-96 overflow-y-auto">
               <table className="w-full text-left border-collapse text-xs">
-                <thead className="bg-slate-50 dark:bg-slate-800/80 sticky top-0 border-b border-slate-200 dark:border-slate-800 z-10">
+                <thead className="bg-slate-50 dark:bg-slate-800/80 sticky top-0 border-b border-slate-200 dark:border-[#313131] z-10">
                   <tr>
                     <th className="py-2 px-3 w-8 text-center">
                       <button
@@ -375,7 +375,7 @@ export const ImportStatementModal: React.FC<ImportStatementModalProps> = ({
                         <select
                           value={c.category_id || ''}
                           onChange={(e) => handleCategoryChange(c.temp_id, e.target.value)}
-                          className="h-7 px-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                          className="h-7 px-2 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-slate-700 rounded text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
                         >
                           <option value="">Uncategorized</option>
                           {categories.map((cat) => (
@@ -405,7 +405,7 @@ export const ImportStatementModal: React.FC<ImportStatementModalProps> = ({
             </div>
 
             {/* Bottom Actions */}
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-[#313131]">
               <Button variant="outline" size="sm" onClick={() => setStep('UPLOAD')}>
                 Back to Upload
               </Button>

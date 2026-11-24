@@ -138,7 +138,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     >
       <div className="space-y-6">
         {/* Step Indicator */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 text-xs">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#313131] text-xs">
           <div className="flex items-center gap-2">
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center font-medium ${
@@ -196,7 +196,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   placeholder="e.g. Aryan Sharma"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
               </div>
               <div>
@@ -208,12 +208,12 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   placeholder="aryan@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
               </div>
             </div>
 
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="pt-2 border-t border-slate-100 dark:border-[#313131]">
               <h4 className="text-xs font-semibold uppercase text-slate-500 mb-2">Primary Bank Account</h4>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -225,7 +225,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                     placeholder="e.g. HDFC Salary Account"
                     value={accountName}
                     onChange={(e) => setAccountName(e.target.value)}
-                    className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
                   />
                 </div>
                 <div>
@@ -235,7 +235,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   <select
                     value={accountType}
                     onChange={(e) => setAccountType(e.target.value)}
-                    className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
                   >
                     <option value="SAVINGS">Savings Account</option>
                     <option value="CHECKING">Checking Account</option>
@@ -266,7 +266,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 placeholder="e.g. Google India Pvt Ltd"
                 value={employerName}
                 onChange={(e) => setEmployerName(e.target.value)}
-                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
             </div>
 
@@ -285,7 +285,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 <select
                   value={payDay}
                   onChange={(e) => setPayDay(Number(e.target.value))}
-                  className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white"
+                  className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white"
                 >
                   {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
                     <option key={d} value={d}>
@@ -338,7 +338,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                         updated[idx].title = e.target.value;
                         setObligations(updated);
                       }}
-                      className="flex-1 h-8 px-2.5 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                      className="flex-1 h-8 px-2.5 text-xs bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-600"
                       placeholder="e.g. Rent, Electricity, SIP"
                     />
                     <div className="w-32">
@@ -359,7 +359,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                         updated[idx].dueDay = Number(e.target.value);
                         setObligations(updated);
                       }}
-                      className="h-8 px-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-600"
+                      className="h-8 px-2 text-xs bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-600"
                     >
                       {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
                         <option key={d} value={d}>Day {d}</option>
@@ -380,7 +380,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
         )}
 
         {/* Wizard Footer Controls */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800">
+        <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-[#313131]">
           {step > 1 ? (
             <Button
               variant="outline"

@@ -58,37 +58,37 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ overview }) => {
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-          Net Worth & Financial Analytics
+        <h1 className="heading-4 sm:heading-3 tracking-tight hero-heading-light dark:hero-heading-dark">
+          Net worth and financial analytics
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+        <p className="caption-1 text-slate-500 dark:text-slate-400 mt-0.5">
           Deterministic cash flow telemetry, asset distribution, and historical balance sheets.
         </p>
       </div>
 
       {/* Net Worth Hero Strip */}
       {hasNetWorth ? (
-        <div className="p-6 bg-slate-900 text-white rounded-lg shadow-card space-y-4">
+        <div className="p-6 bg-slate-900 dark:bg-[#1F1F1F] text-white border border-slate-800 dark:border-[#313131] rounded-xl shadow-card space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <span className="text-xs uppercase font-semibold text-slate-400 tracking-wider">
-                Consolidated Institutional Net Worth
+              <span className="caption-5 uppercase font-semibold text-slate-400 tracking-wider">
+                Consolidated institutional net worth
               </span>
-              <div className="text-3xl font-extrabold tnum tracking-tight mt-1">
+              <div className="heading-3 tnum tracking-tight mt-1">
                 {formatPaise(netWorth.net_worth_paise, { includeDecimals: false })}
               </div>
             </div>
 
             <div className="flex items-center gap-6">
               <div className="text-right">
-                <span className="text-[11px] text-slate-400 uppercase">Total Assets</span>
-                <div className="text-base font-bold text-emerald-400 tnum">
+                <span className="caption-5 text-slate-400 uppercase">Total assets</span>
+                <div className="title-3 text-emerald-400 tnum">
                   +{formatPaise(netWorth.total_assets_paise, { includeDecimals: false })}
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-[11px] text-slate-400 uppercase">Total Liabilities</span>
-                <div className="text-base font-bold text-red-400 tnum">
+                <span className="caption-5 text-slate-400 uppercase">Total liabilities</span>
+                <div className="title-3 text-red-400 tnum">
                   -{formatPaise(netWorth.total_liabilities_paise, { includeDecimals: false })}
                 </div>
               </div>
@@ -96,28 +96,28 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ overview }) => {
           </div>
         </div>
       ) : (
-        <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-card text-center space-y-2">
+        <div className="p-6 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-xl shadow-card text-center space-y-2">
           <Layers className="w-8 h-8 mx-auto text-blue-500" />
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-            Consolidated Balance Sheet
+          <h3 className="title-4 text-slate-900 dark:text-white">
+            Consolidated balance sheet
           </h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
+          <p className="caption-2 text-slate-500 max-w-md mx-auto">
             Connect bank accounts, credit cards, or register investments to calculate your consolidated assets, liabilities, and true institutional net worth.
           </p>
         </div>
       )}
 
       {/* Real Cash Flow Inflow vs Outflow Histogram */}
-      <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-card space-y-4">
+      <div className="p-6 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-xl shadow-card space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <h2 className="title-4 text-slate-900 dark:text-white flex items-center gap-2">
               <LineChart className="w-4 h-4 text-blue-600" />
-              Cash Flow Telemetry (Last 6 Months)
+              Cash flow telemetry (last 6 months)
             </h2>
-            <p className="text-xs text-slate-500">Realized Monthly Inflow vs Outflow</p>
+            <p className="caption-2 text-slate-500">Realized monthly inflow vs outflow</p>
           </div>
-          <div className="flex items-center gap-4 text-xs font-medium">
+          <div className="flex items-center gap-4 caption-4">
             <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
               <span className="w-2.5 h-2.5 bg-emerald-500 rounded-sm" /> Inflow
             </span>
@@ -128,21 +128,21 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ overview }) => {
         </div>
 
         {loading ? (
-          <div className="py-12 text-center text-xs text-slate-400">
+          <div className="py-12 text-center caption-2 text-slate-400">
             Calculating historical cash flow telemetry...
           </div>
         ) : !hasAnyCashFlow ? (
           <div className="py-12 text-center space-y-2">
             <LineChart className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-700" />
-            <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-              No Cash Flow Telemetry Yet
+            <div className="title-5 text-slate-700 dark:text-slate-300">
+              No cash flow telemetry yet
             </div>
-            <p className="text-[11px] text-slate-500 max-w-sm mx-auto">
+            <p className="caption-5 text-slate-500 max-w-sm mx-auto">
               Record salary credits, recurring bills, or daily living expenses to plot monthly inflow vs outflow trends and net savings velocity across trailing months.
             </p>
           </div>
         ) : (
-          <div className="pt-4 grid grid-cols-6 gap-2 sm:gap-4 items-end h-48 border-b border-slate-200 dark:border-slate-800 pb-2">
+          <div className="pt-4 grid grid-cols-6 gap-2 sm:gap-4 items-end h-48 border-b border-slate-200 dark:border-[#313131] pb-2">
             {cashFlow.map((cf) => {
               const incomeHeight = cf.incomePaise > 0 ? Math.max(4, (cf.incomePaise / maxFlow) * 100) : 0;
               const expenseHeight = cf.expensePaise > 0 ? Math.max(4, (cf.expensePaise / maxFlow) * 100) : 0;
@@ -163,10 +163,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ overview }) => {
                       title={`Outflow: ${formatPaise(cf.expensePaise)}`}
                     />
                   </div>
-                  <span className="text-[11px] font-medium text-slate-500 mt-2 truncate">
+                  <span className="caption-5 text-slate-500 mt-2 truncate">
                     {cf.monthLabel}
                   </span>
-                  <span className="text-[9px] text-slate-400 tnum hidden sm:block">
+                  <span className="caption-5 text-slate-400 tnum hidden sm:block">
                     {formatPaise(cf.netSavingsPaise, { includeDecimals: false, compact: true })}
                   </span>
                 </div>
@@ -177,14 +177,14 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ overview }) => {
       </div>
 
       {/* Category Spending Breakdown */}
-      <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-card space-y-4">
+      <div className="p-6 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-xl shadow-card space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <h2 className="title-4 text-slate-900 dark:text-white flex items-center gap-2">
               <PieChart className="w-4 h-4 text-blue-600" />
-              Category Expenditure Distribution
+              Category expenditure distribution
             </h2>
-            <p className="text-xs text-slate-500">Realized monthly spending classified by sector.</p>
+            <p className="caption-2 text-slate-500">Realized monthly spending classified by sector.</p>
           </div>
         </div>
 
@@ -192,10 +192,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ overview }) => {
           {categoryBreakdown.length === 0 ? (
             <div className="py-10 text-center space-y-2">
               <PieChart className="w-7 h-7 mx-auto text-slate-300 dark:text-slate-700" />
-              <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                No Category Expenses This Month
+              <div className="title-5 text-slate-700 dark:text-slate-300">
+                No category expenses this month
               </div>
-              <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+              <p className="caption-5 text-slate-500 max-w-xs mx-auto">
                 Categorized expenses (food, transit, utilities, etc.) will automatically generate your sector distribution profile here.
               </p>
             </div>
@@ -209,25 +209,25 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ overview }) => {
                       colorHex={cat.colorHex}
                       size="sm"
                     />
-                    <span className="font-semibold text-slate-900 dark:text-white">
+                    <span className="title-5 text-slate-900 dark:text-white">
                       {cat.categoryName}
                     </span>
-                    <span className="text-slate-400 text-[11px]">
+                    <span className="text-slate-400 caption-5">
                       ({cat.transactionCount} transactions)
                     </span>
                   </div>
 
                   <div className="text-right">
-                    <span className="font-bold text-slate-900 dark:text-white tnum mr-2">
+                    <span className="title-5 text-slate-900 dark:text-white tnum mr-2">
                       {formatPaise(cat.totalPaise, { includeDecimals: false })}
                     </span>
-                    <span className="text-slate-500 text-[11px] font-semibold tnum">
+                    <span className="text-slate-500 caption-4 tnum">
                       {cat.percentage}%
                     </span>
                   </div>
                 </div>
 
-                <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-slate-100 dark:bg-[#272727] h-2 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-300"
                     style={{

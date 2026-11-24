@@ -49,18 +49,20 @@
   --brand-secondary-hover: #60A5FA;
   --brand-accent: #60A5FA;
 
-  --bg-app: #0B0F19;
-  --bg-surface: #111827;
-  --bg-surface-elevated: #1F2937;
-  --bg-surface-subtle: #161F30;
+  /* Strictly approved dark mode background colors from landing-page-design skill:
+     #000000 · #181818 · #1F1F1F · #272727 · #313131 · #131209 */
+  --bg-app: #181818;
+  --bg-surface: #1F1F1F;
+  --bg-surface-elevated: #272727;
+  --bg-surface-subtle: #272727;
 
   --text-primary: #F9FAFB;
   --text-secondary: #9CA3AF;
   --text-tertiary: #6B7280;
-  --text-inverse: #0F172A;
+  --text-inverse: #181818;
 
-  --border-subtle: #1F2937;
-  --border-medium: #374151;
+  --border-subtle: #272727;
+  --border-medium: #313131;
   --border-focus: #3B82F6;
 
   --color-income: #10B981;
@@ -68,7 +70,7 @@
   --color-expense: #F87171;
   --color-expense-subtle: rgba(248, 113, 113, 0.12);
   --color-transfer: #9CA3AF;
-  --color-transfer-subtle: #1F2937;
+  --color-transfer-subtle: #272727;
 
   --color-success: #22C55E;
   --color-warning: #F59E0B;
@@ -79,15 +81,226 @@
 body {
   background-color: var(--bg-app);
   color: var(--text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Strict copy rules from landing-page-design skill:
+   - No orphaned words
+   - text-wrap: balance for headings
+   - text-wrap: pretty for body
+   - Never use italic fonts anywhere in the interface
+*/
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+p, span, label, td, th {
+  text-wrap: pretty;
+}
+
+*, *::before, *::after {
+  font-style: normal !important;
+}
+
+/* Base motion curves from skill B7:
+   Base curve: cubic-bezier(0.22, 1, 0.36, 1) */
+:root {
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ease-out-expo {
+  transition-timing-function: var(--ease-out-expo);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Named Typography Tokens from Part B1 (landing-page-design) */
+.heading-1 {
+  font-size: 3.75rem; /* text-6xl (60px) */
+  line-height: 1;     /* 60px */
+  font-weight: 600;   /* Semibold */
+  letter-spacing: -0.025em;
+}
+
+.heading-2 {
+  font-size: 3rem;    /* text-5xl (48px) */
+  line-height: 1;     /* 48px */
+  font-weight: 600;   /* Semibold */
+  letter-spacing: -0.02em;
+}
+
+.heading-3 {
+  font-size: 2.25rem; /* text-4xl (36px) */
+  line-height: 2.5rem;/* 40px */
+  font-weight: 600;   /* Semibold */
+  letter-spacing: -0.015em;
+}
+
+.heading-4 {
+  font-size: 1.875rem;/* text-3xl (30px) */
+  line-height: 2.25rem;/* 36px */
+  font-weight: 600;   /* Semibold */
+}
+
+.heading-5 {
+  font-size: 1.5rem;  /* text-2xl (24px) */
+  line-height: 2rem;  /* 32px */
+  font-weight: 600;   /* Semibold */
+}
+
+.heading-6 {
+  font-size: 1.25rem; /* text-xl (20px) */
+  line-height: 1.75rem;/* 28px */
+  font-weight: 600;   /* Semibold */
+}
+
+.title-1 {
+  font-size: 1.25rem; /* text-xl (20px) */
+  line-height: 1.75rem;/* 28px */
+  font-weight: 500;   /* Medium */
+}
+
+.title-2 {
+  font-size: 1.125rem;/* text-lg (18px) */
+  line-height: 1.75rem;/* 28px */
+  font-weight: 500;   /* Medium */
+}
+
+.title-3 {
+  font-size: 1rem;    /* text-base (16px) */
+  line-height: 1.5rem;/* 24px */
+  font-weight: 500;   /* Medium */
+}
+
+.title-4 {
+  font-size: 0.875rem;/* text-sm (14px) */
+  line-height: 1.25rem;/* 20px */
+  font-weight: 500;   /* Medium */
+}
+
+.title-5 {
+  font-size: 0.75rem; /* text-xs (12px) */
+  line-height: 1rem;  /* 16px */
+  font-weight: 500;   /* Medium */
+}
+
+.body-1 {
+  font-size: 1rem;    /* text-base (16px) */
+  line-height: 1.5rem;/* 24px */
+  font-weight: 600;   /* Semibold */
+}
+
+.body-2 {
+  font-size: 1rem;    /* text-base (16px) */
+  line-height: 1.5rem;/* 24px */
+  font-weight: 500;   /* Medium */
+}
+
+.body-3 {
+  font-size: 1rem;    /* text-base (16px) */
+  line-height: 1.5rem;/* 24px */
+  font-weight: 400;   /* Regular */
+}
+
+.body-4 {
+  font-size: 0.875rem;/* text-sm (14px) */
+  line-height: 1.25rem;/* 20px */
+  font-weight: 600;   /* Semibold */
+}
+
+.body-5 {
+  font-size: 0.875rem;/* text-sm (14px) */
+  line-height: 1.25rem;/* 20px */
+  font-weight: 500;   /* Medium */
+}
+
+.body-6 {
+  font-size: 0.875rem;/* text-sm (14px) */
+  line-height: 1.25rem;/* 20px */
+  font-weight: 400;   /* Regular */
+}
+
+.button-lg {
+  font-size: 1.125rem;/* text-lg (18px) */
+  line-height: 1.75rem;/* 28px */
+  font-weight: 600;   /* Semibold */
+}
+
+.button-md {
+  font-size: 1rem;    /* text-base (16px) */
+  line-height: 1.5rem;/* 24px */
+  font-weight: 600;   /* Semibold */
+}
+
+.button-sm {
+  font-size: 0.875rem;/* text-sm (14px) */
+  line-height: 1.25rem;/* 20px */
+  font-weight: 600;   /* Semibold */
+}
+
+.button-xsm {
+  font-size: 0.75rem; /* text-xs (12px) */
+  line-height: 1rem;  /* 16px */
+  font-weight: 600;   /* Semibold */
+}
+
+.caption-1 {
+  font-size: 0.875rem;/* text-sm (14px) */
+  line-height: 1.25rem;/* 20px */
+  font-weight: 500;   /* Medium */
+}
+
+.caption-2 {
+  font-size: 0.875rem;/* text-sm (14px) */
+  line-height: 1.25rem;/* 20px */
+  font-weight: 400;   /* Regular */
+}
+
+.caption-3 {
+  font-size: 0.75rem; /* text-xs (12px) */
+  line-height: 1rem;  /* 16px */
+  font-weight: 600;   /* Semibold */
+}
+
+.caption-4 {
+  font-size: 0.75rem; /* text-xs (12px) */
+  line-height: 1rem;  /* 16px */
+  font-weight: 500;   /* Medium */
+}
+
+.caption-5 {
+  font-size: 0.75rem; /* text-xs (12px) */
+  line-height: 1rem;  /* 16px */
+  font-weight: 400;   /* Regular */
+}
+
+/* Hero Section heading gradients (Rule B5) */
+.hero-heading-dark {
+  background: linear-gradient(to right, #FFFFFF 0%, #9B9B9B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-heading-light {
+  background: linear-gradient(to right, #000000 0%, #666666 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Enforce tabular numerals across all financial elements */
 .tnum,
 .tabular-nums,
 [data-tabular="true"] {
+  font-family: 'Geist Mono', monospace;
   font-feature-settings: "tnum" 1, "cv05" 1, "cv11" 1;
   font-variant-numeric: tabular-nums;
 }
@@ -127,8 +340,8 @@ textarea::placeholder {
 [data-theme="dark"] select,
 [data-theme="dark"] textarea {
   color: #F9FAFB !important;
-  background-color: #111827;
-  border-color: #374151;
+  background-color: #1F1F1F !important;
+  border-color: #313131 !important;
 }
 
 [data-theme="dark"] input::placeholder,

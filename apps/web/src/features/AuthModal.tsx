@@ -81,7 +81,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-6 relative">
+      <div className="w-full max-w-md bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-2xl shadow-2xl p-6 relative">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors text-lg"
@@ -166,10 +166,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
 
         <div className="relative my-5">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
+            <div className="w-full border-t border-slate-200 dark:border-[#313131]"></div>
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="px-2 bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500">or continue with</span>
+            <span className="px-2 bg-white dark:bg-[#1F1F1F] text-slate-400 dark:text-slate-500">or continue with</span>
           </div>
         </div>
 

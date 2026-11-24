@@ -68,24 +68,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* 4 Cards Skeleton */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-3">
+            <div key={i} className="p-5 rounded-xl border border-slate-200 dark:border-[#313131] bg-white dark:bg-[#1F1F1F] space-y-3">
               <div className="flex justify-between items-center">
-                <div className="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
-                <div className="w-4 h-4 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-4 w-24 bg-slate-200 dark:bg-[#272727] rounded" />
+                <div className="w-4 h-4 bg-slate-200 dark:bg-[#272727] rounded" />
               </div>
-              <div className="h-7 w-36 bg-slate-300 dark:bg-slate-700 rounded" />
-              <div className="h-3 w-40 bg-slate-100 dark:bg-slate-800/60 rounded" />
+              <div className="h-7 w-36 bg-slate-300 dark:bg-[#313131] rounded" />
+              <div className="h-3 w-40 bg-slate-100 dark:bg-[#272727]/60 rounded" />
             </div>
           ))}
         </div>
 
         {/* Banner Skeleton */}
-        <div className="h-32 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" />
+        <div className="h-32 rounded-xl border border-slate-200 dark:border-[#313131] bg-white dark:bg-[#1F1F1F]" />
 
         {/* Split Grid Skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 h-72 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" />
-          <div className="h-72 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" />
+          <div className="lg:col-span-2 h-72 rounded-xl border border-slate-200 dark:border-[#313131] bg-white dark:bg-[#1F1F1F]" />
+          <div className="h-72 rounded-xl border border-slate-200 dark:border-[#313131] bg-white dark:bg-[#1F1F1F]" />
         </div>
       </div>
     );
@@ -93,7 +93,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   if (error || !overview) {
     return (
-      <div className="max-w-2xl mx-auto my-12 p-8 rounded-2xl border border-red-200 dark:border-red-900/50 bg-white dark:bg-slate-900 shadow-sm text-center space-y-4">
+      <div className="max-w-2xl mx-auto my-12 p-8 rounded-2xl border border-red-200 dark:border-red-900/50 bg-white dark:bg-[#1F1F1F] shadow-sm text-center space-y-4">
         <div className="w-12 h-12 mx-auto rounded-full bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 flex items-center justify-center">
           <AlertCircle className="w-6 h-6" />
         </div>
@@ -151,12 +151,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       {/* Header with Quick Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Financial Dashboard
+        <div className="max-w-[680px]">
+          <h1 className="heading-4 sm:heading-3 tracking-tight hero-heading-light dark:hero-heading-dark">
+            Financial dashboard
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Institutional overview answering your 5 core questions immediately.
+          <p className="caption-1 text-slate-500 dark:text-slate-400 mt-1 max-w-[680px]">
+            Institutional financial telemetry answering your five core wealth questions.
           </p>
         </div>
 
@@ -167,10 +167,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               size="sm"
               icon={<Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
               onClick={onStartOnboarding}
-              className="border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 bg-blue-50/50 hover:bg-blue-100 dark:bg-blue-950/40"
+              className="border-blue-200 dark:border-[#313131] text-blue-700 dark:text-blue-300 bg-blue-50/50 hover:bg-blue-100 dark:bg-[#272727]"
               title="Configure your salary, bank balance, and monthly recurring bills"
             >
-              Financial Setup
+              Financial setup
             </Button>
           )}
           <Button
@@ -179,7 +179,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             icon={<ArrowLeftRight className="w-3.5 h-3.5" />}
             onClick={onAddTransaction}
           >
-            Record Transfer
+            Record transfer
           </Button>
           <Button
             variant="primary"
@@ -187,24 +187,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             icon={<Plus className="w-3.5 h-3.5" />}
             onClick={onQuickAdd}
           >
-            Quick Record
+            Quick record
           </Button>
         </div>
       </div>
 
-      {/* First-time baseline onboarding prompt banner */}
+      {/* First-time baseline onboarding prompt banner (flat surface per Rule B4) */}
       {answers.total_liquid_paise === 0 && answers.income_mtd_paise === 0 && onStartOnboarding && (
-        <div className="p-4 sm:p-5 rounded-xl border border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 via-indigo-50/40 to-slate-50 dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+        <div className="p-4 sm:p-5 rounded-xl border border-blue-200 dark:border-[#313131] bg-blue-50/60 dark:bg-[#1F1F1F] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
           <div className="flex items-start gap-3">
             <div className="p-2.5 bg-blue-600 text-white rounded-lg shadow-sm shrink-0">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                Set up your Financial Baseline
+              <h3 className="title-4 text-slate-900 dark:text-white">
+                Set up your financial baseline
               </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
-                Configure your starting bank account, liquid balance, monthly salary, and recurring obligations in 3 quick steps to power Artha's 5 core financial questions.
+              <p className="caption-2 text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                Configure your starting bank account, liquid balance, monthly salary, and recurring obligations in three quick steps to power Artha's five core financial questions.
               </p>
             </div>
           </div>
@@ -215,7 +215,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             onClick={onStartOnboarding}
             className="shrink-0 whitespace-nowrap self-start sm:self-center shadow-sm"
           >
-            Start Financial Setup
+            Start financial setup
           </Button>
         </div>
       )}
@@ -272,7 +272,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <h2 className="text-sm font-semibold tracking-wide uppercase">
                 5. Safe-to-Spend Computation
               </h2>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white/80 dark:bg-slate-900/80 border">
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white/80 dark:bg-[#1F1F1F]/80 border">
                 STATUS: {safe.status}
               </span>
             </div>
@@ -328,37 +328,37 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* FINANCIAL FREEDOM SUITE (Morgan Housel, Ramit Sethi, George Clason) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Freedom Runway Gauge */}
-        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-subtle flex items-center justify-between">
+        <div className="p-4 rounded-xl border border-slate-200 dark:border-[#313131] bg-white dark:bg-[#1F1F1F] shadow-subtle flex items-center justify-between">
           <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <div className="flex items-center gap-1.5 title-5 text-slate-500 uppercase tracking-wider">
               <Compass className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span>Freedom Runway</span>
+              <span>Freedom runway</span>
             </div>
-            <div className="text-2xl font-bold text-slate-900 dark:text-white tnum flex items-baseline gap-1">
+            <div className="heading-5 text-slate-900 dark:text-white tnum flex items-baseline gap-1">
               <span>{safe.freedomRunwayMonths || 0}</span>
-              <span className="text-sm font-medium text-slate-500">Months</span>
+              <span className="caption-2 text-slate-500">months</span>
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            <p className="caption-5 text-slate-500 dark:text-slate-400">
               ≈ {safe.freedomRunwayDays || 0} days living without earning
             </p>
           </div>
-          <div className="p-3 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+          <div className="p-3 rounded-full bg-blue-50 dark:bg-[#272727] text-blue-600 dark:text-blue-400">
             <Hourglass className="w-5 h-5" />
           </div>
         </div>
 
         {/* Pay Yourself First Allocation */}
-        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-subtle flex items-center justify-between">
+        <div className="p-4 rounded-xl border border-slate-200 dark:border-[#313131] bg-white dark:bg-[#1F1F1F] shadow-subtle flex items-center justify-between">
           <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <div className="flex items-center gap-1.5 title-5 text-slate-500 uppercase tracking-wider">
               <Coins className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>Pay Yourself First</span>
+              <span>Pay yourself first</span>
             </div>
-            <div className="text-2xl font-bold text-slate-900 dark:text-white tnum flex items-baseline gap-1">
+            <div className="heading-5 text-slate-900 dark:text-white tnum flex items-baseline gap-1">
               <span>{answers.savings_rate_percent}%</span>
-              <span className="text-sm font-medium text-slate-500">Retained</span>
+              <span className="caption-2 text-slate-500">retained</span>
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            <p className="caption-5 text-slate-500 dark:text-slate-400">
               Net saved: {formatPaise(answers.net_savings_mtd_paise, { includeDecimals: false })} MTD
             </p>
           </div>
@@ -368,16 +368,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Total Institutional Net Worth */}
-        <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-subtle flex items-center justify-between">
+        <div className="p-4 rounded-xl border border-slate-200 dark:border-[#313131] bg-white dark:bg-[#1F1F1F] shadow-subtle flex items-center justify-between">
           <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <div className="flex items-center gap-1.5 title-5 text-slate-500 uppercase tracking-wider">
               <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-              <span>Total Net Worth</span>
+              <span>Total net worth</span>
             </div>
-            <div className="text-2xl font-bold text-slate-900 dark:text-white tnum">
+            <div className="heading-5 text-slate-900 dark:text-white tnum">
               {formatPaise(net_worth.net_worth_paise, { includeDecimals: false })}
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            <p className="caption-5 text-slate-500 dark:text-slate-400">
               Assets: {formatPaise(net_worth.total_assets_paise, { includeDecimals: false })} · Debts: {formatPaise(net_worth.total_liabilities_paise, { includeDecimals: false })}
             </p>
           </div>
@@ -390,47 +390,47 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* TWO COLUMN SUPPORTING DETAILS: UPCOMING OBLIGATIONS & RECENT ACTIVITY */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Upcoming Commitments & Bills */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5 shadow-card">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div className="bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-xl p-5 shadow-card">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-[#313131]">
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                Upcoming Obligations Before Payday
+              <h3 className="title-4 text-slate-900 dark:text-white">
+                Upcoming obligations before payday
               </h3>
-              <p className="text-xs text-slate-500">Committed payments automatically deducted from Safe-to-Spend.</p>
+              <p className="caption-2 text-slate-500">Committed payments automatically deducted from safe-to-spend.</p>
             </div>
-            <span className="text-xs font-medium text-slate-500">
+            <span className="caption-4 text-slate-500">
               {upcoming_obligations.length} items
             </span>
           </div>
 
-          <div className="divide-y divide-slate-100 dark:divide-slate-800/60 mt-1">
+          <div className="divide-y divide-slate-100 dark:divide-[#313131] mt-1">
             {upcoming_obligations.length === 0 ? (
-              <div className="py-8 text-center text-xs text-slate-400">
+              <div className="py-8 text-center caption-2 text-slate-400">
                 No upcoming obligations due before your next salary.
               </div>
             ) : (
               upcoming_obligations.map((obl) => (
                 <div key={obl.id} className="py-3 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-600 border border-amber-200 dark:border-amber-800/60 flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-[#272727] text-amber-600 border border-amber-200 dark:border-[#313131] flex items-center justify-center shrink-0">
                       <Calendar className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-xs font-semibold text-slate-900 dark:text-white">
+                      <div className="title-5 text-slate-900 dark:text-white">
                         {obl.title}
                       </div>
-                      <div className="text-[11px] text-slate-500">
+                      <div className="caption-5 text-slate-500">
                         Due in {obl.daysRemaining} days • {obl.dueDate}
                       </div>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="text-xs font-bold text-slate-900 dark:text-white tnum">
+                    <div className="title-4 text-slate-900 dark:text-white tnum">
                       {formatPaise(obl.amountPaise)}
                     </div>
                     {obl.categoryName && (
-                      <span className="text-[10px] text-slate-400">{obl.categoryName}</span>
+                      <span className="caption-5 text-slate-400">{obl.categoryName}</span>
                     )}
                   </div>
                 </div>
@@ -440,24 +440,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Recent Financial Transactions */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-5 shadow-card">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div className="bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-xl p-5 shadow-card">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-[#313131]">
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                Recent Transaction Activity
+              <h3 className="title-4 text-slate-900 dark:text-white">
+                Recent transaction activity
               </h3>
-              <p className="text-xs text-slate-500">Verified double-entry ledger postings.</p>
+              <p className="caption-2 text-slate-500">Verified double-entry ledger postings.</p>
             </div>
             <button
               onClick={() => onNavigateTab('transactions')}
-              className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+              className="caption-4 font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 active:scale-[0.98] transition-all"
             >
-              <span>View All</span>
+              <span>View all</span>
               <ExternalLink className="w-3 h-3" />
             </button>
           </div>
 
-          <div className="divide-y divide-slate-100 dark:divide-slate-800/60 mt-1">
+          <div className="divide-y divide-slate-100 dark:divide-[#313131] mt-1">
             {recent_transactions.slice(0, 5).map((tx) => (
               <div key={tx.id} className="py-2.5 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
@@ -468,10 +468,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     size="sm"
                   />
                   <div className="min-w-0">
-                    <div className="text-xs font-medium text-slate-900 dark:text-white truncate">
+                    <div className="body-6 text-slate-900 dark:text-white truncate">
                       {tx.description}
                     </div>
-                    <div className="text-[10px] text-slate-500">
+                    <div className="caption-5 text-slate-500">
                       {tx.transaction_date} • {tx.account_name}
                       {tx.type === 'TRANSFER' && ` → ${tx.destination_account_name}`}
                     </div>
@@ -480,7 +480,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                 <div className="text-right shrink-0">
                   <div
-                    className={`text-xs font-semibold tnum ${
+                    className={`title-5 tnum ${
                       tx.type === 'INCOME'
                         ? 'text-emerald-600 dark:text-emerald-400'
                         : tx.type === 'EXPENSE'
@@ -502,25 +502,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* Net Worth Summary Strip */}
-      <div className="p-4 bg-slate-100/70 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
+      <div className="p-4 bg-slate-100/70 dark:bg-[#1F1F1F] rounded-xl border border-slate-200 dark:border-[#313131] flex flex-wrap items-center justify-between gap-4">
         <div>
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-            Total Net Worth Checkpoint
+          <span className="caption-5 uppercase tracking-wider text-slate-500">
+            Total net worth checkpoint
           </span>
-          <div className="text-xl font-bold text-slate-900 dark:text-white tnum mt-0.5">
+          <div className="heading-6 text-slate-900 dark:text-white tnum mt-0.5">
             {formatPaise(net_worth.net_worth_paise, { includeDecimals: false })}
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-6 text-xs">
+        <div className="flex flex-wrap items-center gap-6 caption-4">
           <div>
-            <span className="text-slate-500">Total Assets:</span>{' '}
+            <span className="text-slate-500">Total assets:</span>{' '}
             <strong className="text-emerald-600 dark:text-emerald-400 tnum">
               {formatPaise(net_worth.total_assets_paise, { includeDecimals: false })}
             </strong>
           </div>
           <div>
-            <span className="text-slate-500">Total Liabilities:</span>{' '}
+            <span className="text-slate-500">Total liabilities:</span>{' '}
             <strong className="text-red-600 dark:text-red-400 tnum">
               {formatPaise(net_worth.total_liabilities_paise, { includeDecimals: false })}
             </strong>

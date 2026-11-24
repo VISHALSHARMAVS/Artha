@@ -83,7 +83,8 @@ try {
   console.error('Error verifying database state:', err);
 }
 
-if (process.env.NODE_ENV !== 'test') {
+const isTest = process.env.NODE_ENV === 'test' || process.argv.some((arg) => arg.includes('test'));
+if (!isTest) {
   app.listen(PORT, () => {
     console.log(`🏛️ Artha Financial API running at http://localhost:${PORT}`);
     console.log(`📊 Health check: http://localhost:${PORT}/api/health`);

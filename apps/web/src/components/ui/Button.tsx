@@ -17,20 +17,21 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed select-none';
+  const baseClasses = 'inline-flex items-center justify-center rounded-md transition-all duration-300 ease-out-expo active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 select-none';
 
+  // Landing Page Design Tokens: B1 Typography (Button-lg/md/sm) and B2 Spacing (Main buttons: 8px vertical, 12px horizontal)
   const sizeClasses = {
-    sm: 'h-8 px-3 text-xs gap-1.5',
-    md: 'h-10 px-4 text-sm gap-2',
-    lg: 'h-12 px-5 text-base gap-2.5',
+    sm: 'py-1.5 px-2.5 button-sm gap-1.5',
+    md: 'py-2 px-3 button-md gap-2',
+    lg: 'py-2.5 px-4 button-lg gap-2.5',
   };
 
   const variantClasses = {
-    primary: 'bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white focus:ring-slate-900 shadow-subtle',
-    secondary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-600 shadow-subtle',
-    subtle: 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 focus:ring-slate-400',
-    outline: 'border border-slate-300 bg-transparent text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800/60 focus:ring-slate-400',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-600 shadow-subtle',
+    primary: 'bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-[#181818] dark:hover:bg-white focus-visible:ring-slate-900 shadow-subtle',
+    secondary: 'bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-600 shadow-subtle',
+    subtle: 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-[#272727] dark:text-[#F9FAFB] dark:hover:bg-[#313131] focus-visible:ring-slate-400',
+    outline: 'border border-slate-300 bg-transparent text-slate-700 hover:bg-slate-50 dark:border-[#313131] dark:text-[#F9FAFB] dark:hover:bg-[#272727] focus-visible:ring-slate-400',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600 shadow-subtle',
   };
 
   return (

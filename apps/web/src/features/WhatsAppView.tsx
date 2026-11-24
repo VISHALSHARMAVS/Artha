@@ -153,7 +153,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-[#313131] pb-5">
         <div>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-500 font-semibold text-lg">
@@ -192,7 +192,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
         {/* Left Column: Link Phone Number & Setup Guidance */}
         <div className="lg:col-span-5 space-y-6">
           {/* Card 1: Link Phone */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
+          <div className="bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-xl p-5 shadow-sm">
             <h2 className="text-base font-semibold text-slate-900 dark:text-white mb-1">
               Link Your WhatsApp Number
             </h2>
@@ -246,7 +246,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
           </div>
 
           {/* Card 2: Meta Developer Sandbox Guide (Zero SIM Cost) */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
+          <div className="bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-xl p-5 shadow-sm space-y-3">
             <div className="flex items-center gap-2">
               <span className="text-emerald-500 text-base">🛡️</span>
               <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -284,7 +284,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
               </ol>
             </div>
 
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="pt-2 border-t border-slate-100 dark:border-[#313131]">
               <div className="p-2.5 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-xs text-slate-700 dark:text-slate-300 space-y-1">
                 <span className="font-semibold text-emerald-600 dark:text-emerald-400">💡 1-Second WhatsApp Link:</span>
                 <p>You can also link directly inside WhatsApp! Just text the bot: <br/><code className="font-mono text-emerald-600 dark:text-emerald-400 font-semibold select-all">LINK aditya@artha.internal</code></p>
@@ -397,7 +397,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
                                 }
                                 if (p.startsWith('_') && p.endsWith('_')) {
                                   return (
-                                    <span key={pIdx} className="italic text-[#8696a0]">
+                                    <span key={pIdx} className="text-[#8696a0] opacity-90">
                                       {p.slice(1, -1)}
                                     </span>
                                   );
@@ -432,7 +432,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
               })}
 
               {isSimulating && (
-                <div className="flex items-center gap-2 text-xs text-[#8696a0] italic px-2">
+                <div className="flex items-center gap-2 caption-4 text-[#8696a0] px-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#8696a0] animate-bounce"></span>
                   <span className="w-1.5 h-1.5 rounded-full bg-[#8696a0] animate-bounce delay-100"></span>
                   <span className="w-1.5 h-1.5 rounded-full bg-[#8696a0] animate-bounce delay-200"></span>

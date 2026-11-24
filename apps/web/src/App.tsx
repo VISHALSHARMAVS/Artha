@@ -134,7 +134,7 @@ export const App: React.FC = () => {
   }, [isQuickAddOpen, isAddTxOpen, isOnboardingOpen]);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 flex flex-col lg:flex-row transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#181818] text-slate-900 dark:text-[#F9FAFB] flex flex-col lg:flex-row transition-colors duration-300 ease-out-expo">
       {/* Sidebar Navigation */}
       <Sidebar
         currentTab={currentTab}

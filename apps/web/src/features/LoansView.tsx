@@ -53,6 +53,8 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
     loanName: string;
     rows: AmortizationRow[];
   } | null>(null);
+  const [loanError, setLoanError] = useState<string | null>(null);
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
 
   // Interactive Live Calculator state
   const [calcPrincipalPaise, setCalcPrincipalPaise] = useState<number>(300000000); // ₹30,00,000
@@ -128,6 +130,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
     if (!loanName.trim() || !lenderName.trim()) return;
 
     setSaving(true);
+    setLoanError(null);
     try {
       await api.createLoan({
         loan_name: loanName.trim(),
@@ -142,13 +145,14 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
       setIsModalOpen(false);
       loadLoans();
     } catch (err: any) {
-      alert(err.message || 'Failed to register loan');
+      setLoanError(err.message || 'Failed to register loan. Please check inputs.');
     } finally {
       setSaving(false);
     }
   };
 
   const openScheduleForLoan = async (loan: Loan) => {
+    setScheduleError(null);
     try {
       const schedule = await api.getLoanSchedule(loan.id);
       setSelectedSchedule({
@@ -156,7 +160,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
         rows: schedule.amortizationSchedule,
       });
     } catch (err: any) {
-      alert(err.message || 'Failed to fetch schedule');
+      setScheduleError(err.message || 'Failed to fetch amortization schedule. Please retry.');
     }
   };
 
@@ -164,10 +168,10 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Loans & Debt Management
+          <h1 className="heading-4 sm:heading-3 tracking-tight hero-heading-light dark:hero-heading-dark">
+            Loans and debt management
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="caption-1 text-slate-500 dark:text-slate-400 mt-0.5">
             Reducing-balance amortizations, EMI schedules, and debt obligations.
           </p>
         </div>
@@ -176,15 +180,27 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
           variant="primary"
           size="sm"
           icon={<Plus className="w-3.5 h-3.5" />}
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setLoanError(null);
+            setIsModalOpen(true);
+          }}
         >
-          Register Active Loan
+          Register active loan
         </Button>
       </div>
 
-      {/* DAVE RAMSEY DEBT FREEDOM COUNTDOWN & ACCELERATOR */}
+      {scheduleError && (
+        <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl flex items-center justify-between gap-2 caption-2 text-red-700 dark:text-red-300">
+          <span>{scheduleError}</span>
+          <button onClick={() => setScheduleError(null)} className="caption-3 font-semibold hover:underline">
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* DAVE RAMSEY DEBT FREEDOM COUNTDOWN & ACCELERATOR (Flat surface per Rule B4) */}
       {freedomSummary && (
-        <div className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-gradient-to-r from-slate-900 to-indigo-950 text-white shadow-card space-y-4">
+        <div className="p-5 rounded-xl border border-slate-200 dark:border-[#313131] bg-slate-900 dark:bg-[#1F1F1F] text-white shadow-card space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
@@ -271,7 +287,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
               Loading loan profiles...
             </div>
           ) : loans.length === 0 ? (
-            <div className="col-span-2 p-8 text-center rounded-xl border border-dashed border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 space-y-3">
+            <div className="col-span-2 p-8 text-center rounded-xl border border-dashed border-slate-200 dark:border-[#313131] bg-white/50 dark:bg-[#1F1F1F]/50 space-y-3">
               <div className="w-10 h-10 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center">
                 <Landmark className="w-5 h-5" />
               </div>
@@ -319,7 +335,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-slate-100 dark:border-[#313131]">
                   <div>
                     <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
                       Outstanding Balance
@@ -350,7 +366,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
       </div>
 
       {/* Interactive Reducing-Balance EMI Simulator */}
-      <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-card space-y-5">
+      <div className="p-6 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-lg shadow-card space-y-5">
         <div>
           <h2 className="text-base font-bold text-slate-900 dark:text-white">
             Precision EMI & Amortization Simulator
@@ -380,7 +396,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
               max="30"
               value={calcRate}
               onChange={(e) => setCalcRate(parseFloat(e.target.value) || 0)}
-              className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 tnum"
+              className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 tnum"
             />
           </div>
 
@@ -395,7 +411,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
               max="360"
               value={calcTenureMonths}
               onChange={(e) => setCalcTenureMonths(parseInt(e.target.value, 10) || 12)}
-              className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 tnum"
+              className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 tnum"
             />
             <span className="text-[10px] text-slate-400">
               ({(calcTenureMonths / 12).toFixed(1)} years)
@@ -425,21 +441,21 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800">
+            <div className="p-3 bg-white dark:bg-[#1F1F1F] rounded-lg border border-slate-200/80 dark:border-[#313131]">
               <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Calculated Monthly EMI</span>
               <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 tnum mt-0.5">
                 {formatPaise(calcResult.monthlyEmiPaise)}
               </div>
             </div>
 
-            <div className="p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800">
+            <div className="p-3 bg-white dark:bg-[#1F1F1F] rounded-lg border border-slate-200/80 dark:border-[#313131]">
               <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Interest Payable</span>
               <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 tnum mt-0.5">
                 {formatPaise(calcResult.totalInterestPaise, { includeDecimals: false })}
               </div>
             </div>
 
-            <div className="p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800">
+            <div className="p-3 bg-white dark:bg-[#1F1F1F] rounded-lg border border-slate-200/80 dark:border-[#313131]">
               <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Repayment (Principal + Interest)</span>
               <div className="text-2xl font-bold text-slate-900 dark:text-white tnum mt-0.5">
                 {formatPaise(calcResult.totalAmountPayablePaise, { includeDecimals: false })}
@@ -534,7 +550,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
                 value={loanName}
                 onChange={(e) => setLoanName(e.target.value)}
                 placeholder="e.g. Home Loan, Car Loan"
-                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 required
               />
             </div>
@@ -547,7 +563,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
                 value={lenderName}
                 onChange={(e) => setLenderName(e.target.value)}
                 placeholder="e.g. HDFC Ltd, SBI, ICICI"
-                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 required
               />
             </div>
@@ -572,7 +588,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
                 step="0.05"
                 value={rate}
                 onChange={(e) => setRate(parseFloat(e.target.value) || 0)}
-                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white tnum"
+                className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white tnum"
                 required
               />
             </div>
@@ -584,7 +600,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
                 type="number"
                 value={tenureMonths}
                 onChange={(e) => setTenureMonths(parseInt(e.target.value, 10) || 12)}
-                className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white tnum"
+                className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white tnum"
                 required
               />
             </div>
@@ -597,7 +613,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
             <select
               value={accountId}
               onChange={(e) => setAccountId(e.target.value)}
-              className="w-full h-10 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white"
+              className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-xs text-slate-900 dark:text-white"
             >
               {accounts.map((a) => (
                 <option key={a.id} value={a.id}>
@@ -607,7 +623,7 @@ export const LoansView: React.FC<LoansViewProps> = ({ accounts }) => {
             </select>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-[#313131]">
             <Button variant="outline" size="md" type="button" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>

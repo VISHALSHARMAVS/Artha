@@ -62,7 +62,7 @@ export const AmountInput: React.FC<AmountInputProps> = ({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+        <label className="block caption-4 text-slate-700 dark:text-slate-300 mb-1.5">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
@@ -79,7 +79,7 @@ export const AmountInput: React.FC<AmountInputProps> = ({
           onChange={handleChange}
           placeholder={placeholder}
           autoFocus={autoFocus}
-          className={`w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md pr-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors tnum ${sizeClasses[size]}`}
+          className={`w-full bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-[#313131] rounded-md pr-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all duration-300 ease-out-expo tnum font-mono ${sizeClasses[size]}`}
         />
       </div>
     </div>

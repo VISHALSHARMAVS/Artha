@@ -19,7 +19,7 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <div
-      className={`bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-lg shadow-card transition-colors ${paddingClasses[padding]} ${className}`}
+      className={`bg-white dark:bg-[#1F1F1F] border border-slate-200/80 dark:border-[#313131] rounded-xl shadow-card transition-colors duration-300 ease-out-expo ${paddingClasses[padding]} ${className}`}
       {...props}
     >
       {children}
@@ -49,20 +49,20 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   onClick,
 }) => {
   const borderHighlight = {
-    default: 'border-slate-200/80 dark:border-slate-800',
-    income: 'border-emerald-200 dark:border-emerald-900/40',
-    expense: 'border-red-200 dark:border-red-900/40',
-    accent: 'border-blue-200 dark:border-blue-900/40',
+    default: 'border-slate-200/80 dark:border-[#313131]',
+    income: 'border-emerald-200 dark:border-emerald-800/60',
+    expense: 'border-red-200 dark:border-red-800/60',
+    accent: 'border-blue-200 dark:border-blue-800/60',
   };
 
   return (
     <div
       onClick={onClick}
-      className={`bg-white dark:bg-slate-900 border ${borderHighlight[highlight]} rounded-lg p-5 shadow-card transition-all ${
-        onClick ? 'cursor-pointer hover:border-slate-300 dark:hover:border-slate-700' : ''
+      className={`bg-white dark:bg-[#1F1F1F] border ${borderHighlight[highlight]} rounded-xl p-5 shadow-card transition-all duration-300 ease-out-expo ${
+        onClick ? 'cursor-pointer hover:border-slate-300 dark:hover:border-slate-600 active:scale-[0.98]' : ''
       } ${className}`}
     >
-      <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium tracking-wide uppercase mb-2">
+      <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 title-5 tracking-wide uppercase mb-2">
         <div className="flex items-center gap-1.5">
           {icon && <span className="text-slate-400 dark:text-slate-500">{icon}</span>}
           <span>{label}</span>
@@ -70,12 +70,12 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         {badge && <div>{badge}</div>}
       </div>
 
-      <div className="text-2xl font-semibold text-slate-900 dark:text-white tnum tracking-tight">
+      <div className="heading-5 text-slate-900 dark:text-white tnum tracking-tight">
         {value}
       </div>
 
       {subtitle && (
-        <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 font-normal">
+        <div className="mt-2 caption-2 text-slate-500 dark:text-slate-400">
           {subtitle}
         </div>
       )}
