@@ -128,6 +128,16 @@ export class PdfStatementService {
     }
 
     const rawText = await this.extractPdfText(buffer, password);
+
+    // Detect scanned image-only PDFs where no digital font text layer exists
+    if (rawText.trim().length < 20) {
+      throw new AppError(
+        'This PDF appears to be a scanned document or photograph without embedded digital text streams. Scanned image PDFs require OCR processing. Please upload the official digital e-statement (PDF or CSV) downloaded from your bank portal, or record entries via WhatsApp.',
+        422,
+        'SCANNED_PDF_DETECTED'
+      );
+    }
+
     const lines = rawText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 
     // Group text into transaction blocks starting with dates
@@ -145,6 +155,14 @@ export class PdfStatementService {
       }
     }
     if (currentBlock) blocks.push(currentBlock);
+
+    if (blocks.length === 0) {
+      throw new AppError(
+        'No date-stamped transaction lines could be recognized in this PDF. Please verify that this is a bank account statement, or upload the statement in CSV format.',
+        422,
+        'NO_TRANSACTIONS_RECOGNIZED'
+      );
+    }
 
     // Fetch existing user transactions for duplicate detection
     const db = getDb();
