@@ -3,23 +3,7 @@ import { api, Transaction, Account, Category, formatPaise } from '../lib/api.js'
 import { CategoryIcon } from '../components/CategoryIcon.js';
 import { Badge } from '../components/ui/Badge.js';
 import { Button } from '../components/ui/Button.js';
-import {
-  Search,
-  Plus,
-  Trash2,
-  Filter,
-  AlertCircle,
-  RefreshCw,
-  Receipt,
-  Pencil,
-  Upload,
-  ArrowUpRight,
-  ArrowDownRight,
-  Users,
-  ChevronLeft,
-  ChevronRight,
-  Sparkles,
-} from 'lucide-react';
+import { Search, Plus, Trash2, Filter, AlertCircle, RefreshCw, Receipt, Pencil, Upload } from 'lucide-react';
 import { EditTransactionModal } from '../components/EditTransactionModal.js';
 import { ImportStatementModal } from '../components/ImportStatementModal.js';
 
@@ -103,44 +87,26 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
     }
   };
 
-  // Metrics for quick overview
-  const totalExpensePaise = transactions
-    .filter((t) => t.type === 'EXPENSE')
-    .reduce((acc, t) => acc + (t.personal_share_paise ?? t.amount_paise), 0);
-
-  const totalIncomePaise = transactions
-    .filter((t) => t.type === 'INCOME')
-    .reduce((acc, t) => acc + t.amount_paise, 0);
-
-  const totalSplitsCount = transactions.filter((t) => Boolean(t.is_split)).length;
-
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
-      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="heading-4 sm:heading-3 tracking-tight font-bold text-slate-900 dark:text-white">
-              Transactions Ledger
-            </h1>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Live Ledger
-            </span>
-          </div>
-          <p className="caption-1 text-slate-500 dark:text-slate-400 mt-1">
-            Audit-safe record of all inflows, personal share outflows, and inter-account transfers.
+          <h1 className="heading-4 sm:heading-3 tracking-tight hero-heading-light dark:hero-heading-dark">
+            Transactions ledger
+          </h1>
+          <p className="caption-1 text-slate-500 dark:text-slate-400 mt-0.5">
+            Audit-safe record of all inflows, outflows, and transfers.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            icon={<Upload className="w-3.5 h-3.5 text-blue-500" />}
+            icon={<Upload className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
             onClick={() => setIsImportModalOpen(true)}
           >
-            Import PDF statement
+            Import bank statement (PDF)
           </Button>
 
           <Button
@@ -155,73 +121,25 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
       </div>
 
       {error && (
-        <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center justify-between gap-2 caption-2 text-rose-400 shadow-sm">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
-          </div>
+        <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl flex items-center justify-between gap-2 caption-2 text-red-700 dark:text-red-300">
+          <span>{error}</span>
           <button onClick={() => setError(null)} className="caption-3 font-semibold hover:underline">
             Dismiss
           </button>
         </div>
       )}
 
-      {/* Quick Telemetry Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        <div className="bg-white dark:bg-[#131722] p-4 rounded-2xl border border-slate-200/80 dark:border-white/[0.08] shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Total Outflow (Personal)
-            </span>
-            <div className="text-xl font-bold font-mono text-slate-900 dark:text-rose-400 mt-1">
-              -{formatPaise(totalExpensePaise)}
-            </div>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center">
-            <ArrowDownRight className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-[#131722] p-4 rounded-2xl border border-slate-200/80 dark:border-white/[0.08] shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Total Inflow Recorded
-            </span>
-            <div className="text-xl font-bold font-mono text-slate-900 dark:text-emerald-400 mt-1">
-              +{formatPaise(totalIncomePaise)}
-            </div>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
-            <ArrowUpRight className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-[#131722] p-4 rounded-2xl border border-slate-200/80 dark:border-white/[0.08] shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Shared Splits Active
-            </span>
-            <div className="text-xl font-bold font-mono text-slate-900 dark:text-indigo-400 mt-1">
-              {totalSplitsCount} {totalSplitsCount === 1 ? 'Expense' : 'Expenses'}
-            </div>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
-            <Users className="w-5 h-5" />
-          </div>
-        </div>
-      </div>
-
       {/* Filter Toolbar */}
-      <div className="bg-white dark:bg-[#131722] p-3 rounded-2xl border border-slate-200/80 dark:border-white/[0.08] shadow-sm flex flex-wrap items-center gap-2.5">
+      <div className="bg-white dark:bg-[#1F1F1F] p-3.5 rounded-lg border border-slate-200 dark:border-[#313131] shadow-card flex flex-wrap items-center gap-3">
         {/* Search Input */}
-        <form onSubmit={handleSearchSubmit} className="relative flex-1 min-w-[220px]">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+        <form onSubmit={handleSearchSubmit} className="relative flex-1 min-w-[200px]">
+          <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search merchant, friend, or note..."
-            className="w-full h-10 pl-10 pr-3 text-xs bg-slate-50 dark:bg-[#0B0E14] border border-slate-200 dark:border-white/[0.08] hover:border-slate-300 dark:hover:border-white/20 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+            placeholder="Search by merchant, description..."
+            className="w-full h-9 pl-9 pr-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
           />
         </form>
 
@@ -232,7 +150,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
             setTypeFilter(e.target.value);
             setPage(1);
           }}
-          className="h-10 px-3.5 text-xs bg-slate-50 dark:bg-[#0B0E14] border border-slate-200 dark:border-white/[0.08] hover:border-slate-300 dark:hover:border-white/20 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer"
+          className="h-9 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
         >
           <option value="">All Movement Types</option>
           <option value="EXPENSE">Expenses Only</option>
@@ -247,7 +165,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
             setAccountFilter(e.target.value);
             setPage(1);
           }}
-          className="h-10 px-3.5 text-xs bg-slate-50 dark:bg-[#0B0E14] border border-slate-200 dark:border-white/[0.08] hover:border-slate-300 dark:hover:border-white/20 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer"
+          className="h-9 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
         >
           <option value="">All Accounts</option>
           {accounts.map((acc) => (
@@ -264,7 +182,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
             setCategoryFilter(e.target.value);
             setPage(1);
           }}
-          className="h-10 px-3.5 text-xs bg-slate-50 dark:bg-[#0B0E14] border border-slate-200 dark:border-white/[0.08] hover:border-slate-300 dark:hover:border-white/20 rounded-xl text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer"
+          className="h-9 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
         >
           <option value="">All Categories</option>
           {categories.map((c) => (
@@ -273,48 +191,39 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
             </option>
           ))}
         </select>
-
-        {hasActiveFilters && (
-          <button
-            onClick={handleClearFilters}
-            className="h-10 px-3 text-xs text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all font-medium"
-          >
-            Clear filters
-          </button>
-        )}
       </div>
 
-      {/* Ledger Table Container */}
-      <div className="bg-white dark:bg-[#131722] border border-slate-200/80 dark:border-white/[0.08] rounded-2xl shadow-xl shadow-black/10 overflow-hidden">
+      {/* Ledger Table */}
+      <div className="bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-lg shadow-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/80 dark:bg-[#181D2A]/80 border-b border-slate-200 dark:border-white/[0.08] text-slate-500 dark:text-slate-400 font-semibold text-[11px] uppercase tracking-wider">
+            <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-[#313131] text-slate-500 font-medium">
               <tr>
-                <th className="py-3.5 px-5">Date</th>
-                <th className="py-3.5 px-5">Description</th>
-                <th className="py-3.5 px-5">Category</th>
-                <th className="py-3.5 px-5">Account Movement</th>
-                <th className="py-3.5 px-5 text-right">Amount</th>
-                <th className="py-3.5 px-5 text-center w-24">Actions</th>
+                <th className="py-3 px-4">Date</th>
+                <th className="py-3 px-4">Description</th>
+                <th className="py-3 px-4">Category</th>
+                <th className="py-3 px-4">Account Movement</th>
+                <th className="py-3 px-4 text-right">Amount</th>
+                <th className="py-3 px-4 text-center w-20">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-white/[0.05]">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-16 text-center text-slate-400">
-                    <div className="flex flex-col items-center gap-2.5">
-                      <RefreshCw className="w-5 h-5 animate-spin text-blue-500" />
-                      <span className="text-xs">Loading ledger records...</span>
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
+                    <div className="flex flex-col items-center gap-2">
+                      <RefreshCw className="w-5 h-5 animate-spin text-blue-600" />
+                      <span>Loading ledger records...</span>
                     </div>
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center">
+                  <td colSpan={6} className="py-10 text-center">
                     <div className="flex flex-col items-center gap-2 max-w-sm mx-auto">
-                      <AlertCircle className="w-6 h-6 text-rose-500" />
-                      <span className="text-xs text-rose-400">{error}</span>
-                      <Button variant="outline" size="sm" onClick={loadTransactions} className="mt-2">
+                      <AlertCircle className="w-6 h-6 text-red-500" />
+                      <span className="text-xs text-red-600 dark:text-red-400">{error}</span>
+                      <Button variant="outline" size="sm" onClick={loadTransactions} className="mt-1">
                         Retry Loading
                       </Button>
                     </div>
@@ -322,30 +231,30 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                 </tr>
               ) : transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-16 text-center">
+                  <td colSpan={6} className="py-12 text-center">
                     {hasActiveFilters ? (
-                      <div className="flex flex-col items-center gap-2.5 max-w-sm mx-auto">
+                      <div className="flex flex-col items-center gap-2 max-w-sm mx-auto">
                         <Filter className="w-6 h-6 text-slate-400" />
-                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                           No Matching Transactions
                         </span>
                         <p className="text-xs text-slate-500">
-                          No records match your active filters. Try clearing them to see all entries.
+                          No transactions found for the applied search or filter criteria.
                         </p>
-                        <Button variant="outline" size="sm" onClick={handleClearFilters} className="mt-2">
-                          Clear Filters
+                        <Button variant="outline" size="sm" onClick={handleClearFilters} className="mt-1">
+                          Clear All Filters
                         </Button>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center gap-2.5 max-w-sm mx-auto">
+                      <div className="flex flex-col items-center gap-2 max-w-sm mx-auto">
                         <Receipt className="w-6 h-6 text-slate-400" />
-                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                           No Transactions Recorded Yet
                         </span>
                         <p className="text-xs text-slate-500">
-                          Log an expense from WhatsApp or click below to record your first transaction.
+                          Begin recording your income, expenses, or transfers to populate your ledger.
                         </p>
-                        <Button variant="primary" size="sm" onClick={onAddTransaction} icon={<Plus className="w-3.5 h-3.5" />} className="mt-2">
+                        <Button variant="primary" size="sm" onClick={onAddTransaction} icon={<Plus className="w-3.5 h-3.5" />} className="mt-1">
                           Record First Transaction
                         </Button>
                       </div>
@@ -356,26 +265,24 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                 transactions.map((tx) => (
                   <tr
                     key={tx.id}
-                    className="hover:bg-slate-50/70 dark:hover:bg-white/[0.03] transition-colors group"
+                    className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
                   >
-                    <td className="py-4 px-5 text-slate-500 dark:text-slate-400 font-mono whitespace-nowrap">
+                    <td className="py-3 px-4 text-slate-500 tnum whitespace-nowrap">
                       {tx.transaction_date}
                     </td>
 
-                    <td className="py-4 px-5">
-                      <div className="flex items-center gap-3">
+                    <td className="py-3 px-4 font-medium text-slate-900 dark:text-white">
+                      <div className="flex items-center gap-2.5">
                         <CategoryIcon
                           iconName={tx.category_icon}
                           type={tx.type}
                           colorHex={tx.category_color}
                           size="sm"
                         />
-                        <div className="min-w-0">
-                          <div className="font-semibold text-slate-900 dark:text-white text-sm tracking-tight truncate">
-                            {tx.description}
-                          </div>
+                        <div>
+                          <div>{tx.description}</div>
                           {tx.notes && (
-                            <div className="text-xs text-slate-400 font-normal truncate mt-0.5">
+                            <div className="text-[10px] text-slate-400 font-normal">
                               {tx.notes}
                             </div>
                           )}
@@ -383,42 +290,36 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                       </div>
                     </td>
 
-                    <td className="py-4 px-5 whitespace-nowrap">
+                    <td className="py-3 px-4 whitespace-nowrap">
                       {tx.type === 'TRANSFER' ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                          Inter-Account Transfer
-                        </span>
+                        <Badge variant="transfer" icon>Inter-Account Transfer</Badge>
                       ) : tx.category_name ? (
-                        <span className="inline-flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 font-medium">
-                          <span
-                            className="w-2 h-2 rounded-full shrink-0"
-                            style={{ backgroundColor: tx.category_color || '#3B82F6' }}
-                          />
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">
                           {tx.category_name}
                         </span>
                       ) : (
-                        <span className="text-xs text-slate-400">Uncategorized</span>
+                        <span className="caption-4 text-slate-400">Uncategorized</span>
                       )}
                     </td>
 
-                    <td className="py-4 px-5 text-slate-600 dark:text-slate-400 text-xs font-mono whitespace-nowrap">
+                    <td className="py-3 px-4 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                       {tx.type === 'TRANSFER' ? (
                         <span>
-                          {tx.account_name} <span className="text-blue-500">→</span> <strong className="text-slate-800 dark:text-slate-200">{tx.destination_account_name}</strong>
+                          {tx.account_name} → <strong className="text-slate-800 dark:text-slate-200">{tx.destination_account_name}</strong>
                         </span>
                       ) : (
                         <span>{tx.account_name}</span>
                       )}
                     </td>
 
-                    <td className="py-4 px-5 text-right whitespace-nowrap">
+                    <td className="py-3 px-4 text-right whitespace-nowrap">
                       <div>
                         <span
-                          className={`font-semibold font-mono text-sm sm:text-base ${
+                          className={`font-semibold tnum ${
                             tx.type === 'INCOME'
-                              ? 'text-emerald-500 dark:text-emerald-400'
+                              ? 'text-emerald-600 dark:text-emerald-400'
                               : tx.type === 'EXPENSE'
-                              ? 'text-rose-500 dark:text-rose-400'
+                              ? 'text-red-600 dark:text-red-400'
                               : 'text-slate-700 dark:text-slate-300'
                           }`}
                         >
@@ -426,12 +327,11 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                           {formatPaise(tx.amount_paise)}
                         </span>
                         {Boolean(tx.is_split) && (
-                          <div className="flex items-center justify-end gap-1.5 mt-1">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/15 text-indigo-400 dark:text-indigo-300 border border-indigo-500/30">
-                              <Users className="w-2.5 h-2.5" />
+                          <div className="flex items-center justify-end gap-1 mt-0.5">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/50">
                               Split
                             </span>
-                            <span className="text-[11px] text-slate-400 font-mono">
+                            <span className="text-[10px] text-slate-500 font-medium">
                               Your share: {formatPaise(tx.personal_share_paise ?? tx.amount_paise)}
                             </span>
                           </div>
@@ -439,18 +339,18 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                       </div>
                     </td>
 
-                    <td className="py-4 px-5 text-center">
-                      <div className="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                    <td className="py-3 px-4 text-center">
+                      <div className="flex items-center justify-center gap-1">
                         <button
                           onClick={() => setEditingTransaction(tx)}
-                          className="p-1.5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
+                          className="p-1 text-slate-400 hover:text-blue-600 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                           title="Edit transaction details"
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleDelete(tx.id)}
-                          className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
+                          className="p-1 text-slate-400 hover:text-red-600 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                           title="Delete transaction and reverse balance impact"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -465,24 +365,22 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
         </div>
 
         {/* Pagination Controls */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-200 dark:border-white/[0.08] bg-slate-50/60 dark:bg-[#181D2A]/60 text-xs text-slate-500 dark:text-slate-400">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-[#313131] bg-slate-50/50 dark:bg-slate-800/30 text-xs text-slate-500">
           <span>Showing page {page}</span>
           <div className="flex items-center gap-2">
             <button
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
-              className="flex items-center gap-1 px-3 py-1.5 bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] hover:border-slate-300 dark:hover:border-white/20 rounded-xl text-slate-700 dark:text-slate-300 disabled:opacity-40 transition-all font-medium"
+              className="px-2.5 py-1 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-slate-700 rounded disabled:opacity-40"
             >
-              <ChevronLeft className="w-3.5 h-3.5" />
-              <span>Previous</span>
+              Previous
             </button>
             <button
               disabled={transactions.length < limit}
               onClick={() => setPage(page + 1)}
-              className="flex items-center gap-1 px-3 py-1.5 bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] hover:border-slate-300 dark:hover:border-white/20 rounded-xl text-slate-700 dark:text-slate-300 disabled:opacity-40 transition-all font-medium"
+              className="px-2.5 py-1 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-slate-700 rounded disabled:opacity-40"
             >
-              <span>Next</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+              Next
             </button>
           </div>
         </div>

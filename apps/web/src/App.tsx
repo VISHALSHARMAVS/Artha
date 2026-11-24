@@ -134,13 +134,7 @@ export const App: React.FC = () => {
   }, [isQuickAddOpen, isAddTxOpen, isOnboardingOpen]);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F17] text-slate-900 dark:text-[#F9FAFB] flex flex-col lg:flex-row transition-colors duration-300 ease-out-expo relative selection:bg-blue-500/20">
-      {/* Ambient luxury lighting */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-30 dark:opacity-70">
-        <div className="absolute -top-32 left-1/4 w-[600px] h-[350px] bg-blue-600/10 blur-[140px] rounded-full" />
-        <div className="absolute top-16 right-1/4 w-[450px] h-[300px] bg-indigo-600/10 blur-[160px] rounded-full" />
-      </div>
-
+    <div className="min-h-screen bg-slate-50 dark:bg-[#181818] text-slate-900 dark:text-[#F9FAFB] flex flex-col lg:flex-row transition-colors duration-300 ease-out-expo">
       {/* Sidebar Navigation */}
       <Sidebar
         currentTab={currentTab}
@@ -155,7 +149,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 px-4 sm:px-8 py-6 lg:py-8 max-w-7xl overflow-y-auto relative z-10">
+      <main className="flex-1 px-4 sm:px-8 py-6 lg:py-8 max-w-7xl overflow-y-auto">
         {currentTab === 'dashboard' && (
           <DashboardView
             overview={overview}
