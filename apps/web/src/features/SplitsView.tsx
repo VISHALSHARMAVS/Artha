@@ -66,7 +66,7 @@ export const SplitsView: React.FC<SplitsViewProps> = ({
       {/* View Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="heading-4 sm:heading-3 tracking-tight hero-heading-light dark:hero-heading-dark flex items-center gap-2.5">
+          <h1 className="heading-4 sm:heading-3 tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
             <Users className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             <span>Split payments and receivables</span>
           </h1>

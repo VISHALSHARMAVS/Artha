@@ -91,7 +91,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="heading-4 sm:heading-3 tracking-tight hero-heading-light dark:hero-heading-dark text-balance">
+          <h1 className="heading-4 sm:heading-3 tracking-tight text-slate-900 dark:text-white text-balance">
             Transactions ledger
           </h1>
           <p className="caption-1 text-slate-500 dark:text-[#9B9B9B] mt-0.5 text-pretty">

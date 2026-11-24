@@ -284,8 +284,7 @@ p, span, label, td, th {
 }
 
 /* Hero Section heading gradients (Rule B5) */
-.hero-heading,
-.hero-heading-light {
+.hero-heading {
   background: linear-gradient(to right, #000000 0%, #666666 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -294,13 +293,7 @@ p, span, label, td, th {
 
 /* In Dark Mode, left to right gradient on the heading text, #FFFFFF → #9B9B9B (Rule B5) */
 .dark .hero-heading,
-.dark .hero-heading-dark,
-.dark .hero-heading-light,
-.dark .dark\:hero-heading-dark,
-[data-theme="dark"] .hero-heading,
-[data-theme="dark"] .hero-heading-dark,
-[data-theme="dark"] .hero-heading-light,
-[data-theme="dark"] .dark\:hero-heading-dark {
+[data-theme="dark"] .hero-heading {
   background: linear-gradient(to right, #FFFFFF 0%, #9B9B9B 100%) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;

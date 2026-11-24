@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { AuthUser } from '../lib/api.js';
 
-export type NavigationTab = 'dashboard' | 'transactions' | 'splits' | 'whatsapp' | 'accounts' | 'budgets' | 'loans' | 'reports';
+export type NavigationTab = 'landing' | 'dashboard' | 'transactions' | 'splits' | 'whatsapp' | 'accounts' | 'budgets' | 'loans' | 'reports';
 
 interface SidebarProps {
   currentTab: NavigationTab;
@@ -43,6 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onLogout,
 }) => {
   const navItems: Array<{ id: NavigationTab; label: string; icon: React.ReactNode }> = [
+    { id: 'landing', label: 'Landing page', icon: <Sparkles className="w-4 h-4 text-amber-500" /> },
     { id: 'dashboard', label: 'Overview', icon: <LayoutDashboard className="w-4 h-4" /> },
     { id: 'transactions', label: 'Transactions', icon: <Receipt className="w-4 h-4" /> },
     { id: 'splits', label: 'Splits and dues', icon: <Users className="w-4 h-4 text-indigo-500" /> },
@@ -59,7 +60,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <aside className="hidden lg:flex flex-col w-64 border-r border-slate-200 dark:border-[#313131] bg-white dark:bg-[#181818] shrink-0 h-screen sticky top-0 transition-colors duration-300 ease-out-expo">
         {/* Brand Header */}
         <div className="flex items-center justify-between px-6 h-16 border-b border-slate-200 dark:border-[#313131]">
-          <div className="flex items-center gap-2.5">
+          <div
+            onClick={() => onTabChange('landing')}
+            className="flex items-center gap-2.5 cursor-pointer hover:opacity-85 transition-opacity"
+            title="View landing page"
+          >
             <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
               A
             </div>
@@ -172,7 +177,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Mobile Top Bar */}
       <header className="lg:hidden flex items-center justify-between px-4 h-14 bg-white/95 dark:bg-[#181818]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#313131] sticky top-0 z-40 transition-colors duration-300 ease-out-expo">
-        <div className="flex items-center gap-2">
+        <div
+          onClick={() => onTabChange('landing')}
+          className="flex items-center gap-2 cursor-pointer hover:opacity-85 transition-opacity"
+          title="View landing page"
+        >
           <div className="w-6 h-6 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
             A
           </div>

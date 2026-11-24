@@ -9,13 +9,27 @@ import { BudgetsView } from './features/BudgetsView.js';
 import { LoansView } from './features/LoansView.js';
 import { ReportsView } from './features/ReportsView.js';
 import { WhatsAppView } from './features/WhatsAppView.js';
+import { LandingPageView } from './features/LandingPageView.js';
 import { AuthModal } from './features/AuthModal.js';
 import { QuickAddModal } from './components/QuickAddModal.js';
 import { AddTransactionModal } from './components/AddTransactionModal.js';
 import { OnboardingModal } from './components/OnboardingModal.js';
 
 export const App: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<NavigationTab>('dashboard');
+  const [currentTab, setCurrentTab] = useState<NavigationTab>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const viewParam = params.get('view') || params.get('tab');
+    if (viewParam === 'landing') return 'landing';
+    if (viewParam && ['dashboard', 'transactions', 'splits', 'whatsapp', 'accounts', 'budgets', 'loans', 'reports'].includes(viewParam)) {
+      return viewParam as NavigationTab;
+    }
+    const token = localStorage.getItem('artha_token');
+    const visited = localStorage.getItem('artha_visited');
+    if (!token && !visited) {
+      return 'landing';
+    }
+    return 'dashboard';
+  });
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('artha-theme') as 'light' | 'dark') || 'light';
   });
@@ -132,6 +146,23 @@ export const App: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isQuickAddOpen, isAddTxOpen, isOnboardingOpen]);
+
+  if (currentTab === 'landing') {
+    return (
+      <LandingPageView
+        onOpenApp={() => {
+          localStorage.setItem('artha_visited', 'true');
+          setCurrentTab('dashboard');
+        }}
+        onOpenWhatsApp={() => {
+          localStorage.setItem('artha_visited', 'true');
+          setCurrentTab('whatsapp');
+        }}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#181818] text-slate-900 dark:text-[#F9FAFB] flex flex-col lg:flex-row transition-colors duration-300 ease-out-expo">

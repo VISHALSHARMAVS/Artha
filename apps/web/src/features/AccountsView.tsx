@@ -114,7 +114,7 @@ export const AccountsView: React.FC<AccountsViewProps> = ({ accounts, onRefresh 
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="heading-4 sm:heading-3 tracking-tight hero-heading-light dark:hero-heading-dark">
+          <h1 className="heading-4 sm:heading-3 tracking-tight text-slate-900 dark:text-white">
             Financial accounts
           </h1>
           <p className="caption-1 text-slate-500 dark:text-slate-400 mt-0.5">

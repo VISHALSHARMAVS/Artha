@@ -152,7 +152,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Header with Quick Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="max-w-[680px]">
-          <h1 className="heading-4 sm:heading-3 tracking-tight hero-heading-light dark:hero-heading-dark">
+          <h1 className="heading-4 sm:heading-3 tracking-tight text-slate-900 dark:text-white">
             Financial dashboard
           </h1>
           <p className="caption-1 text-slate-500 dark:text-slate-400 mt-1 max-w-[680px]">
