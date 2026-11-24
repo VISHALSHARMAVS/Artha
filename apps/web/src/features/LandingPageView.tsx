@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../components/ui/Button.js';
 import { ArthaBrandLockup, ArthaGlyph } from '../components/brand/ArthaLogo.js';
+import { LegalModal, LegalDocType } from '../components/legal/LegalModal.js';
 
 interface LandingPageViewProps {
   onOpenApp: () => void;
@@ -160,6 +161,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   // Interactive Hero Demo State
   const [selectedDemo, setSelectedDemo] = useState<'taxi' | 'dinner' | 'salary'>('taxi');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
+  const [legalModalOpen, setLegalModalOpen] = useState(false);
+  const [legalDocType, setLegalDocType] = useState<LegalDocType>('privacy');
 
   const demoScenarios = {
     taxi: {
@@ -325,6 +329,12 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           <div className="hidden md:flex items-center gap-6 caption-1 text-slate-600 dark:text-[#9B9B9B]">
             <a href="#benefits" className="hover:text-slate-900 dark:hover:text-white transition-colors duration-300">
               Benefits
+            </a>
+            <a href="#comparison" className="hover:text-slate-900 dark:hover:text-white transition-colors duration-300">
+              Comparison
+            </a>
+            <a href="#pricing" className="hover:text-slate-900 dark:hover:text-white transition-colors duration-300">
+              Pricing
             </a>
             <a href="#how-it-works" className="hover:text-slate-900 dark:hover:text-white transition-colors duration-300">
               How it works
@@ -723,6 +733,241 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           </div>
         </section>
 
+        {/* Section 5 of Master Dossier: Competitive Intelligence Matrix */}
+        <section id="comparison" className="py-20 px-4 sm:px-6 max-w-5xl mx-auto border-t border-slate-200 dark:border-[#313131]">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 caption-3 text-blue-700 dark:text-blue-300 mb-4">
+              <span>Competitive intelligence</span>
+            </div>
+            <h2 className="heading-3 tracking-tight text-slate-900 dark:text-white text-balance">
+              Why Indian builders are replacing Splitwise and spreadsheets with Artha
+            </h2>
+            <p className="caption-1 text-slate-500 dark:text-[#9B9B9B] mt-2 text-pretty">
+              Zero wait timers, zero loan advertisements, and zero friction. Here is how Artha compares against legacy tools.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-[#313131] bg-white dark:bg-[#1F1F1F] shadow-card">
+            <table className="w-full text-left border-collapse caption-2">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-[#313131] bg-slate-50/80 dark:bg-[#181818]">
+                  <th className="py-4 px-5 text-slate-500 dark:text-[#9B9B9B] font-medium">Feature or capability</th>
+                  <th className="py-4 px-5 font-semibold text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-950/30">
+                    Artha (अर्थ)
+                  </th>
+                  <th className="py-4 px-5 text-slate-700 dark:text-slate-300 font-medium">Splitwise</th>
+                  <th className="py-4 px-5 text-slate-700 dark:text-slate-300 font-medium">Fold Money</th>
+                  <th className="py-4 px-5 text-slate-700 dark:text-slate-300 font-medium">Google Sheets</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-[#272727] text-slate-700 dark:text-[#D1D5DB]">
+                <tr>
+                  <td className="py-4 px-5 font-medium text-slate-900 dark:text-white">Primary interface</td>
+                  <td className="py-4 px-5 font-semibold text-blue-600 dark:text-blue-400 bg-blue-50/30 dark:bg-blue-950/20">
+                    WhatsApp native
+                  </td>
+                  <td className="py-4 px-5">Standalone mobile app</td>
+                  <td className="py-4 px-5">Standalone mobile app</td>
+                  <td className="py-4 px-5">Desktop spreadsheet</td>
+                </tr>
+                <tr>
+                  <td className="py-4 px-5 font-medium text-slate-900 dark:text-white">Time to log an expense</td>
+                  <td className="py-4 px-5 font-semibold text-emerald-600 dark:text-emerald-400 bg-blue-50/30 dark:bg-blue-950/20">
+                    Under 3 seconds
+                  </td>
+                  <td className="py-4 px-5">15 to 25 seconds</td>
+                  <td className="py-4 px-5">Passive (when sync works)</td>
+                  <td className="py-4 px-5">45 to 90 seconds</td>
+                </tr>
+                <tr>
+                  <td className="py-4 px-5 font-medium text-slate-900 dark:text-white">Countdown timers or ads</td>
+                  <td className="py-4 px-5 font-semibold text-emerald-600 dark:text-emerald-400 bg-blue-50/30 dark:bg-blue-950/20">
+                    Zero timers, zero ads
+                  </td>
+                  <td className="py-4 px-5 text-rose-600 dark:text-rose-400">10 second wait timer</td>
+                  <td className="py-4 px-5">Zero ads</td>
+                  <td className="py-4 px-5">Zero ads</td>
+                </tr>
+                <tr>
+                  <td className="py-4 px-5 font-medium text-slate-900 dark:text-white">Friend bill splitting</td>
+                  <td className="py-4 px-5 font-semibold text-blue-600 dark:text-blue-400 bg-blue-50/30 dark:bg-blue-950/20">
+                    One tap link (No app for friends)
+                  </td>
+                  <td className="py-4 px-5">Requires app install</td>
+                  <td className="py-4 px-5 text-slate-400">Not supported</td>
+                  <td className="py-4 px-5">Manual formulas</td>
+                </tr>
+                <tr>
+                  <td className="py-4 px-5 font-medium text-slate-900 dark:text-white">Tax safe AIS audit shield</td>
+                  <td className="py-4 px-5 font-semibold text-emerald-600 dark:text-emerald-400 bg-blue-50/30 dark:bg-blue-950/20">
+                    Automated debt receipts
+                  </td>
+                  <td className="py-4 px-5 text-slate-400">Not supported</td>
+                  <td className="py-4 px-5 text-slate-400">Not supported</td>
+                  <td className="py-4 px-5">Manual calculation</td>
+                </tr>
+                <tr>
+                  <td className="py-4 px-5 font-medium text-slate-900 dark:text-white">Bank PDF statement parsing</td>
+                  <td className="py-4 px-5 font-semibold text-blue-600 dark:text-blue-400 bg-blue-50/30 dark:bg-blue-950/20">
+                    In memory zero storage regex
+                  </td>
+                  <td className="py-4 px-5 text-slate-400">Not supported</td>
+                  <td className="py-4 px-5">Account Aggregator API</td>
+                  <td className="py-4 px-5">Manual CSV formatting</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* Section 9 of Master Dossier: Grand Slam Offer Stack & Pricing */}
+        <section id="pricing" className="py-20 px-4 sm:px-6 bg-slate-100/40 dark:bg-[#181818] border-t border-slate-200 dark:border-[#313131]">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 caption-3 text-emerald-700 dark:text-emerald-300 mb-4">
+                <span>Predictable, uncompromised software</span>
+              </div>
+              <h2 className="heading-3 tracking-tight text-slate-900 dark:text-white text-balance">
+                Invest in complete financial clarity with an unconditional 3x ROI guarantee
+              </h2>
+              <p className="caption-1 text-slate-500 dark:text-[#9B9B9B] mt-2 text-pretty">
+                We never sell your data, distribute personal loans, or charge hidden platform fees. Choose the billing cadence that fits your workflow.
+              </p>
+
+              {/* Billing Cycle Switcher */}
+              <div className="mt-8 inline-flex items-center p-1 rounded-xl bg-slate-200 dark:bg-[#272727] border border-slate-300 dark:border-[#313131]">
+                <button
+                  onClick={() => setBillingCycle('monthly')}
+                  className={`px-4 py-1.5 rounded-lg caption-2 font-medium transition-all duration-300 ${
+                    billingCycle === 'monthly'
+                      ? 'bg-white dark:bg-[#1F1F1F] text-slate-900 dark:text-white shadow-subtle'
+                      : 'text-slate-600 dark:text-[#9B9B9B] hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Monthly billing
+                </button>
+                <button
+                  onClick={() => setBillingCycle('annual')}
+                  className={`px-4 py-1.5 rounded-lg caption-2 font-medium transition-all duration-300 flex items-center gap-1.5 ${
+                    billingCycle === 'annual'
+                      ? 'bg-white dark:bg-[#1F1F1F] text-slate-900 dark:text-white shadow-subtle'
+                      : 'text-slate-600 dark:text-[#9B9B9B] hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  <span>Annual pass</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-semibold">
+                    Save 28%
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Grand Slam Offer Box */}
+            <div className="max-w-2xl mx-auto rounded-2xl p-6 sm:p-8 bg-white dark:bg-[#1F1F1F] border border-blue-200 dark:border-blue-900/60 shadow-xl relative overflow-hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-[#272727]">
+                <div>
+                  <span className="caption-3 uppercase font-semibold tracking-wider text-blue-600 dark:text-blue-400">
+                    The complete operating stack
+                  </span>
+                  <h3 className="heading-4 font-bold text-slate-900 dark:text-white mt-1">
+                    Artha PRO
+                  </h3>
+                </div>
+
+                <div className="text-left sm:text-right">
+                  <div className="flex items-baseline sm:justify-end gap-1.5">
+                    <span className="heading-2 font-mono font-bold text-slate-900 dark:text-white">
+                      {billingCycle === 'annual' ? '₹1,299' : '₹149'}
+                    </span>
+                    <span className="caption-2 text-slate-500 dark:text-[#9B9B9B]">
+                      {billingCycle === 'annual' ? '/ year' : '/ month'}
+                    </span>
+                  </div>
+                  <span className="caption-3 text-emerald-600 dark:text-emerald-400 font-medium block mt-0.5">
+                    {billingCycle === 'annual' ? 'Equivalent to ₹108 per month' : 'Cancel anytime with zero penalty'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Offer Deliverables */}
+              <div className="mt-6 space-y-3.5 body-5 text-slate-700 dark:text-[#D1D5DB]">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold text-slate-900 dark:text-white">Core WhatsApp Ledger & Safe to Spend™ Engine</span>
+                    <p className="caption-2 text-slate-500 dark:text-[#9B9B9B] mt-0.5">Sub 3s logging speed via official Meta WhatsApp Cloud API v21.0.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold text-slate-900 dark:text-white">The Tax Safe AIS Audit Shield & CA Export</span>
+                    <p className="caption-2 text-slate-500 dark:text-[#9B9B9B] mt-0.5">Tags peer repayments as non-taxable debt receivables to protect against IT scrutiny.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold text-slate-900 dark:text-white">Multi-Bank Password Protected PDF Parser</span>
+                    <p className="caption-2 text-slate-500 dark:text-[#9B9B9B] mt-0.5">Zero storage RAM decryption for HDFC, SBI, ICICI, Axis, and Kotak statements.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold text-slate-900 dark:text-white">Zero Friction Web Split Links</span>
+                    <p className="caption-2 text-slate-500 dark:text-[#9B9B9B] mt-0.5">Friends view breakdowns and settle via GPay or PhonePe without downloading an app.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold text-slate-900 dark:text-white">Sunday evening catch up reconciliation bot</span>
+                    <p className="caption-2 text-slate-500 dark:text-[#9B9B9B] mt-0.5">Gentle weekly prompts to keep your double entry ledger 100% audit accurate.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Unconditional 3x ROI Guarantee Callout */}
+              <div className="mt-8 p-4 rounded-xl bg-slate-50 dark:bg-[#272727] border border-slate-200 dark:border-[#313131]">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span className="caption-1 font-semibold text-slate-900 dark:text-white">
+                    The Unconditional 30-Day 3x Value Guarantee
+                  </span>
+                </div>
+                <p className="caption-2 text-slate-600 dark:text-[#9B9B9B] text-pretty">
+                  Test Artha PRO for 30 days. If it does not save you at least 3x its subscription cost in recovered peer debts, avoided leaks, or tax compliance clarity, send us a WhatsApp message. We will refund 100% of your fee immediately, and you can keep your exported data forever.
+                </p>
+              </div>
+
+              <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={onOpenWhatsApp}
+                  icon={<MessageSquare className="w-4 h-4" />}
+                  className="w-full sm:flex-1"
+                >
+                  Start 14 day free trial
+                </Button>
+                <Button
+                  variant="outline"
+                  size="md"
+                  onClick={onOpenApp}
+                  className="w-full sm:flex-1"
+                >
+                  Open web ledger
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* FAQ Section (Rule A2 & A5: 8 Questions handling objections) */}
         <section id="faq" className="py-20 px-4 sm:px-6 max-w-3xl mx-auto">
           <div className="text-center mb-12">
@@ -821,12 +1066,44 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             © {new Date().getFullYear()} Artha Financial Telemetry. All rights reserved.
           </div>
           <div className="flex items-center gap-4">
-            <span className="hover:underline cursor-pointer">Privacy policy</span>
-            <span className="hover:underline cursor-pointer">Terms of service</span>
-            <span className="hover:underline cursor-pointer">Security disclosure</span>
+            <button
+              onClick={() => {
+                setLegalDocType('privacy');
+                setLegalModalOpen(true);
+              }}
+              className="hover:underline hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              Privacy policy
+            </button>
+            <button
+              onClick={() => {
+                setLegalDocType('terms');
+                setLegalModalOpen(true);
+              }}
+              className="hover:underline hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              Terms of service
+            </button>
+            <button
+              onClick={() => {
+                setLegalDocType('dpdp');
+                setLegalModalOpen(true);
+              }}
+              className="hover:underline hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              Security disclosure (DPDP 2023)
+            </button>
           </div>
         </div>
       </footer>
+
+      {/* Legal & Governance Dialog */}
+      <LegalModal
+        isOpen={legalModalOpen}
+        docType={legalDocType}
+        onClose={() => setLegalModalOpen(false)}
+        onSelectDocType={setLegalDocType}
+      />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   LayoutDashboard,
   Receipt,
@@ -14,9 +14,13 @@ import {
   User as UserIcon,
   LogOut,
   Users,
+  MoreHorizontal,
+  X,
+  Shield,
 } from 'lucide-react';
 import { AuthUser } from '../lib/api.js';
 import { ArthaBrandLockup } from './brand/ArthaLogo.js';
+import { LegalModal, LegalDocType } from './legal/LegalModal.js';
 
 export type NavigationTab = 'landing' | 'dashboard' | 'transactions' | 'splits' | 'whatsapp' | 'accounts' | 'budgets' | 'loans' | 'reports';
 
@@ -43,6 +47,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenAuth,
   onLogout,
 }) => {
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const [isLegalOpen, setIsLegalOpen] = useState(false);
+  const [legalDocType, setLegalDocType] = useState<LegalDocType>('dpdp');
+
   const navItems: Array<{ id: NavigationTab; label: string; icon: React.ReactNode }> = [
     { id: 'landing', label: 'Landing page', icon: <Sparkles className="w-4 h-4 text-amber-500" /> },
     { id: 'dashboard', label: 'Overview', icon: <LayoutDashboard className="w-4 h-4" /> },
@@ -163,6 +171,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Sparkles className="w-3.5 h-3.5 text-blue-500" />
             <span>Re-run onboarding</span>
           </button>
+
+          <button
+            onClick={() => {
+              setLegalDocType('dpdp');
+              setIsLegalOpen(true);
+            }}
+            className="w-full flex items-center gap-2 px-2.5 py-1.5 caption-4 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-md transition-colors"
+          >
+            <Shield className="w-3.5 h-3.5 text-slate-400" />
+            <span>DPDP compliance</span>
+          </button>
         </div>
       </aside>
 
@@ -208,24 +227,114 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </header>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#181818]/95 backdrop-blur-md border-t border-slate-200 dark:border-[#313131] flex items-center justify-around h-14 px-2 transition-colors duration-300 ease-out-expo">
-        {navItems.map((item) => {
-          const isActive = currentTab === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => onTabChange(item.id)}
-              className={`flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-medium active:scale-[0.98] transition-all duration-300 ease-out-expo ${
-                isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'
-              }`}
-            >
-              <span className="p-0.5">{item.icon}</span>
-              <span className="truncate max-w-[56px]">{item.label}</span>
-            </button>
-          );
-        })}
+      {/* Mobile More Drawer Overlay & Bottom Sheet */}
+      {isMobileDrawerOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsMobileDrawerOpen(false)}
+          />
+
+          {/* Drawer Sheet */}
+          <div className="relative bg-white dark:bg-[#1F1F1F] border-t border-slate-200 dark:border-[#313131] rounded-t-2xl p-5 shadow-2xl z-10 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-[#272727] mb-3">
+              <span className="title-4 font-semibold text-slate-900 dark:text-white">
+                More features & telemetry
+              </span>
+              <button
+                onClick={() => setIsMobileDrawerOpen(false)}
+                className="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {navItems
+                .filter((item) => item.id !== 'dashboard' && item.id !== 'splits')
+                .map((item) => {
+                  const isActive = currentTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        onTabChange(item.id);
+                        setIsMobileDrawerOpen(false);
+                      }}
+                      className={`flex items-center gap-2.5 p-3 rounded-xl border text-left caption-2 transition-all duration-300 ${
+                        isActive
+                          ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/60 text-blue-700 dark:text-blue-300 font-semibold'
+                          : 'bg-slate-50 dark:bg-[#272727] border-slate-200 dark:border-[#313131] text-slate-700 dark:text-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      <span className="shrink-0">{item.icon}</span>
+                      <span className="truncate">{item.label}</span>
+                    </button>
+                  );
+                })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Consolidated 4-Tab Bottom Navigation Bar (Section 12.1) */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#181818]/95 backdrop-blur-md border-t border-slate-200 dark:border-[#313131] flex items-center justify-around h-16 px-4 transition-colors duration-300 ease-out-expo">
+        {/* Tab 1: Overview */}
+        <button
+          onClick={() => onTabChange('dashboard')}
+          className={`flex flex-col items-center justify-center py-1 text-xs font-medium active:scale-[0.98] transition-all duration-300 ${
+            currentTab === 'dashboard' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'
+          }`}
+        >
+          <LayoutDashboard className="w-5 h-5 mb-0.5" />
+          <span>Overview</span>
+        </button>
+
+        {/* Tab 2: Splits */}
+        <button
+          onClick={() => onTabChange('splits')}
+          className={`flex flex-col items-center justify-center py-1 text-xs font-medium active:scale-[0.98] transition-all duration-300 ${
+            currentTab === 'splits' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'
+          }`}
+        >
+          <Users className="w-5 h-5 text-indigo-500 mb-0.5" />
+          <span>Splits</span>
+        </button>
+
+        {/* Tab 3: Quick Log (Action Button) */}
+        <button
+          onClick={onQuickAdd}
+          className="flex flex-col items-center justify-center -mt-5"
+          title="Quick record expense"
+        >
+          <div className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-lg active:scale-95 transition-all duration-300">
+            <Plus className="w-6 h-6" />
+          </div>
+          <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-400 mt-1">Quick log</span>
+        </button>
+
+        {/* Tab 4: More Drawer */}
+        <button
+          onClick={() => setIsMobileDrawerOpen(true)}
+          className={`flex flex-col items-center justify-center py-1 text-xs font-medium active:scale-[0.98] transition-all duration-300 ${
+            isMobileDrawerOpen || (currentTab !== 'dashboard' && currentTab !== 'splits')
+              ? 'text-blue-600 dark:text-blue-400'
+              : 'text-slate-500 dark:text-slate-400'
+          }`}
+        >
+          <MoreHorizontal className="w-5 h-5 mb-0.5" />
+          <span>More</span>
+        </button>
       </nav>
+
+      {/* DPDP Legal & Compliance Modal */}
+      <LegalModal
+        isOpen={isLegalOpen}
+        docType={legalDocType}
+        onClose={() => setIsLegalOpen(false)}
+        onSelectDocType={setLegalDocType}
+      />
     </>
   );
 };

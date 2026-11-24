@@ -287,11 +287,23 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   onChange={(e) => setPayDay(Number(e.target.value))}
                   className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white"
                 >
-                  {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-                    <option key={d} value={d}>
-                      {d}th of the month
-                    </option>
-                  ))}
+                  {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => {
+                    const ordinal =
+                      d > 3 && d < 21
+                        ? `${d}th`
+                        : d % 10 === 1
+                        ? `${d}st`
+                        : d % 10 === 2
+                        ? `${d}nd`
+                        : d % 10 === 3
+                        ? `${d}rd`
+                        : `${d}th`;
+                    return (
+                      <option key={d} value={d}>
+                        {ordinal} of the month
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
