@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="lkBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <filter id="lkGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#10B981" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+  <rect width="720" height="200" fill="#0B0F19"/>
+  <!-- Scaled Glyph -->
+  <g transform="translate(48, 30) scale(0.28)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 180 120 L 372 120" stroke="url(#lkBlue)" stroke-width="36"/>
+    <path d="M 216 156 C 152 156 128 192 128 232 C 128 272 164 288 216 288" stroke="url(#lkBlue)" stroke-width="36"/>
+    <path d="M 216 288 C 152 288 120 324 120 368 C 120 416 164 432 216 432 C 264 432 296 404 308 368" stroke="url(#lkBlue)" stroke-width="36"/>
+    <path d="M 216 288 L 340 288" stroke="url(#lkBlue)" stroke-width="36"/>
+    <path d="M 340 120 L 340 432" stroke="url(#lkBlue)" stroke-width="38"/>
+    <circle cx="410" cy="120" r="16" fill="#10B981" stroke="none" filter="url(#lkGlow)"/>
+  </g>
+  <text x="210" y="110" font-family="'Manrope', -apple-system, sans-serif" font-size="58" font-weight="800" fill="#F8FAFC" letter-spacing="-1.5">Artha</text>
+  <text x="214" y="144" font-family="'Manrope', -apple-system, sans-serif" font-size="13" font-weight="700" fill="#94A3B8" letter-spacing="4.5">FINANCIAL TELEMETRY</text>
+  <circle cx="384" cy="88" r="5" fill="#10B981"/>
+</svg>

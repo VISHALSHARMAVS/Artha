@@ -1,5 +1,5 @@
 {
-  "name": "Artha — Financial Operating System",
+  "name": "Artha — Institutional Financial Telemetry",
   "short_name": "Artha",
   "description": "Institutional personal wealth operating system, safe-to-spend intelligence, and WhatsApp expense tracking.",
   "start_url": "/",
@@ -9,9 +9,20 @@
   "theme_color": "#2563EB",
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "/artha-favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/artha-app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/artha-app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

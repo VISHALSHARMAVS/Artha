@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { api, AuthUser } from '../lib/api';
+import { ArthaGlyph } from '../components/brand/ArthaLogo';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -90,10 +91,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           ✕
         </button>
 
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-sm">
-            अ
-          </div>
+        <div className="flex items-center gap-2.5 mb-2">
+          <ArthaGlyph size={28} />
           <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
             {isRegister ? 'Create Your Artha Account' : 'Sign in to Artha'}
           </h2>

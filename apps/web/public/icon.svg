@@ -1,7 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <rect width="512" height="512" rx="128" fill="#0B0F19"/>
-  <rect x="16" y="16" width="480" height="480" rx="112" stroke="#2563EB" stroke-width="8" stroke-opacity="0.3"/>
-  <circle cx="256" cy="256" r="160" fill="#1E293B" stroke="#334155" stroke-width="4"/>
-  <text x="256" y="320" font-family="system-ui, -apple-system, sans-serif" font-size="200" font-weight="700" fill="#2563EB" text-anchor="middle">अ</text>
-  <circle cx="370" cy="142" r="28" fill="#10B981"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="arthaBlue" x1="120" y1="120" x2="380" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="50%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <filter id="arthaPulseGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#10B981" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 180 120 L 372 120" stroke="url(#arthaBlue)" stroke-width="36"/>
+    <path d="M 216 156 C 152 156 128 192 128 232 C 128 272 164 288 216 288" stroke="url(#arthaBlue)" stroke-width="36"/>
+    <path d="M 216 288 C 152 288 120 324 120 368 C 120 416 164 432 216 432 C 264 432 296 404 308 368" stroke="url(#arthaBlue)" stroke-width="36"/>
+    <path d="M 216 288 L 340 288" stroke="url(#arthaBlue)" stroke-width="36"/>
+    <path d="M 340 120 L 340 432" stroke="url(#arthaBlue)" stroke-width="38"/>
+    <circle cx="410" cy="120" r="16" fill="#10B981" stroke="none" filter="url(#arthaPulseGlow)"/>
+  </g>
 </svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 200" width="100%" height="100%">
+  <g transform="translate(48, 30) scale(0.28)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 180 120 L 372 120" stroke="#000000" stroke-width="36"/>
+    <path d="M 216 156 C 152 156 128 192 128 232 C 128 272 164 288 216 288" stroke="#000000" stroke-width="36"/>
+    <path d="M 216 288 C 152 288 120 324 120 368 C 120 416 164 432 216 432 C 264 432 296 404 308 368" stroke="#000000" stroke-width="36"/>
+    <path d="M 216 288 L 340 288" stroke="#000000" stroke-width="36"/>
+    <path d="M 340 120 L 340 432" stroke="#000000" stroke-width="38"/>
+    <circle cx="410" cy="120" r="16" fill="#000000" stroke="none"/>
+  </g>
+  <text x="210" y="110" font-family="'Manrope', -apple-system, sans-serif" font-size="58" font-weight="800" fill="#000000" letter-spacing="-1.5">Artha</text>
+  <text x="214" y="144" font-family="'Manrope', -apple-system, sans-serif" font-size="13" font-weight="700" fill="#334155" letter-spacing="4.5">FINANCIAL TELEMETRY</text>
+  <circle cx="384" cy="88" r="5" fill="#000000"/>
+</svg>

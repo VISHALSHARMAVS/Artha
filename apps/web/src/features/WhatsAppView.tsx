@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { api, WhatsAppStatus, WhatsAppSimulateResponse, formatPaise } from '../lib/api';
+import { ArthaGlyph } from '../components/brand/ArthaLogo';
 
 interface ChatMessage {
   id: string;
@@ -325,8 +326,8 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
             {/* WhatsApp Header Mockup */}
             <div className="bg-[#202c33] px-4 py-3 flex items-center justify-between border-b border-[#2a3942]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-inner">
-                  अ
+                <div className="w-10 h-10 rounded-full bg-[#111b21] border border-[#2a3942] flex items-center justify-center shadow-inner">
+                  <ArthaGlyph size={26} variant="mono-green" withPulse={false} />
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-[#e9edef] flex items-center gap-1.5">

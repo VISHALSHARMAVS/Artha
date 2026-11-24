@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="aiBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#141E33"/>
+      <stop offset="100%" stop-color="#070A12"/>
+    </linearGradient>
+    <linearGradient id="aiBlue" x1="120" y1="120" x2="380" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="50%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <filter id="aiGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#10B981" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <!-- iOS / Android Squircle with Subtle Inner Border -->
+  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#aiBg)" stroke="#1E293B" stroke-width="6"/>
+
+  <!-- Centered Artha Glyph -->
+  <g transform="translate(64, 64) scale(0.75)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 180 120 L 372 120" stroke="url(#aiBlue)" stroke-width="38"/>
+    <path d="M 216 156 C 152 156 128 192 128 232 C 128 272 164 288 216 288" stroke="url(#aiBlue)" stroke-width="38"/>
+    <path d="M 216 288 C 152 288 120 324 120 368 C 120 416 164 432 216 432 C 264 432 296 404 308 368" stroke="url(#aiBlue)" stroke-width="38"/>
+    <path d="M 216 288 L 340 288" stroke="url(#aiBlue)" stroke-width="38"/>
+    <path d="M 340 120 L 340 432" stroke="url(#aiBlue)" stroke-width="40"/>
+    <circle cx="410" cy="120" r="18" fill="#10B981" stroke="none" filter="url(#aiGlow)"/>
+  </g>
+</svg>

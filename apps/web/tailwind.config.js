@@ -14,6 +14,15 @@ export default {
           secondary: '#2563EB',
           accent: '#3B82F6',
         },
+        // Official Artha Brand Identity System Colors
+        artha: {
+          cobalt: '#2563EB',
+          sky: '#38BDF8',
+          emerald: '#10B981',
+          obsidian: '#0B0F19',
+          slate: '#1E293B',
+          titanium: '#F8FAFC',
+        },
         primary: {
           DEFAULT: '#2563EB',
           hover: '#1D4ED8',

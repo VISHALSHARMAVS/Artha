@@ -18,6 +18,7 @@ import {
   Send,
 } from 'lucide-react';
 import { Button } from '../components/ui/Button.js';
+import { ArthaBrandLockup, ArthaGlyph } from '../components/brand/ArthaLogo.js';
 
 interface LandingPageViewProps {
   onOpenApp: () => void;
@@ -318,14 +319,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           className="flex items-center justify-between px-4 sm:px-6 py-2.5 rounded-2xl bg-white/85 dark:bg-[#1F1F1F]/85 backdrop-blur-md border border-slate-200/80 dark:border-[#313131] shadow-card transition-all duration-300"
         >
           {/* Logo & Brand */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-subtle">
-              A
-            </div>
-            <span className="title-3 font-semibold tracking-tight text-slate-900 dark:text-white">
-              Artha
-            </span>
-          </div>
+          <ArthaBrandLockup size="md" />
 
           {/* Quick Nav Links */}
           <div className="hidden md:flex items-center gap-6 caption-1 text-slate-600 dark:text-[#9B9B9B]">
@@ -377,8 +371,8 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           <div className="max-w-4xl mx-auto text-center">
             {/* Pill Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 caption-3 text-blue-700 dark:text-blue-300 mb-6 shadow-subtle">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Official WhatsApp bot integration live</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
+              <span>Artha (अर्थ) • Official WhatsApp bot live</span>
             </div>
 
             {/* Main Headline (Rule B5) */}
@@ -388,7 +382,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
 
             {/* Subheadline (Max width 680px) */}
             <p className="body-2 sm:body-1 text-slate-600 dark:text-[#9B9B9B] mt-5 max-w-[680px] mx-auto text-pretty">
-              Log daily expenses in three seconds, split group bills with roommates, and project your cash runway automatically. Send a message to your bot just like texting a friend.
+              Log daily expenses in three seconds, split group bills with roommates, and project your Safe to Spend cash runway automatically. Send a message to your bot just like texting a friend.
             </p>
 
             {/* Primary Action Group */}
@@ -466,9 +460,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                   <div className="rounded-lg p-4 bg-white dark:bg-[#181818] border border-slate-200 dark:border-[#272727] flex flex-col justify-between h-72">
                     <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-[#272727]">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-white text-[11px] font-bold">
-                          A
-                        </div>
+                        <ArthaGlyph size={22} variant="mono-green" withPulse={false} />
                         <span className="caption-1 font-semibold text-slate-900 dark:text-white">
                           Artha bot
                         </span>
@@ -798,15 +790,10 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       {/* Semantic Footer (Rule B10: Privacy, Terms, Legal) */}
       <footer className="py-12 px-4 sm:px-6 border-t border-slate-200 dark:border-[#313131] bg-white dark:bg-[#181818]">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-md bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
-              A
-            </div>
-            <span className="title-4 font-semibold text-slate-900 dark:text-white">
-              Artha
-            </span>
-            <span className="caption-3 text-slate-400 dark:text-[#9B9B9B]">
-              WhatsApp expense tracking and financial runway
+          <div className="flex items-center gap-3">
+            <ArthaBrandLockup size="sm" showDescriptor={false} />
+            <span className="caption-3 text-slate-400 dark:text-[#9B9B9B] hidden sm:inline">
+              Sanskrit: अर्थ — Institutional financial telemetry & runway intelligence
             </span>
           </div>
 
