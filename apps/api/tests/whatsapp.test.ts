@@ -92,6 +92,14 @@ describe('WhatsApp Conversational Expense Engine Tests', () => {
       baselineExpense + 45000,
       'User expense MTD must increase by exactly 45000 paise (₹450)'
     );
+
+    // Also test "500 for tea" correctly classifies as Food & Dining
+    const teaResult = WhatsAppParserService.processIncomingMessage(userPhone, '500 for tea');
+    assert.strictEqual(teaResult.success, true);
+    assert.strictEqual(teaResult.transaction?.amountPaise, 50000);
+    assert.strictEqual(teaResult.transaction?.description, 'Tea');
+    assert.strictEqual(teaResult.transaction?.categoryName, 'Food & Dining');
+    assert.ok(teaResult.replyMessage.includes('Category:* Food & Dining'));
   });
 
   test('Balance and Safe-to-Spend conversational query', () => {

@@ -81,6 +81,14 @@ describe('Artha Layered Backend Integration Tests', () => {
   });
 
   test('Category Auto-Suggestion Heuristics (Journey B)', () => {
+    const teaSuggestion = CategoryService.suggestCategory('500 for tea', DEFAULT_USER_ID);
+    assert.ok(teaSuggestion);
+    assert.strictEqual(teaSuggestion?.name, 'Food & Dining');
+
+    const chaiSuggestion = CategoryService.suggestCategory('Chai and samosa', DEFAULT_USER_ID);
+    assert.ok(chaiSuggestion);
+    assert.strictEqual(chaiSuggestion?.name, 'Food & Dining');
+
     const coffeeSuggestion = CategoryService.suggestCategory('Starbucks Pike Place Roast', DEFAULT_USER_ID);
     assert.ok(coffeeSuggestion);
     assert.strictEqual(coffeeSuggestion?.name, 'Food & Dining');
