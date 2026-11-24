@@ -192,4 +192,33 @@ describe('WhatsApp Conversational Expense Engine Tests', () => {
     assert.ok(settleRes.replyMessage.includes('Rahul'));
     assert.ok(settleRes.replyMessage.includes('Fully Settled'));
   });
+
+  test('Differentiates personal memory phrases ("pizza with nitin") from actual splits ("taxi spit with nitin and vishal")', () => {
+    // Case A: Memory description "100 for pizza with nitin" -> Normal expense, NOT split
+    const memorySplitInfo = WhatsAppParserService.extractSplitInfo('100 for pizza with nitin', 10000);
+    assert.strictEqual(memorySplitInfo.isSplit, false);
+    assert.strictEqual(memorySplitInfo.personalSharePaise, 10000);
+    assert.strictEqual(memorySplitInfo.splits.length, 0);
+
+    const memoryRes = WhatsAppParserService.processIncomingMessage(userPhone, '100 for pizza with nitin');
+    assert.strictEqual(memoryRes.success, true);
+    assert.strictEqual(memoryRes.action, 'TRANSACTION_RECORDED');
+    assert.ok(memoryRes.transaction?.description.toLowerCase().includes('pizza with nitin'));
+
+    // Case B: Split with typo "spit with nitin and vishal" -> Split 3 ways
+    const typoSplitInfo = WhatsAppParserService.extractSplitInfo('1200 for taxi spit with nitin and vishal', 120000);
+    assert.strictEqual(typoSplitInfo.isSplit, true);
+    assert.strictEqual(typoSplitInfo.personalSharePaise, 40000);
+    assert.strictEqual(typoSplitInfo.splits.length, 2);
+    assert.strictEqual(typoSplitInfo.splits[0].friend_name, 'Nitin');
+    assert.strictEqual(typoSplitInfo.splits[0].amount_paise, 40000);
+    assert.strictEqual(typoSplitInfo.splits[1].friend_name, 'Vishal');
+    assert.strictEqual(typoSplitInfo.splits[1].amount_paise, 40000);
+
+    // Case C: Split with "shared with nitin and vishal" -> Split 3 ways
+    const sharedSplitInfo = WhatsAppParserService.extractSplitInfo('1200 for taxi shared with nitin and vishal', 120000);
+    assert.strictEqual(sharedSplitInfo.isSplit, true);
+    assert.strictEqual(sharedSplitInfo.personalSharePaise, 40000);
+    assert.strictEqual(sharedSplitInfo.splits.length, 2);
+  });
 });

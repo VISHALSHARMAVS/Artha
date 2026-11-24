@@ -778,12 +778,16 @@ _(Reply *"Undo"* anytime to revert this entry)_`;
     splits: Array<{ friend_name: string; amount_paise: number; notes?: string }>;
   } {
     const lower = text.toLowerCase();
-    if (!lower.includes('split') && !lower.includes('divide')) {
+    
+    // Explicit trigger words required: split, spit (common typo), divide, shared, dutch, half
+    // Phrases without these keywords (e.g. "100 for pizza with nitin") are preserved as personal expenses with memory notes
+    const hasSplitKeyword = /\b(split|spit|splits|splitting|divide|divided|dividing|shares?|shared|sharing|dutch|half|halves|50-50)\b/i.test(lower);
+    if (!hasSplitKeyword) {
       return { isSplit: false, personalSharePaise: totalAmountPaise, splits: [] };
     }
 
-    // Pattern 1: "split X ways" or "split with X people"
-    const waysMatch = text.match(/split\s+(?:with\s+)?(\d+)\s*(?:ways|people|friends|members)?/i);
+    // Pattern 1: "split X ways" or "split with X people" (also supports spit/divide/shared)
+    const waysMatch = text.match(/(?:split|spit|divide|divided|shared?)\s+(?:with\s+)?(\d+)\s*(?:ways|people|friends|members)?/i);
     if (waysMatch) {
       const count = parseInt(waysMatch[1], 10);
       if (count >= 2) {
@@ -798,8 +802,8 @@ _(Reply *"Undo"* anytime to revert this entry)_`;
       }
     }
 
-    // Pattern 2: "split with Rahul and Aman" or "split with Rahul, Aman"
-    const namesMatch = text.match(/split\s+(?:with\s+)?([a-zA-Z\s,&]+?)(?:\s+for|\s+at|\s+₹|\s+rs|\s+\d|$)/i);
+    // Pattern 2: "split with Rahul and Aman", "spit with Nitin and Vishal", "divide with...", "shared with..."
+    const namesMatch = text.match(/(?:split|spit|divide|divided|shared?|dutch|half)\s+(?:with\s+)?([a-zA-Z\s,&]+?)(?:\s+for|\s+at|\s+₹|\s+rs|\s+\d|$)/i);
     if (namesMatch) {
       const rawNames = namesMatch[1];
       const names = rawNames
