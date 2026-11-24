@@ -53,7 +53,8 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
       const data = await api.getWhatsAppStatus();
       setStatus(data);
       if (data.phone_number) {
-        setPhoneNumberInput(data.phone_number);
+        const cleanDigits = data.phone_number.replace(/\D/g, '').slice(-10);
+        setPhoneNumberInput(cleanDigits);
       }
     } catch (err: any) {
       console.warn('Could not fetch WhatsApp status:', err);
@@ -70,14 +71,18 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
 
   const handleLinkPhone = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phoneNumberInput.trim()) return;
+    const cleanDigits = phoneNumberInput.replace(/\D/g, '');
+    if (!cleanDigits) {
+      setLinkError('Please enter a valid 10-digit mobile number.');
+      return;
+    }
 
     setIsLinking(true);
     setLinkError(null);
     setLinkSuccess(null);
 
     try {
-      const res = await api.linkWhatsAppPhone(phoneNumberInput.trim());
+      const res = await api.linkWhatsAppPhone(cleanDigits);
       setLinkSuccess(res.message);
       await fetchStatus();
     } catch (err: any) {
@@ -207,8 +212,11 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
                   <input
                     type="tel"
                     placeholder="9876543210"
-                    value={phoneNumberInput.replace(/^91/, '')}
-                    onChange={(e) => setPhoneNumberInput(e.target.value)}
+                    value={phoneNumberInput}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, '');
+                      setPhoneNumberInput(digits.length > 10 ? digits.slice(-10) : digits);
+                    }}
                     className="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
                     maxLength={10}
                   />

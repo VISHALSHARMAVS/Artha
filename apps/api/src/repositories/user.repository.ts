@@ -61,18 +61,22 @@ export class UserRepository {
     const db = getDb();
     const normalized = normalizePhoneNumber(rawPhone);
     const digits = rawPhone.replace(/\D/g, '');
-    const last10 = digits.length >= 10 ? digits.slice(-10) : digits;
+    const last10 = digits.length >= 10 ? digits.slice(-10) : '';
+
+    if (!last10 && !normalized) return null;
 
     // Multi-format resilient phone matching: exact normalized, raw string, or matching last 10 digits
     const row = db.prepare(`
       SELECT id, email, full_name, phone_number, whatsapp_linked, currency_code, created_at, updated_at 
       FROM users 
-      WHERE phone_number = ? 
-         OR phone_number = ? 
-         OR phone_number LIKE ?
-         OR REPLACE(REPLACE(phone_number, '+', ''), ' ', '') LIKE ?
+      WHERE phone_number IS NOT NULL AND (
+        phone_number = ? 
+        OR phone_number = ? 
+        OR (? != '' AND phone_number LIKE ?)
+        OR (? != '' AND REPLACE(REPLACE(phone_number, '+', ''), ' ', '') LIKE ?)
+      )
       LIMIT 1
-    `).get(normalized, rawPhone, `%${last10}`, `%${last10}`) as unknown as UserRecord | undefined;
+    `).get(normalized, rawPhone, last10, `%${last10}`, last10, `%${last10}`) as unknown as UserRecord | undefined;
 
     return row || null;
   }
@@ -83,15 +87,12 @@ export class UserRepository {
     const digits = rawPhone.replace(/\D/g, '');
     const last10 = digits.length >= 10 ? digits.slice(-10) : digits;
     
-    // Check if phone number is already linked to another user
-    const existing = db.prepare(`
-      SELECT id FROM users 
+    // If phone number was previously associated with another user/demo account, reassign cleanly
+    db.prepare(`
+      UPDATE users 
+      SET phone_number = NULL, whatsapp_linked = 0 
       WHERE (phone_number = ? OR phone_number LIKE ?) AND id != ?
-    `).get(normalized, `%${last10}`, userId) as { id: string } | undefined;
-
-    if (existing) {
-      throw new Error(`Phone number ${rawPhone} is already linked to another account.`);
-    }
+    `).run(normalized, `%${last10}`, userId);
 
     db.prepare(`
       UPDATE users 
