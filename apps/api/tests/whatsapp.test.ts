@@ -58,6 +58,35 @@ describe('WhatsApp Conversational Expense Engine Tests', () => {
     assert.strictEqual(res.action, 'UNLINKED_USER');
     assert.ok(res.replyMessage.includes('Welcome to Artha'));
     assert.ok(res.replyMessage.includes('not yet linked'));
+    assert.ok(res.replyMessage.includes('Link Vishal'));
+  });
+
+  test('Messaging "Link Vishal" links or auto-provisions account and enables immediate expense tracking', () => {
+    const testPhone = `9188${String(Date.now()).slice(-8)}`;
+
+    // 1. Send "Link Vishal" from unlinked phone
+    const linkRes = WhatsAppParserService.processIncomingMessage(testPhone, 'Link Vishal');
+    assert.strictEqual(linkRes.success, true);
+    assert.strictEqual(linkRes.action, 'HELP');
+    assert.ok(linkRes.replyMessage.includes('Successfully Linked'));
+    assert.ok(linkRes.replyMessage.includes('Vishal'));
+
+    // 2. Immediately send expense from this newly linked phone
+    const expRes = WhatsAppParserService.processIncomingMessage(testPhone, 'Spent 350 on lunch');
+    assert.strictEqual(expRes.success, true);
+    assert.strictEqual(expRes.action, 'TRANSACTION_RECORDED');
+    assert.strictEqual(expRes.transaction?.amountPaise, 35000);
+
+    // 3. Re-link to another account: "Link Vishal Sharma"
+    const relinkRes = WhatsAppParserService.processIncomingMessage(testPhone, 'Link Vishal Sharma');
+    assert.strictEqual(relinkRes.success, true);
+    assert.strictEqual(relinkRes.action, 'HELP');
+    assert.ok(relinkRes.replyMessage.includes('Vishal Sharma'));
+
+    // 4. Send "LINK" when already connected
+    const statusRes = WhatsAppParserService.processIncomingMessage(testPhone, 'LINK');
+    assert.strictEqual(statusRes.success, true);
+    assert.ok(statusRes.replyMessage.includes('Already Connected'));
   });
 
   test('Linked user messages "Spent 450 at Starbucks" -> logs transaction & updates ledger', () => {

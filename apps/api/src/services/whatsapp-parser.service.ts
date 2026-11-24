@@ -44,23 +44,53 @@ export class WhatsAppParserService {
       };
     }
 
-    // 1. Identify User by Phone Number
+    // 1. Check for Account Linking / Re-linking Commands
+    // Supports: "Link Vishal", "Link Vishal Sharma", "link to vishal", "link vishal@artha.me", "LINK", "relink vishal", "connect vishal"
+    const linkMatch = trimmed.match(/^(?:link|connect|login|relink)(?:[:\s\-]+(?:to\s+|account\s+|my\s+account\s+)?(.+))?$/i);
     let user = UserRepository.findByPhoneNumber(rawSenderPhone);
-    if (!user) {
-      // Check if user sent an explicit link command: "LINK", "LINK <email>", or "CONNECT <email>"
-      const linkMatch = trimmed.match(/^(?:link|connect|login)(?:\s+([^\s]+))?/i);
-      const allUsers = UserRepository.findAll();
-      const defaultUser = allUsers.find(u => u.id === 'usr_artha_demo') || allUsers[0];
 
-      if (linkMatch) {
-        const targetEmail = linkMatch[1]?.trim();
-        const targetUser = targetEmail ? UserRepository.findByEmail(targetEmail) : defaultUser;
-        if (targetUser) {
-          UserRepository.linkPhoneNumber(targetUser.id, rawSenderPhone);
+    if (linkMatch) {
+      let query: string | undefined = linkMatch[1]?.trim();
+      if (query && /^(?:account|my\s+account|to)$/i.test(query)) {
+        query = undefined;
+      }
+
+      let targetUser: UserRecord | null = null;
+      if (query) {
+        // Find existing user by name, full name, or email
+        targetUser = UserRepository.findByNameOrEmail(query);
+        if (!targetUser) {
+          // If no user exists with this name, auto-provision so WhatsApp works instantly
+          targetUser = UserRepository.createFromWhatsApp(query, rawSenderPhone);
+        }
+      } else {
+        // User sent just "LINK" without arguments
+        if (user) {
           return {
             success: true,
             action: 'HELP',
             replyMessage: 
+`ℹ️ *WhatsApp Already Connected!*
+
+Your WhatsApp number (*+${rawSenderPhone}*) is currently connected to *${user.full_name}* (${user.email}).
+
+To switch accounts, reply with:
+*LINK <name or email>* (e.g. *Link Vishal*)`,
+          };
+        }
+        const allUsers = UserRepository.findAll();
+        targetUser = allUsers.find(u => u.id === 'usr_artha_demo') || allUsers[0];
+        if (!targetUser) {
+          targetUser = UserRepository.createFromWhatsApp('Artha User', rawSenderPhone);
+        }
+      }
+
+      if (targetUser) {
+        UserRepository.linkPhoneNumber(targetUser.id, rawSenderPhone);
+        return {
+          success: true,
+          action: 'HELP',
+          replyMessage: 
 `🎉 *WhatsApp Successfully Linked!*
 
 Your WhatsApp number (*+${rawSenderPhone}*) is now connected to *${targetUser.full_name}* (${targetUser.email}).
@@ -69,17 +99,13 @@ Try sending your first expense now:
 • *"Spent 450 at Starbucks"*
 • *"Petrol 2000"*
 • *"Balance"*`,
-          };
-        } else {
-          return {
-            success: false,
-            action: 'UNLINKED_USER',
-            replyMessage: `⚠️ Could not find an Artha account for *${targetEmail}*.\n\nMake sure your email matches your registered Artha account, or reply *LINK* to connect to *${defaultUser?.full_name || 'your account'}*.`,
-          };
-        }
+        };
       }
+    }
 
-      // Check if auto-linking is enabled via env var or if there is a default demo user
+    // 2. If not a link command and user is not yet linked:
+    if (!user) {
+      const allUsers = UserRepository.findAll();
       const autoLinkEnabled = process.env.WHATSAPP_AUTO_LINK === 'true';
       if (autoLinkEnabled && allUsers.length > 0) {
         const primaryUser = allUsers.find(u => u.id === 'usr_artha_demo') || allUsers[0];
@@ -87,6 +113,7 @@ Try sending your first expense now:
         user = UserRepository.findById(primaryUser.id)!;
         console.log(`🔗 Auto-linked incoming WhatsApp +${rawSenderPhone} to user ${user.full_name} (${user.id})`);
       } else {
+        const defaultUser = allUsers.find(u => u.id === 'usr_artha_demo') || allUsers[0];
         return {
           success: false,
           action: 'UNLINKED_USER',
@@ -96,8 +123,9 @@ Try sending your first expense now:
 Your WhatsApp number (*+${rawSenderPhone}*) is not yet linked to an Artha account.
 
 *To link in 1 second, reply with:*
-*LINK* or *LINK <your-email>*
-_(e.g. *LINK ${allUsers[0]?.email || 'aditya@artha.internal'}*)_
+• *LINK <your-name>* (e.g. *Link Vishal*)
+• *LINK <your-email>* (e.g. *LINK ${allUsers[0]?.email || 'aditya@artha.internal'}*)
+• Or reply *LINK* to connect to *${defaultUser?.full_name || 'your account'}*
 
 Or open the web dashboard, go to the *WhatsApp* tab, and click *Link WhatsApp Number*.`,
         };

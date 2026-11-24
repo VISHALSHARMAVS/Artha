@@ -57,6 +57,77 @@ export class UserRepository {
     return row || null;
   }
 
+  static findByNameOrEmail(query: string): UserRecord | null {
+    const db = getDb();
+    const q = query.trim().toLowerCase();
+    if (!q) return null;
+
+    // 1. Exact email match
+    let row = db.prepare('SELECT id, email, full_name, phone_number, whatsapp_linked, currency_code, created_at, updated_at FROM users WHERE LOWER(email) = ?').get(q) as unknown as UserRecord | undefined;
+    if (row) return row;
+
+    // 2. Exact full_name match
+    row = db.prepare('SELECT id, email, full_name, phone_number, whatsapp_linked, currency_code, created_at, updated_at FROM users WHERE LOWER(full_name) = ?').get(q) as unknown as UserRecord | undefined;
+    if (row) return row;
+
+    // 3. Name starts with or contains query (e.g. "vishal" matches "Vishal Sharma" or "vishal@...")
+    row = db.prepare(`
+      SELECT id, email, full_name, phone_number, whatsapp_linked, currency_code, created_at, updated_at 
+      FROM users 
+      WHERE LOWER(full_name) LIKE ? OR LOWER(email) LIKE ? 
+      ORDER BY 
+        CASE 
+          WHEN LOWER(full_name) = ? THEN 1 
+          WHEN LOWER(full_name) LIKE ? THEN 2 
+          WHEN LOWER(email) LIKE ? THEN 3 
+          ELSE 4 
+        END,
+        created_at DESC
+      LIMIT 1
+    `).get(`%${q}%`, `%${q}%`, q, `${q}%`, `${q}%`) as unknown as UserRecord | undefined;
+
+    return row || null;
+  }
+
+  static createFromWhatsApp(name: string, rawPhone: string): UserRecord {
+    const db = getDb();
+    const id = `usr_${crypto.randomUUID().slice(0, 10)}`;
+    const cleanName = name.trim();
+    const slug = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '.').replace(/\.+/g, '.');
+    const digits = rawPhone.replace(/\D/g, '');
+    const last10 = digits.length >= 10 ? digits.slice(-10) : digits;
+    const uniqueSuffix = crypto.randomUUID().slice(0, 4);
+    const email = `${slug || 'user'}_${digits.slice(-4) || 'wa'}_${uniqueSuffix}@artha.me`;
+    const normalized = normalizePhoneNumber(rawPhone);
+
+    // Unlink old user records associated with this phone number to avoid UNIQUE constraint violation
+    db.prepare(`
+      UPDATE users 
+      SET phone_number = NULL, whatsapp_linked = 0 
+      WHERE phone_number = ? OR (? != '' AND phone_number LIKE ?)
+    `).run(normalized, last10, `%${last10}`);
+
+    db.prepare(`
+      INSERT INTO users (id, email, full_name, phone_number, whatsapp_linked, currency_code, password_hash, password_salt)
+      VALUES (?, ?, ?, ?, 1, 'INR', 'WHATSAPP_AUTO', 'WHATSAPP_AUTO')
+    `).run(id, email, cleanName, normalized);
+
+    // Auto-create default Cash and Bank account so they can immediately log expenses
+    const accBankId = `acc_${crypto.randomUUID().slice(0, 8)}`;
+    const accCashId = `acc_${crypto.randomUUID().slice(0, 8)}`;
+    db.prepare(`
+      INSERT INTO accounts (id, user_id, name, account_type, institution_name, balance_paise)
+      VALUES (?, ?, 'Primary Bank', 'SAVINGS', 'Bank Account', 0)
+    `).run(accBankId, id);
+
+    db.prepare(`
+      INSERT INTO accounts (id, user_id, name, account_type, balance_paise)
+      VALUES (?, ?, 'Cash Wallet', 'CASH', 0)
+    `).run(accCashId, id);
+
+    return this.findById(id)!;
+  }
+
   static findByPhoneNumber(rawPhone: string): UserRecord | null {
     const db = getDb();
     const normalized = normalizePhoneNumber(rawPhone);
