@@ -3,8 +3,9 @@ import { api, Transaction, Account, Category, formatPaise } from '../lib/api.js'
 import { CategoryIcon } from '../components/CategoryIcon.js';
 import { Badge } from '../components/ui/Badge.js';
 import { Button } from '../components/ui/Button.js';
-import { Search, Plus, Trash2, Filter, AlertCircle, RefreshCw, Receipt, Pencil } from 'lucide-react';
+import { Search, Plus, Trash2, Filter, AlertCircle, RefreshCw, Receipt, Pencil, Upload } from 'lucide-react';
 import { EditTransactionModal } from '../components/EditTransactionModal.js';
+import { ImportStatementModal } from '../components/ImportStatementModal.js';
 
 interface TransactionsViewProps {
   onAddTransaction: () => void;
@@ -22,6 +23,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
 
   // Filters
   const [typeFilter, setTypeFilter] = useState<string>('');
@@ -96,14 +98,25 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
           </p>
         </div>
 
-        <Button
-          variant="primary"
-          size="sm"
-          icon={<Plus className="w-3.5 h-3.5" />}
-          onClick={onAddTransaction}
-        >
-          Record Transaction
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            icon={<Upload className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
+            onClick={() => setIsImportModalOpen(true)}
+          >
+            Import Bank Statement (PDF)
+          </Button>
+
+          <Button
+            variant="primary"
+            size="sm"
+            icon={<Plus className="w-3.5 h-3.5" />}
+            onClick={onAddTransaction}
+          >
+            Record Transaction
+          </Button>
+        </div>
       </div>
 
       {/* Filter Toolbar */}
@@ -290,18 +303,30 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                     </td>
 
                     <td className="py-3 px-4 text-right whitespace-nowrap">
-                      <span
-                        className={`font-semibold tnum ${
-                          tx.type === 'INCOME'
-                            ? 'text-emerald-600 dark:text-emerald-400'
-                            : tx.type === 'EXPENSE'
-                            ? 'text-red-600 dark:text-red-400'
-                            : 'text-slate-700 dark:text-slate-300'
-                        }`}
-                      >
-                        {tx.type === 'INCOME' ? '+' : tx.type === 'EXPENSE' ? '-' : ''}
-                        {formatPaise(tx.amount_paise)}
-                      </span>
+                      <div>
+                        <span
+                          className={`font-semibold tnum ${
+                            tx.type === 'INCOME'
+                              ? 'text-emerald-600 dark:text-emerald-400'
+                              : tx.type === 'EXPENSE'
+                              ? 'text-red-600 dark:text-red-400'
+                              : 'text-slate-700 dark:text-slate-300'
+                          }`}
+                        >
+                          {tx.type === 'INCOME' ? '+' : tx.type === 'EXPENSE' ? '-' : ''}
+                          {formatPaise(tx.amount_paise)}
+                        </span>
+                        {Boolean(tx.is_split) && (
+                          <div className="flex items-center justify-end gap-1 mt-0.5">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/50">
+                              Split
+                            </span>
+                            <span className="text-[10px] text-slate-500 font-medium">
+                              Your share: {formatPaise(tx.personal_share_paise ?? tx.amount_paise)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </td>
 
                     <td className="py-3 px-4 text-center">
@@ -356,6 +381,14 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
         onClose={() => setEditingTransaction(null)}
         onSuccess={loadTransactions}
         transaction={editingTransaction}
+        accounts={accounts}
+        categories={categories}
+      />
+
+      <ImportStatementModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onSuccess={loadTransactions}
         accounts={accounts}
         categories={categories}
       />

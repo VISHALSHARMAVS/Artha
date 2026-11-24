@@ -75,6 +75,8 @@ CREATE TABLE IF NOT EXISTS transactions (
     transaction_date TEXT NOT NULL,
     is_recurring INTEGER DEFAULT 0 CHECK(is_recurring IN (0, 1)),
     recurring_obligation_id TEXT REFERENCES recurring_obligations(id) ON DELETE SET NULL,
+    is_split INTEGER DEFAULT 0 CHECK(is_split IN (0, 1)),
+    personal_share_paise INTEGER,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -148,3 +150,20 @@ CREATE TABLE IF NOT EXISTS net_worth_snapshots (
     UNIQUE(user_id, snapshot_date)
 );
 CREATE INDEX IF NOT EXISTS idx_net_worth_user_date ON net_worth_snapshots(user_id, snapshot_date ASC);
+
+CREATE TABLE IF NOT EXISTS split_receivables (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    transaction_id TEXT NOT NULL REFERENCES transactions(id) ON DELETE CASCADE,
+    friend_name TEXT NOT NULL,
+    amount_paise INTEGER NOT NULL CHECK(amount_paise > 0),
+    settled_amount_paise INTEGER NOT NULL DEFAULT 0 CHECK(settled_amount_paise >= 0),
+    is_settled INTEGER NOT NULL DEFAULT 0 CHECK(is_settled IN (0, 1)),
+    settled_at TEXT,
+    settled_account_id TEXT REFERENCES accounts(id) ON DELETE SET NULL,
+    notes TEXT DEFAULT '',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_split_user_settled ON split_receivables(user_id, is_settled);
+CREATE INDEX IF NOT EXISTS idx_split_tx ON split_receivables(transaction_id);

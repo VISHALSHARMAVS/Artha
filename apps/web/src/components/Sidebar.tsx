@@ -13,10 +13,11 @@ import {
   MessageSquare,
   User as UserIcon,
   LogOut,
+  Users,
 } from 'lucide-react';
 import { AuthUser } from '../lib/api.js';
 
-export type NavigationTab = 'dashboard' | 'transactions' | 'accounts' | 'budgets' | 'loans' | 'reports' | 'whatsapp';
+export type NavigationTab = 'dashboard' | 'transactions' | 'splits' | 'whatsapp' | 'accounts' | 'budgets' | 'loans' | 'reports';
 
 interface SidebarProps {
   currentTab: NavigationTab;
@@ -44,6 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navItems: Array<{ id: NavigationTab; label: string; icon: React.ReactNode }> = [
     { id: 'dashboard', label: 'Overview', icon: <LayoutDashboard className="w-4 h-4" /> },
     { id: 'transactions', label: 'Transactions', icon: <Receipt className="w-4 h-4" /> },
+    { id: 'splits', label: 'Splits & Dues', icon: <Users className="w-4 h-4 text-indigo-500" /> },
     { id: 'whatsapp', label: 'WhatsApp Bot', icon: <MessageSquare className="w-4 h-4 text-emerald-500" /> },
     { id: 'accounts', label: 'Accounts', icon: <Landmark className="w-4 h-4" /> },
     { id: 'budgets', label: 'Budgets', icon: <PiggyBank className="w-4 h-4" /> },

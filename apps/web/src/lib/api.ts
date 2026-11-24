@@ -29,6 +29,54 @@ export interface Transaction {
   category_name?: string;
   category_icon?: string;
   category_color?: string;
+  is_split?: number;
+  personal_share_paise?: number | null;
+  splits?: SplitReceivable[];
+}
+
+export interface SplitItem {
+  id?: string;
+  friend_name: string;
+  amount_paise: number;
+  notes?: string;
+}
+
+export interface SplitReceivable {
+  id: string;
+  user_id: string;
+  transaction_id: string;
+  friend_name: string;
+  amount_paise: number;
+  settled_amount_paise: number;
+  is_settled: number;
+  settled_at: string | null;
+  settled_account_id: string | null;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+  transaction_description?: string;
+  transaction_date?: string;
+  settled_account_name?: string;
+}
+
+export interface SplitSummary {
+  totalReceivablePaise: number;
+  totalSettledPaise: number;
+  pendingCount: number;
+}
+
+export interface CandidateStatementTransaction {
+  temp_id: string;
+  date: string;
+  raw_description: string;
+  clean_description: string;
+  type: 'INCOME' | 'EXPENSE';
+  amount_paise: number;
+  category_id?: string;
+  category_name?: string;
+  is_potential_duplicate: boolean;
+  duplicate_reason?: string;
+  selected: boolean;
 }
 
 export interface Obligation {
@@ -267,6 +315,9 @@ export const api = {
     description: string;
     notes?: string;
     transaction_date: string;
+    is_split?: boolean;
+    personal_share_paise?: number;
+    splits?: SplitItem[];
   }) => request<Transaction>('/transactions', { method: 'POST', body: JSON.stringify(data) }),
 
   quickAddExpense: (data: {
@@ -286,11 +337,24 @@ export const api = {
     description?: string;
     notes?: string;
     transaction_date?: string;
+    is_split?: boolean;
+    personal_share_paise?: number;
+    splits?: SplitItem[];
   }) => request<Transaction>(`/transactions/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 
   undoLatestTransaction: () => request<Transaction>('/transactions/undo', { method: 'POST' }),
 
   deleteTransaction: (id: string) => request<{ success: boolean }>(`/transactions/${id}`, { method: 'DELETE' }),
+
+  // Splits & Receivables
+  getSplits: (isSettled?: boolean) => {
+    const q = isSettled !== undefined ? `?is_settled=${isSettled}` : '';
+    return request<SplitReceivable[]>(`/splits${q}`);
+  },
+  getSplitSummary: () => request<SplitSummary>('/splits/summary'),
+  settleSplit: (id: string, data: { account_id: string; settled_amount_paise?: number; settled_at?: string }) =>
+    request<SplitReceivable>(`/splits/${id}/settle`, { method: 'POST', body: JSON.stringify(data) }),
+  deleteSplit: (id: string) => request<{ success: boolean }>(`/splits/${id}`, { method: 'DELETE' }),
 
   // Categories
   getCategories: () => request<Category[]>('/categories'),
@@ -381,5 +445,41 @@ export const api = {
     request<WhatsAppSimulateResponse>('/whatsapp/simulate', {
       method: 'POST',
       body: JSON.stringify({ message, phone_number }),
+    }),
+
+  // Bank Statement PDF Import
+  parseStatementPdf: (data: {
+    file_base64: string;
+    file_name: string;
+    password?: string;
+    account_id?: string;
+  }) =>
+    request<{ success: boolean; count: number; candidates: CandidateStatementTransaction[] }>(
+      '/statements/parse-pdf',
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }
+    ),
+
+  batchImportStatement: (data: {
+    account_id: string;
+    transactions: Array<{
+      date: string;
+      description: string;
+      type: 'INCOME' | 'EXPENSE';
+      amount_paise: number;
+      category_id?: string;
+    }>;
+  }) =>
+    request<{
+      success: boolean;
+      message: string;
+      imported_count: number;
+      total_amount_paise: number;
+      new_balance_paise: number;
+    }>('/statements/batch-import', {
+      method: 'POST',
+      body: JSON.stringify(data),
     }),
 };

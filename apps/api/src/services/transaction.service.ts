@@ -52,6 +52,9 @@ export class TransactionService {
       description: dto.description,
       notes: dto.notes,
       transaction_date: dto.transaction_date,
+      is_split: dto.is_split,
+      personal_share_paise: dto.personal_share_paise,
+      splits: dto.splits,
     });
   }
 

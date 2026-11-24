@@ -1,8 +1,36 @@
-import { test, describe } from 'node:test';
+import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert';
 import { Security } from '../src/lib/security.js';
+import app from '../src/server.js';
+import type { Server } from 'node:http';
 
-const BASE_URL = process.env.API_URL || 'http://localhost:3001';
+let server: Server;
+let BASE_URL = process.env.API_URL || '';
+
+before(async () => {
+  if (!BASE_URL) {
+    await new Promise<void>((resolve) => {
+      server = app.listen(0, '127.0.0.1', () => {
+        const addr = server.address();
+        if (addr && typeof addr === 'object') {
+          BASE_URL = `http://127.0.0.1:${addr.port}`;
+        }
+        resolve();
+      });
+    });
+  }
+});
+
+after(async () => {
+  if (server) {
+    if (typeof (server as any).closeAllConnections === 'function') {
+      (server as any).closeAllConnections();
+    }
+    server.close();
+    server.unref();
+    setTimeout(() => process.exit(0), 200).unref();
+  }
+});
 
 // Helper for making typed HTTP requests to the running express server
 async function request(

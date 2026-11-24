@@ -5,10 +5,12 @@ import { TransactionService } from './transaction.service.js';
 import { CategoryService } from './category.service.js';
 import { DashboardService } from './dashboard.service.js';
 import { LoanService } from './loan.service.js';
+import { SplitRepository } from '../repositories/split.repository.js';
+import { SplitService } from './split.service.js';
 
 export interface WhatsAppParsedResult {
   success: boolean;
-  action: 'TRANSACTION_RECORDED' | 'BATCH_TRANSACTIONS_RECORDED' | 'BALANCE_CHECK' | 'FREEDOM_RUNWAY' | 'GUILT_FREE' | 'DEBT_FREEDOM' | 'HELP' | 'UNLINKED_USER' | 'PARSE_ERROR' | 'TRANSACTION_UNDONE';
+  action: 'TRANSACTION_RECORDED' | 'BATCH_TRANSACTIONS_RECORDED' | 'BALANCE_CHECK' | 'FREEDOM_RUNWAY' | 'GUILT_FREE' | 'DEBT_FREEDOM' | 'HELP' | 'UNLINKED_USER' | 'PARSE_ERROR' | 'TRANSACTION_UNDONE' | 'SPLIT_RECORDED' | 'SPLIT_SETTLED' | 'SPLIT_SUMMARY';
   replyMessage: string;
   transaction?: {
     id: string;
@@ -122,6 +124,15 @@ Or log into the web dashboard, open the *WhatsApp* tab, and click *Link WhatsApp
       return this.handleBalanceQuery(user);
     }
 
+    if (this.isSplitsSummaryQuery(lower)) {
+      return this.handleSplitsSummaryQuery(user);
+    }
+
+    const settlementMatch = this.detectFriendSettlement(trimmed);
+    if (settlementMatch) {
+      return this.handleFriendSettlement(user, settlementMatch);
+    }
+
     if (this.isHelpQuery(lower)) {
       return {
         success: true,
@@ -133,6 +144,9 @@ Simply message how you spend naturally:
 • *"Spent 450 at Starbucks"*
 • *"Petrol 2000"*
 • *"Swiggy dinner 520"*
+• *"Paid 3000 for dinner split with Rahul and Aman"*
+• *"Rahul paid back 1000"* — Settle friend debt
+• *"Who owes me"* or *"Splits"* — Check pending receivables
 • *"Received 75000 salary"*
 • *"Transferred 5000 to ICICI"*
 • *"Balance"* — Check safe-to-spend & liquid funds
@@ -252,6 +266,143 @@ _To edit or recategorize transactions, you can also open the Transactions tab on
       'paisa',
     ];
     return patterns.some(p => text === p || text.startsWith(p));
+  }
+
+  private static isSplitsSummaryQuery(text: string): boolean {
+    const patterns = [
+      'splits',
+      'split',
+      'who owes me',
+      'pending splits',
+      'receivables',
+      'udhar',
+      'dost',
+      'hisab',
+      'splitwise',
+      'pending hisab',
+    ];
+    return patterns.some(p => text === p || text.startsWith(p));
+  }
+
+  static detectFriendSettlement(text: string): { friendName: string; amountPaise?: number } | null {
+    const trimmed = text.trim();
+
+    // "Rahul paid back 1000" or "Rahul returned 1000" or "Rahul settled 1000"
+    const m1 = trimmed.match(/^([a-zA-Z]+)\s+(?:paid\s+back|returned|settled|gave\s+back|sent\s+back)(?:\s+(?:rs\.?|inr|₹)?\s*(\d+(?:\.\d+)?))?/i);
+    if (m1) {
+      const friendName = m1[1].trim();
+      const rawAmt = m1[2];
+      const amountPaise = rawAmt ? Math.round(parseFloat(rawAmt) * 100) : undefined;
+      return { friendName, amountPaise };
+    }
+
+    // "Received 1000 from Rahul" or "Got 1000 from Rahul"
+    const m2 = trimmed.match(/^(?:received|got)\s+(?:rs\.?|inr|₹)?\s*(\d+(?:\.\d+)?)\s+(?:from|by)\s+([a-zA-Z]+)/i);
+    if (m2) {
+      const rawAmt = m2[1];
+      const friendName = m2[2].trim();
+      const amountPaise = rawAmt ? Math.round(parseFloat(rawAmt) * 100) : undefined;
+      return { friendName, amountPaise };
+    }
+
+    return null;
+  }
+
+  private static handleSplitsSummaryQuery(user: UserRecord): WhatsAppParsedResult {
+    const pending = SplitRepository.listByUser(user.id, false);
+    const summary = SplitRepository.getSummary(user.id);
+
+    if (pending.length === 0) {
+      return {
+        success: true,
+        action: 'SPLIT_SUMMARY',
+        replyMessage: `🎉 *All Clear!* None of your friends currently owe you money.\n\nTo record a split expense anytime, send e.g.:\n• *"Paid 3000 for dinner split with Rahul and Aman"*`,
+      };
+    }
+
+    const totalFormatted = Money.fromPaise(summary.totalReceivablePaise).format();
+    const items = pending.map(s => {
+      const outstanding = Money.fromPaise(s.amount_paise - s.settled_amount_paise).format();
+      return `• *${s.friend_name}:* ${outstanding} _(${s.transaction_description || 'Split'})_`;
+    }).join('\n');
+
+    const replyMessage =
+`📋 *Pending Friend Receivables*
+
+${items}
+
+🤝 *Total Owed to You:* *${totalFormatted}*
+
+_When someone pays you back, reply:_
+_e.g. *"${pending[0]?.friend_name || 'Rahul'} paid back ${Money.fromPaise(pending[0]?.amount_paise || 100000).format()}"*_`;
+
+    return {
+      success: true,
+      action: 'SPLIT_SUMMARY',
+      replyMessage,
+    };
+  }
+
+  private static handleFriendSettlement(
+    user: UserRecord,
+    match: { friendName: string; amountPaise?: number }
+  ): WhatsAppParsedResult {
+    const receivable = SplitRepository.findPendingByFriendName(user.id, match.friendName);
+    if (!receivable) {
+      return {
+        success: false,
+        action: 'PARSE_ERROR',
+        replyMessage: `⚠️ Could not find any pending receivable for *${match.friendName}*.\n\nReply *"Splits"* or *"Who owes me"* to view active friend balances.`,
+      };
+    }
+
+    const accounts = AccountRepository.findByUserId(user.id);
+    const depositAccount = accounts.find(a => a.account_type === 'SAVINGS' || a.account_type === 'CHECKING') || accounts[0];
+    if (!depositAccount) {
+      return {
+        success: false,
+        action: 'PARSE_ERROR',
+        replyMessage: '⚠️ No active bank account found to credit friend settlement.',
+      };
+    }
+
+    try {
+      const settled = SplitService.settleReceivable(receivable.id, user.id, {
+        account_id: depositAccount.id,
+        settled_amount_paise: match.amountPaise,
+      });
+
+      const overview = DashboardService.getOverview(user.id);
+      const settledFormatted = Money.fromPaise(match.amountPaise || (receivable.amount_paise - receivable.settled_amount_paise)).format();
+      const remainingPaise = receivable.amount_paise - settled.settled_amount_paise;
+      const remainingFormatted = Money.fromPaise(remainingPaise).format();
+      const updatedLiquid = Money.fromPaise(overview.answers.total_liquid_paise).format();
+
+      const statusText = remainingPaise <= 0 ? '✨ *Status:* Fully Settled (₹0 remaining)' : `⏳ *Remaining Balance:* ${remainingFormatted}`;
+
+      const replyMessage =
+`🤝 *Friend Settlement Recorded!*
+
+• *From:* ${receivable.friend_name}
+• *Received:* ${settledFormatted}
+• *Credited To:* ${depositAccount.name}
+• ${statusText}
+
+💰 *Updated Liquid Balance:* ${updatedLiquid}
+_(Neutral recovery — NOT counted as taxable income, keeping your telemetry pure)_`;
+
+      return {
+        success: true,
+        action: 'SPLIT_SETTLED',
+        replyMessage,
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        action: 'PARSE_ERROR',
+        replyMessage: `⚠️ Failed to record settlement: ${err.message}`,
+      };
+    }
   }
 
   private static isHelpQuery(text: string): boolean {
@@ -527,6 +678,10 @@ _(Reply *"Undo"* anytime to revert this entry)_`;
     }
 
     // 6. Record Transaction Atomically
+    const splitInfo = txType === 'EXPENSE'
+      ? this.extractSplitInfo(text, extractedAmount.amountPaise)
+      : { isSplit: false, personalSharePaise: extractedAmount.amountPaise, splits: [] };
+
     const today = new Date().toISOString().slice(0, 10);
     const recorded = TransactionService.recordTransaction({
       account_id: selectedAccount.id,
@@ -535,6 +690,9 @@ _(Reply *"Undo"* anytime to revert this entry)_`;
       amount_paise: extractedAmount.amountPaise,
       description,
       transaction_date: today,
+      is_split: splitInfo.isSplit,
+      personal_share_paise: splitInfo.personalSharePaise,
+      splits: splitInfo.splits,
     }, user.id);
 
     // 7. Fetch updated financial overview for high-value immediate feedback
@@ -558,13 +716,34 @@ _(Reply *"Undo"* anytime to revert this entry)_`;
     const hourlyWage = overview.answers.safe_to_spend.hourlyWagePaise || 0;
     let lifeEnergyLine = '';
     if (hourlyWage > 0 && txType === 'EXPENSE') {
-      const energy = SafeToSpendCalculator.calculateLifeEnergy(extractedAmount.amountPaise, hourlyWage);
+      const energy = SafeToSpendCalculator.calculateLifeEnergy(splitInfo.personalSharePaise, hourlyWage);
       if (energy.formatted && energy.formatted !== '0m') {
         lifeEnergyLine = `\n⚡ *Life Energy:* ≈ ${energy.formatted} of work`;
       }
     }
 
-    const replyMessage =
+    let replyMessage = '';
+    if (splitInfo.isSplit) {
+      const yourShare = Money.fromPaise(splitInfo.personalSharePaise).format();
+      const friendsTotal = Money.fromPaise(extractedAmount.amountPaise - splitInfo.personalSharePaise).format();
+      const friendsList = splitInfo.splits.map(s => `   • ${s.friend_name}: ${Money.fromPaise(s.amount_paise).format()}`).join('\n');
+
+      replyMessage =
+`✅ 👥 *Split Expense Logged: ${formattedAmount}*
+📝 *Note:* ${description}
+🏷️ *Category:* ${categoryText}
+🏦 *Account:* ${selectedAccount.name}${lifeEnergyLine}
+
+🍽️ *Your Real Share:* ${yourShare} _(counted in monthly budget)_
+🤝 *Friends Owe You:* ${friendsTotal}
+${friendsList}
+
+💰 *Liquid Balance:* ${updatedLiquid}
+🛡️ *Safe to Spend:* ${safeDaily} / day
+
+_(Reply *"${splitInfo.splits[0]?.friend_name || 'Friend'} paid back"* when they settle)_`;
+    } else {
+      replyMessage =
 `✅ *${emoji} ${label}: ${formattedAmount}*
 📝 *Note:* ${description}
 🏷️ *Category:* ${categoryText}
@@ -574,10 +753,11 @@ _(Reply *"Undo"* anytime to revert this entry)_`;
 🛡️ *Safe to Spend:* ${safeDaily} / day
 
 _(Reply *"Undo"* anytime to revert this entry)_`;
+    }
 
     return {
       success: true,
-      action: 'TRANSACTION_RECORDED',
+      action: splitInfo.isSplit ? 'SPLIT_RECORDED' : 'TRANSACTION_RECORDED',
       replyMessage,
       transaction: {
         id: recorded.id,
@@ -587,6 +767,62 @@ _(Reply *"Undo"* anytime to revert this entry)_`;
         categoryName: categorySuggestion?.name,
         accountName: selectedAccount.name,
       },
+    };
+  }
+
+  static extractSplitInfo(text: string, totalAmountPaise: number): {
+    isSplit: boolean;
+    personalSharePaise: number;
+    splits: Array<{ friend_name: string; amount_paise: number; notes?: string }>;
+  } {
+    const lower = text.toLowerCase();
+    if (!lower.includes('split') && !lower.includes('divide')) {
+      return { isSplit: false, personalSharePaise: totalAmountPaise, splits: [] };
+    }
+
+    // Pattern 1: "split X ways" or "split with X people"
+    const waysMatch = text.match(/split\s+(?:with\s+)?(\d+)\s*(?:ways|people|friends|members)?/i);
+    if (waysMatch) {
+      const count = parseInt(waysMatch[1], 10);
+      if (count >= 2) {
+        const perPerson = Math.floor(totalAmountPaise / count);
+        const friendsCount = count - 1;
+        const splits = Array.from({ length: friendsCount }, (_, i) => ({
+          friend_name: `Friend ${i + 1}`,
+          amount_paise: perPerson,
+        }));
+        const personalSharePaise = totalAmountPaise - (perPerson * friendsCount);
+        return { isSplit: true, personalSharePaise, splits };
+      }
+    }
+
+    // Pattern 2: "split with Rahul and Aman" or "split with Rahul, Aman"
+    const namesMatch = text.match(/split\s+(?:with\s+)?([a-zA-Z\s,&]+?)(?:\s+for|\s+at|\s+₹|\s+rs|\s+\d|$)/i);
+    if (namesMatch) {
+      const rawNames = namesMatch[1];
+      const names = rawNames
+        .split(/(?:and|&|,)/i)
+        .map(n => n.trim())
+        .filter(n => n.length > 1 && !/^(ways|people|half|equally|evenly|me|i)$/i.test(n));
+
+      if (names.length > 0) {
+        const totalPeople = names.length + 1; // friends + user
+        const perPerson = Math.floor(totalAmountPaise / totalPeople);
+        const splits = names.map(n => ({
+          friend_name: n.charAt(0).toUpperCase() + n.slice(1).toLowerCase(),
+          amount_paise: perPerson,
+        }));
+        const personalSharePaise = totalAmountPaise - (perPerson * names.length);
+        return { isSplit: true, personalSharePaise, splits };
+      }
+    }
+
+    // Default 2-way split
+    const perPerson = Math.floor(totalAmountPaise / 2);
+    return {
+      isSplit: true,
+      personalSharePaise: totalAmountPaise - perPerson,
+      splits: [{ friend_name: 'Friend', amount_paise: perPerson }],
     };
   }
 

@@ -165,4 +165,31 @@ describe('WhatsApp Conversational Expense Engine Tests', () => {
     assert.ok(undoRes.replyMessage.includes('Transaction Undone & Removed!'));
     assert.ok(undoRes.replyMessage.includes('1,200.00'));
   });
+
+  test('Conversational Split Payment: "Paid 3000 for dinner split with Rahul and Aman", "Who owes me", and "Rahul paid back 1000"', () => {
+    // 1. Record split
+    const splitRes = WhatsAppParserService.processIncomingMessage(userPhone, 'Paid 3000 for dinner split with Rahul and Aman');
+    assert.strictEqual(splitRes.success, true);
+    assert.strictEqual(splitRes.action, 'SPLIT_RECORDED');
+    assert.ok(splitRes.replyMessage.includes('Split Expense Logged'));
+    assert.ok(splitRes.replyMessage.includes('Your Real Share'));
+    assert.ok(splitRes.replyMessage.includes('Rahul: ₹1,000.00'));
+    assert.ok(splitRes.replyMessage.includes('Aman: ₹1,000.00'));
+
+    // 2. Query who owes me
+    const summaryRes = WhatsAppParserService.processIncomingMessage(userPhone, 'Who owes me');
+    assert.strictEqual(summaryRes.success, true);
+    assert.strictEqual(summaryRes.action, 'SPLIT_SUMMARY');
+    assert.ok(summaryRes.replyMessage.includes('Rahul'));
+    assert.ok(summaryRes.replyMessage.includes('Aman'));
+    assert.ok(summaryRes.replyMessage.includes('2,000.00'));
+
+    // 3. Friend pays back
+    const settleRes = WhatsAppParserService.processIncomingMessage(userPhone, 'Rahul paid back 1000');
+    assert.strictEqual(settleRes.success, true);
+    assert.strictEqual(settleRes.action, 'SPLIT_SETTLED');
+    assert.ok(settleRes.replyMessage.includes('Friend Settlement Recorded!'));
+    assert.ok(settleRes.replyMessage.includes('Rahul'));
+    assert.ok(settleRes.replyMessage.includes('Fully Settled'));
+  });
 });

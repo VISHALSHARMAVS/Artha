@@ -54,6 +54,40 @@ export const CreateAccountSchema = z.object({
 });
 export type CreateAccountDTO = z.infer<typeof CreateAccountSchema>;
 
+// Split validation schemas
+export const SplitItemSchema = z.object({
+  id: z.string().optional(),
+  friend_name: z.string().min(1, 'Friend name is required').max(50),
+  amount_paise: z.number().int().positive('Split amount must be a positive integer in paise'),
+  notes: z.string().max(200).optional(),
+});
+export type SplitItemDTO = z.infer<typeof SplitItemSchema>;
+
+export const SettleSplitSchema = z.object({
+  account_id: z.string().min(1, 'Settlement account is required'),
+  settled_amount_paise: z.number().int().positive().optional(),
+  settled_at: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+});
+export type SettleSplitDTO = z.infer<typeof SettleSplitSchema>;
+
+export interface SplitReceivable {
+  id: string;
+  user_id: string;
+  transaction_id: string;
+  friend_name: string;
+  amount_paise: number;
+  settled_amount_paise: number;
+  is_settled: number;
+  settled_at: string | null;
+  settled_account_id: string | null;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+  transaction_description?: string;
+  transaction_date?: string;
+  settled_account_name?: string;
+}
+
 // Transaction validation schemas
 export const CreateTransactionSchema = z.object({
   account_id: z.string().min(1, 'Source account is required'),
@@ -64,6 +98,9 @@ export const CreateTransactionSchema = z.object({
   description: z.string().min(1, 'Description is required').max(100),
   notes: z.string().max(500).optional(),
   transaction_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  is_split: z.boolean().optional(),
+  personal_share_paise: z.number().int().positive().optional(),
+  splits: z.array(SplitItemSchema).optional(),
 }).refine(
   (data) => {
     if (data.type === 'TRANSFER') {
@@ -88,6 +125,9 @@ export const UpdateTransactionSchema = z.object({
   description: z.string().min(1, 'Description is required').max(100).optional(),
   notes: z.string().max(500).optional().nullable(),
   transaction_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format').optional(),
+  is_split: z.boolean().optional(),
+  personal_share_paise: z.number().int().positive().optional().nullable(),
+  splits: z.array(SplitItemSchema).optional(),
 });
 export type UpdateTransactionDTO = z.infer<typeof UpdateTransactionSchema>;
 
@@ -162,3 +202,42 @@ export const OnboardingPayloadSchema = z.object({
   ).default([]),
 });
 export type OnboardingPayloadDTO = z.infer<typeof OnboardingPayloadSchema>;
+
+// Bank Statement Import schemas
+export const ParseStatementSchema = z.object({
+  file_base64: z.string().min(1, 'PDF data is required'),
+  file_name: z.string().min(1, 'File name is required'),
+  password: z.string().optional(),
+  account_id: z.string().optional(),
+});
+export type ParseStatementDTO = z.infer<typeof ParseStatementSchema>;
+
+export const CandidateStatementTransactionSchema = z.object({
+  temp_id: z.string(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  raw_description: z.string(),
+  clean_description: z.string(),
+  type: z.enum(['INCOME', 'EXPENSE']),
+  amount_paise: z.number().int().positive(),
+  category_id: z.string().optional(),
+  category_name: z.string().optional(),
+  is_potential_duplicate: z.boolean(),
+  duplicate_reason: z.string().optional(),
+  selected: z.boolean(),
+});
+export type CandidateStatementTransaction = z.infer<typeof CandidateStatementTransactionSchema>;
+
+export const BatchImportStatementSchema = z.object({
+  account_id: z.string().min(1, 'Account ID is required'),
+  transactions: z.array(
+    z.object({
+      date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      description: z.string().min(1),
+      type: z.enum(['INCOME', 'EXPENSE']),
+      amount_paise: z.number().int().positive(),
+      category_id: z.string().optional(),
+    })
+  ).min(1, 'At least one transaction must be selected for import'),
+});
+export type BatchImportStatementDTO = z.infer<typeof BatchImportStatementSchema>;
+

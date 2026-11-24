@@ -7,6 +7,8 @@ import { CategoryController } from '../controllers/category.controller.js';
 import { BudgetController } from '../controllers/budget.controller.js';
 import { LoanController } from '../controllers/loan.controller.js';
 import { ReportController } from '../controllers/report.controller.js';
+import { SplitController } from '../controllers/split.controller.js';
+import { StatementController } from '../controllers/statement.controller.js';
 import { OnboardingController } from '../controllers/onboarding.controller.js';
 import { WhatsAppController } from '../controllers/whatsapp.controller.js';
 import { validateBody } from '../middleware/validate.js';
@@ -20,6 +22,7 @@ import {
   CreateBudgetSchema,
   CreateLoanSchema,
   OnboardingPayloadSchema,
+  SettleSplitSchema,
 } from '@artha/domain';
 
 export const router = Router();
@@ -46,6 +49,16 @@ router.post('/transactions', validateBody(CreateTransactionSchema), TransactionC
 router.post('/transactions/quick-add', validateBody(QuickAddTransactionSchema), TransactionController.quickAdd);
 router.put('/transactions/:id', validateBody(UpdateTransactionSchema), TransactionController.update);
 router.delete('/transactions/:id', TransactionController.delete);
+
+// Splits & Friend Receivables
+router.get('/splits', SplitController.list);
+router.get('/splits/summary', SplitController.summary);
+router.post('/splits/:id/settle', validateBody(SettleSplitSchema), SplitController.settle);
+router.delete('/splits/:id', SplitController.delete);
+
+// Bank Statement PDF Import
+router.post('/statements/parse-pdf', StatementController.parsePdf);
+router.post('/statements/batch-import', StatementController.batchImport);
 
 // Categories
 router.get('/categories', CategoryController.list);

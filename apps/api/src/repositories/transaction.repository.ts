@@ -1,6 +1,7 @@
 import { getDb, transaction } from '../database/db.js';
 import { AccountRepository } from './account.repository.js';
-import type { TransactionType } from '@artha/domain';
+import type { TransactionType, SplitReceivable } from '@artha/domain';
+import crypto from 'node:crypto';
 
 export interface TransactionRecord {
   id: string;
@@ -15,6 +16,8 @@ export interface TransactionRecord {
   transaction_date: string;
   is_recurring: number;
   recurring_obligation_id: string | null;
+  is_split?: number;
+  personal_share_paise?: number | null;
   created_at: string;
   updated_at: string;
   // Joins
@@ -23,6 +26,7 @@ export interface TransactionRecord {
   category_name?: string;
   category_icon?: string;
   category_color?: string;
+  splits?: SplitReceivable[];
 }
 
 export interface TransactionFilterParams {
@@ -54,6 +58,12 @@ export class TransactionRepository {
       WHERE t.id = ? AND t.user_id = ?
     `).get(id, userId) as unknown as TransactionRecord | undefined;
 
+    if (row && row.is_split) {
+      row.splits = db.prepare(`
+        SELECT * FROM split_receivables WHERE transaction_id = ? ORDER BY created_at ASC
+      `).all(row.id) as unknown as SplitReceivable[];
+    }
+
     return row || null;
   }
 
@@ -74,6 +84,12 @@ export class TransactionRepository {
       ORDER BY t.created_at DESC, t.rowid DESC
       LIMIT 1
     `).get(userId) as unknown as TransactionRecord | undefined;
+
+    if (row && row.is_split) {
+      row.splits = db.prepare(`
+        SELECT * FROM split_receivables WHERE transaction_id = ? ORDER BY created_at ASC
+      `).all(row.id) as unknown as SplitReceivable[];
+    }
 
     return row || null;
   }
@@ -131,9 +147,15 @@ export class TransactionRepository {
       LEFT JOIN accounts da ON da.id = t.destination_account_id
       LEFT JOIN categories c ON c.id = t.category_id
       WHERE ${whereClause}
-      ORDER BY t.transaction_date DESC, t.created_at DESC
+      ORDER BY t.transaction_date DESC, t.created_at DESC, t.rowid DESC
       LIMIT ? OFFSET ?
     `).all(...sqlParams, limit, offset) as unknown as TransactionRecord[];
+
+    for (const r of rows) {
+      if (r.is_split) {
+        r.splits = db.prepare('SELECT * FROM split_receivables WHERE transaction_id = ? ORDER BY created_at ASC').all(r.id) as unknown as SplitReceivable[];
+      }
+    }
 
     return { transactions: rows, total };
   }
@@ -154,17 +176,22 @@ export class TransactionRepository {
     transaction_date: string;
     is_recurring?: number;
     recurring_obligation_id?: string;
+    is_split?: boolean;
+    personal_share_paise?: number;
+    splits?: Array<{ friend_name: string; amount_paise: number; notes?: string }>;
   }): TransactionRecord {
     return transaction(() => {
       const db = getDb();
+      const isSplitNum = data.is_split ? 1 : 0;
+      const personalShare = data.is_split ? (data.personal_share_paise ?? data.amount_paise) : null;
 
       db.prepare(`
         INSERT INTO transactions (
           id, user_id, account_id, destination_account_id, category_id,
           type, amount_paise, description, notes, transaction_date,
-          is_recurring, recurring_obligation_id
+          is_recurring, recurring_obligation_id, is_split, personal_share_paise
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
         data.id,
         data.user_id,
@@ -177,8 +204,21 @@ export class TransactionRepository {
         data.notes || '',
         data.transaction_date,
         data.is_recurring || 0,
-        data.recurring_obligation_id || null
+        data.recurring_obligation_id || null,
+        isSplitNum,
+        personalShare
       );
+
+      // If split, insert split receivables
+      if (data.is_split && data.splits && data.splits.length > 0) {
+        for (const s of data.splits) {
+          const splitId = `split_${crypto.randomUUID().slice(0, 10)}`;
+          db.prepare(`
+            INSERT INTO split_receivables (id, user_id, transaction_id, friend_name, amount_paise, notes)
+            VALUES (?, ?, ?, ?, ?, ?)
+          `).run(splitId, data.user_id, data.id, s.friend_name.trim(), s.amount_paise, s.notes || '');
+        }
+      }
 
       // Adjust account balance based on type
       if (data.type === 'INCOME') {
@@ -212,6 +252,9 @@ export class TransactionRepository {
     description?: string;
     notes?: string | null;
     transaction_date?: string;
+    is_split?: boolean;
+    personal_share_paise?: number | null;
+    splits?: Array<{ id?: string; friend_name: string; amount_paise: number; notes?: string }>;
   }): TransactionRecord {
     return transaction(() => {
       const existing = this.findById(id, userId);
@@ -240,6 +283,8 @@ export class TransactionRepository {
       const newDescription = data.description ?? existing.description;
       const newNotes = data.notes !== undefined ? (data.notes || '') : existing.notes;
       const newDate = data.transaction_date ?? existing.transaction_date;
+      const newIsSplit = data.is_split !== undefined ? (data.is_split ? 1 : 0) : (existing.is_split || 0);
+      const newPersonalShare = data.personal_share_paise !== undefined ? data.personal_share_paise : existing.personal_share_paise;
 
       if (newType === 'TRANSFER' && (!newDestAccountId || newDestAccountId === newAccountId)) {
         throw new Error('Transfer requires a distinct destination account');
@@ -266,6 +311,8 @@ export class TransactionRepository {
             description = ?,
             notes = ?,
             transaction_date = ?,
+            is_split = ?,
+            personal_share_paise = ?,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `).run(
@@ -277,9 +324,25 @@ export class TransactionRepository {
         newDescription,
         newNotes,
         newDate,
+        newIsSplit,
+        newPersonalShare ?? null,
         id,
         userId
       );
+
+      // If splits were updated
+      if (data.splits !== undefined) {
+        db.prepare('DELETE FROM split_receivables WHERE transaction_id = ? AND is_settled = 0').run(id);
+        if (data.splits && data.splits.length > 0) {
+          for (const s of data.splits) {
+            const splitId = s.id || `split_${crypto.randomUUID().slice(0, 10)}`;
+            db.prepare(`
+              INSERT INTO split_receivables (id, user_id, transaction_id, friend_name, amount_paise, notes)
+              VALUES (?, ?, ?, ?, ?, ?)
+            `).run(splitId, userId, id, s.friend_name.trim(), s.amount_paise, s.notes || '');
+          }
+        }
+      }
 
       return this.findById(id, userId)!;
     });
@@ -326,7 +389,7 @@ export class TransactionRepository {
     `).get(userId, start, end) as { total: number };
 
     const expenseRow = db.prepare(`
-      SELECT COALESCE(SUM(amount_paise), 0) as total
+      SELECT COALESCE(SUM(COALESCE(personal_share_paise, amount_paise)), 0) as total
       FROM transactions
       WHERE user_id = ? AND type = 'EXPENSE' AND transaction_date >= ? AND transaction_date <= ?
     `).get(userId, start, end) as { total: number };
@@ -358,7 +421,7 @@ export class TransactionRepository {
         c.name as categoryName,
         c.icon_name as iconName,
         c.color_hex as colorHex,
-        SUM(t.amount_paise) as totalPaise,
+        SUM(COALESCE(t.personal_share_paise, t.amount_paise)) as totalPaise,
         COUNT(t.id) as transactionCount
       FROM transactions t
       JOIN categories c ON c.id = t.category_id

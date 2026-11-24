@@ -75,6 +75,16 @@ export class DatabaseService {
       } catch {
         // Column already exists
       }
+      try {
+        db.exec("ALTER TABLE transactions ADD COLUMN is_split INTEGER DEFAULT 0;");
+      } catch {
+        // Column already exists
+      }
+      try {
+        db.exec("ALTER TABLE transactions ADD COLUMN personal_share_paise INTEGER;");
+      } catch {
+        // Column already exists
+      }
     }
   }
 

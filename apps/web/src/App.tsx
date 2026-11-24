@@ -3,6 +3,7 @@ import { api, DashboardOverview, Account, Category, AuthUser } from './lib/api.j
 import { Sidebar, NavigationTab } from './components/Sidebar.js';
 import { DashboardView } from './features/DashboardView.js';
 import { TransactionsView } from './features/TransactionsView.js';
+import { SplitsView } from './features/SplitsView.js';
 import { AccountsView } from './features/AccountsView.js';
 import { BudgetsView } from './features/BudgetsView.js';
 import { LoansView } from './features/LoansView.js';
@@ -167,6 +168,14 @@ export const App: React.FC = () => {
             onAddTransaction={() => setIsAddTxOpen(true)}
             accounts={accounts}
             categories={categories}
+          />
+        )}
+
+        {currentTab === 'splits' && (
+          <SplitsView
+            accounts={accounts}
+            onRefresh={refreshAllData}
+            onRecordSplit={() => setIsAddTxOpen(true)}
           />
         )}
 

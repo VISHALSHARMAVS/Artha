@@ -2,11 +2,14 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert';
 import { DashboardService } from '../src/services/dashboard.service.js';
 import { TransactionService } from '../src/services/transaction.service.js';
+import { TransactionRepository } from '../src/repositories/transaction.repository.js';
 import { AccountService } from '../src/services/account.service.js';
 import { CategoryService } from '../src/services/category.service.js';
 import { BudgetService } from '../src/services/budget.service.js';
 import { LoanService } from '../src/services/loan.service.js';
 import { ReportService } from '../src/services/report.service.js';
+import { SplitService } from '../src/services/split.service.js';
+import { PdfStatementService } from '../src/services/pdf-statement.service.js';
 import { DEFAULT_USER_ID } from '../src/middleware/auth.js';
 
 describe('Artha Layered Backend Integration Tests', () => {
@@ -216,5 +219,127 @@ describe('Artha Layered Backend Integration Tests', () => {
       assert.strictEqual(typeof month.expensePaise, 'number');
       assert.strictEqual(month.netSavingsPaise, month.incomePaise - month.expensePaise);
     });
+  });
+
+  test('Split Expense Engine isolates personal expense share and manages friend debt settlements without inflating income', () => {
+    const accounts = AccountService.getAccounts(DEFAULT_USER_ID);
+    const acc = accounts[0];
+    const initialBal = acc.balance_paise;
+
+    const before = DashboardService.getOverview(DEFAULT_USER_ID);
+    const initialExpense = before.answers.expense_mtd_paise;
+    const initialIncome = before.answers.income_mtd_paise;
+
+    // 1. User pays ₹3,000 for dinner split with Rahul (₹1,000) and Aman (₹1,000)
+    // User's own share is ₹1,000. Total paid from bank is ₹3,000.
+    const splitTx = TransactionService.recordTransaction({
+      account_id: acc.id,
+      type: 'EXPENSE',
+      amount_paise: 300000,
+      description: 'Team Dinner Split',
+      transaction_date: '2026-11-20',
+      is_split: true,
+      personal_share_paise: 100000,
+      splits: [
+        { friend_name: 'Rahul', amount_paise: 100000 },
+        { friend_name: 'Aman', amount_paise: 100000 },
+      ],
+    }, DEFAULT_USER_ID);
+
+    assert.strictEqual(splitTx.amount_paise, 300000);
+    assert.strictEqual(splitTx.personal_share_paise, 100000);
+    assert.strictEqual(splitTx.splits?.length, 2);
+
+    // Bank account must be debited by full ₹3,000
+    const afterDebitAcc = AccountService.getAccount(acc.id, DEFAULT_USER_ID);
+    assert.strictEqual(afterDebitAcc.balance_paise, initialBal - 300000);
+
+    // CRITICAL: User's monthly expense must only increase by ₹1,000 (NOT ₹3,000)
+    const afterOverview = DashboardService.getOverview(DEFAULT_USER_ID);
+    assert.strictEqual(
+      afterOverview.answers.expense_mtd_paise,
+      initialExpense + 100000,
+      'Monthly expense must reflect personal share of ₹1,000 only'
+    );
+
+    // Verify pending receivables summary
+    const summaryBefore = SplitService.getSummary(DEFAULT_USER_ID);
+    assert.strictEqual(summaryBefore.totalReceivablePaise, 200000);
+    assert.strictEqual(summaryBefore.pendingCount, 2);
+
+    // 2. Rahul pays back ₹1,000 via UPI
+    const rahulSplit = splitTx.splits!.find(s => s.friend_name === 'Rahul')!;
+    const settledRahul = SplitService.settleReceivable(rahulSplit.id, DEFAULT_USER_ID, {
+      account_id: acc.id,
+      settled_amount_paise: 100000,
+    });
+
+    assert.strictEqual(settledRahul.is_settled, 1);
+    assert.strictEqual(settledRahul.settled_amount_paise, 100000);
+
+    // Bank account balance restored by ₹1,000
+    const afterRahulPaybackAcc = AccountService.getAccount(acc.id, DEFAULT_USER_ID);
+    assert.strictEqual(afterRahulPaybackAcc.balance_paise, initialBal - 200000);
+
+    // CRITICAL: Settling friend debt must NOT count as new income!
+    const afterSettleOverview = DashboardService.getOverview(DEFAULT_USER_ID);
+    assert.strictEqual(
+      afterSettleOverview.answers.income_mtd_paise,
+      initialIncome,
+      'Receiving friend payback must be neutral to income metrics'
+    );
+
+    // Outstanding receivables is now ₹1,000 (only Aman left)
+    const summaryAfter = SplitService.getSummary(DEFAULT_USER_ID);
+    assert.strictEqual(summaryAfter.totalReceivablePaise, 100000);
+    assert.strictEqual(summaryAfter.pendingCount, 1);
+
+    // 3. Clean up
+    TransactionService.deleteTransaction(splitTx.id, DEFAULT_USER_ID);
+  });
+
+  test('Bank Statement PDF Ingestion & Batch Import with Duplicate Detection', () => {
+    const acc = AccountService.getAccounts(DEFAULT_USER_ID)[0];
+    const initialBal = acc.balance_paise;
+
+    // 1. Batch import 2 candidate transactions (1 Income, 1 Expense)
+    const result = PdfStatementService.batchImportTransactions(DEFAULT_USER_ID, acc.id, [
+      {
+        date: '2026-11-20',
+        description: 'Client Consulting Freelance',
+        type: 'INCOME',
+        amount_paise: 2500000, // ₹25,000
+      },
+      {
+        date: '2026-11-21',
+        description: 'Swiggy Gourmet Dinner',
+        type: 'EXPENSE',
+        amount_paise: 85000, // ₹850
+      },
+    ]);
+
+    assert.strictEqual(result.imported_count, 2);
+    assert.strictEqual(result.total_amount_paise, 2500000 + 85000);
+
+    // Verify balance adjusted atomically: +25,000 - 850 = +24,150
+    const afterImportAcc = AccountService.getAccount(acc.id, DEFAULT_USER_ID);
+    assert.strictEqual(afterImportAcc.balance_paise, initialBal + 2415000);
+
+    // Verify transactions exist in ledger
+    const { transactions: txs } = TransactionRepository.list({ userId: DEFAULT_USER_ID, limit: 10 });
+    const importedIncome = txs.find(t => t.description === 'Client Consulting Freelance');
+    const importedExpense = txs.find(t => t.description === 'Swiggy Gourmet Dinner');
+
+    assert.ok(importedIncome, 'Imported income transaction must exist');
+    assert.ok(importedExpense, 'Imported expense transaction must exist');
+    assert.strictEqual(importedIncome.amount_paise, 2500000);
+    assert.strictEqual(importedExpense.amount_paise, 85000);
+
+    // Clean up
+    TransactionService.deleteTransaction(importedIncome.id, DEFAULT_USER_ID);
+    TransactionService.deleteTransaction(importedExpense.id, DEFAULT_USER_ID);
+
+    const restoredAcc = AccountService.getAccount(acc.id, DEFAULT_USER_ID);
+    assert.strictEqual(restoredAcc.balance_paise, initialBal, 'Account balance must be cleanly restored');
   });
 });
