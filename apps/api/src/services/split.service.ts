@@ -37,4 +37,31 @@ export class SplitService {
     }
     return true;
   }
+
+  /**
+   * Generates a CSV string of the reimbursement audit trail.
+   */
+  static exportSplitsCsv(userId: string): string {
+    const splits = SplitRepository.listByUser(userId);
+    const headers = ['Friend Name', 'Expense Description', 'Date', 'Owed Amount (INR)', 'Settled Amount (INR)', 'Pending Balance (INR)', 'Settled Status', 'Settled Account'];
+    const escapeCsv = (val: any) => `"${String(val ?? '').replace(/"/g, '""')}"`;
+
+    const lines = [headers.join(',')];
+    for (const s of splits) {
+      const owedInr = (s.amount_paise / 100).toFixed(2);
+      const settledInr = (s.settled_amount_paise / 100).toFixed(2);
+      const pendingInr = ((s.amount_paise - s.settled_amount_paise) / 100).toFixed(2);
+      lines.push([
+        escapeCsv(s.friend_name),
+        escapeCsv(s.transaction_description || 'Shared Expense'),
+        escapeCsv(s.transaction_date || ''),
+        owedInr,
+        settledInr,
+        pendingInr,
+        s.is_settled ? 'SETTLED' : 'PENDING',
+        escapeCsv(s.settled_account_name || ''),
+      ].join(','));
+    }
+    return lines.join('\n');
+  }
 }

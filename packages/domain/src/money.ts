@@ -182,6 +182,68 @@ export class Money {
     return `${symbolPrefix}${formattedNumber}`;
   }
 
+  /**
+   * Converts the monetary amount to written Indian English words.
+   * e.g. ₹60,000 -> "Sixty Thousand Rupees"
+   * e.g. ₹6,00,000 -> "Six Lakhs Rupees"
+   */
+  toWords(): string {
+    const rupees = Math.floor(Math.abs(this.paise) / 100);
+    if (rupees === 0) return 'Zero Rupees';
+
+    const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
+      'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+    const numToWordsLessThanThousand = (n: number): string => {
+      let str = '';
+      if (n >= 100) {
+        str += ones[Math.floor(n / 100)] + ' Hundred ';
+        n %= 100;
+      }
+      if (n >= 20) {
+        str += tens[Math.floor(n / 10)] + ' ';
+        n %= 10;
+      }
+      if (n > 0) {
+        str += ones[n] + ' ';
+      }
+      return str.trim();
+    };
+
+    let remaining = rupees;
+    let parts: string[] = [];
+
+    // Crores (>= 1,00,00,000)
+    if (remaining >= 10000000) {
+      const cr = Math.floor(remaining / 10000000);
+      parts.push(numToWordsLessThanThousand(cr) + (cr === 1 ? ' Crore' : ' Crores'));
+      remaining %= 10000000;
+    }
+
+    // Lakhs (>= 1,00,000)
+    if (remaining >= 100000) {
+      const lk = Math.floor(remaining / 100000);
+      parts.push(numToWordsLessThanThousand(lk) + (lk === 1 ? ' Lakh' : ' Lakhs'));
+      remaining %= 100000;
+    }
+
+    // Thousands (>= 1,000)
+    if (remaining >= 1000) {
+      const th = Math.floor(remaining / 1000);
+      parts.push(numToWordsLessThanThousand(th) + ' Thousand');
+      remaining %= 1000;
+    }
+
+    // Hundreds & units
+    if (remaining > 0) {
+      parts.push(numToWordsLessThanThousand(remaining));
+    }
+
+    const words = parts.join(' ').trim();
+    return `${words} Rupees`;
+  }
+
   toString(): string {
     return this.format();
   }

@@ -46,4 +46,15 @@ export class SplitController {
       next(error);
     }
   }
+
+  static exportCsv(req: Request, res: Response, next: NextFunction): void {
+    try {
+      const csv = SplitService.exportSplitsCsv(req.userId);
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="artha-reimbursements-${Date.now()}.csv"`);
+      res.status(200).send(csv);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

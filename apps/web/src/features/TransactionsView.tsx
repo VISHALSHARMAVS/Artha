@@ -3,7 +3,7 @@ import { api, Transaction, Account, Category, formatPaise } from '../lib/api.js'
 import { CategoryIcon } from '../components/CategoryIcon.js';
 import { Badge } from '../components/ui/Badge.js';
 import { Button } from '../components/ui/Button.js';
-import { Search, Plus, Trash2, Filter, AlertCircle, RefreshCw, Receipt, Pencil, Upload } from 'lucide-react';
+import { Search, Plus, Trash2, Filter, AlertCircle, RefreshCw, Receipt, Pencil, Upload, Download } from 'lucide-react';
 import { EditTransactionModal } from '../components/EditTransactionModal.js';
 import { ImportStatementModal } from '../components/ImportStatementModal.js';
 
@@ -24,6 +24,18 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
+  const [isExporting, setIsExporting] = useState<boolean>(false);
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      await api.downloadTransactionsExport('csv');
+    } catch (err: any) {
+      setError(err.message || 'Failed to export transaction ledger');
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Filters
   const [typeFilter, setTypeFilter] = useState<string>('');
@@ -103,10 +115,20 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
           <Button
             variant="outline"
             size="sm"
+            icon={<Download className="w-3.5 h-3.5" />}
+            onClick={handleExport}
+            disabled={isExporting}
+          >
+            {isExporting ? 'Exporting...' : 'Export CSV'}
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
             icon={<Upload className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
             onClick={() => setIsImportModalOpen(true)}
           >
-            Import bank statement (PDF)
+            Import statement
           </Button>
 
           <Button

@@ -10,6 +10,54 @@ export interface AmountInputProps {
   required?: boolean;
 }
 
+function getIndianRupeesWords(paise: number): string {
+  const rupees = Math.floor(Math.abs(paise) / 100);
+  if (rupees === 0) return '';
+
+  const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
+    'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+  const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+  const numToWordsLessThanThousand = (n: number): string => {
+    let str = '';
+    if (n >= 100) {
+      str += ones[Math.floor(n / 100)] + ' Hundred ';
+      n %= 100;
+    }
+    if (n >= 20) {
+      str += tens[Math.floor(n / 10)] + ' ';
+      n %= 10;
+    }
+    if (n > 0) {
+      str += ones[n] + ' ';
+    }
+    return str.trim();
+  };
+
+  let remaining = rupees;
+  let parts: string[] = [];
+
+  if (remaining >= 10000000) {
+    const cr = Math.floor(remaining / 10000000);
+    parts.push(numToWordsLessThanThousand(cr) + (cr === 1 ? ' Crore' : ' Crores'));
+    remaining %= 10000000;
+  }
+  if (remaining >= 100000) {
+    const lk = Math.floor(remaining / 100000);
+    parts.push(numToWordsLessThanThousand(lk) + (lk === 1 ? ' Lakh' : ' Lakhs'));
+    remaining %= 100000;
+  }
+  if (remaining >= 1000) {
+    const th = Math.floor(remaining / 1000);
+    parts.push(numToWordsLessThanThousand(th) + ' Thousand');
+    remaining %= 1000;
+  }
+  if (remaining > 0) {
+    parts.push(numToWordsLessThanThousand(remaining));
+  }
+  return parts.join(' ').trim() + ' Rupees';
+}
+
 export const AmountInput: React.FC<AmountInputProps> = ({
   valuePaise,
   onChangePaise,
@@ -82,6 +130,11 @@ export const AmountInput: React.FC<AmountInputProps> = ({
           className={`w-full bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-[#313131] rounded-md pr-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all duration-300 ease-out-expo tnum font-mono ${sizeClasses[size]}`}
         />
       </div>
+      {valuePaise > 0 && (
+        <p className="mt-1 text-[11px] text-blue-600 dark:text-blue-400 font-medium">
+          ≈ {getIndianRupeesWords(valuePaise)}
+        </p>
+      )}
     </div>
   );
 };

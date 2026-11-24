@@ -22,8 +22,17 @@ export class DashboardService {
     const monthYear = `${currentYear}-${currentMonth}`;
     const todayStr = now.toISOString().slice(0, 10);
 
-    // 1. How much money do I currently have? (Total Liquid Balance)
+    // 1. Account balances & liquid assets
+    const accounts = AccountRepository.findByUserId(userId);
     const totalLiquidPaise = AccountRepository.getLiquidBalance(userId);
+
+    const grossLiquidAssetsPaise = accounts
+      .filter((a) => a.account_type === 'SAVINGS' || a.account_type === 'CHECKING' || a.account_type === 'CASH')
+      .reduce((sum, a) => sum + Math.max(0, a.balance_paise), 0);
+
+    const unpaidCreditCardDebtPaise = accounts
+      .filter((a) => a.account_type === 'CREDIT_CARD' && a.balance_paise < 0)
+      .reduce((sum, a) => sum + Math.abs(a.balance_paise), 0);
 
     // 2 & 3. How much did I earn and spend this month? (Transfers excluded)
     const { incomePaise, expensePaise } = TransactionRepository.getMonthTotals(userId, monthYear);
@@ -34,8 +43,13 @@ export class DashboardService {
 
     // Retrieve salary profile to calculate next pay date and emergency buffer
     const salaryProfile = UserRepository.getSalaryProfile(userId);
+    const isSetupComplete = Boolean(
+      (salaryProfile && salaryProfile.net_monthly_salary_paise > 0) || accounts.length > 0
+    );
+
     const payDay = salaryProfile?.pay_day_of_month || 1;
-    const emergencyBufferPaise = salaryProfile?.emergency_fund_target_paise || 5000000; // Default ₹50k buffer
+    const emergencyBufferPaise = salaryProfile?.emergency_fund_target_paise ?? (isSetupComplete ? 5000000 : 0);
+    const plannedInvestmentsPaise = salaryProfile?.monthly_savings_target_paise ?? 0;
 
     // Calculate next salary date
     let nextSalaryYear = currentYear;
@@ -65,14 +79,18 @@ export class DashboardService {
       };
     });
 
-    // 5. How much can I safely spend? (Domain algorithm with Freedom Runway & Guilt-Free metrics)
+    // 5. How much can I safely spend? (Obligation-aware domain algorithm with breakdown)
     const safeToSpend = SafeToSpendCalculator.calculate({
-      liquidBalancePaise: totalLiquidPaise,
-      upcomingObligations,
+      isSetupComplete,
+      grossLiquidAssetsPaise,
+      unpaidCreditCardDebtPaise,
+      plannedInvestmentsPaise,
       emergencyReserveBufferPaise: emergencyBufferPaise,
+      upcomingObligations,
       nextSalaryDate: nextSalaryDateStr,
       currentDate: todayStr,
       monthlySalaryPaise: salaryProfile?.net_monthly_salary_paise || 0,
+      liquidBalancePaise: totalLiquidPaise,
     });
 
     // Recent transactions for immediate verification
@@ -82,7 +100,6 @@ export class DashboardService {
     });
 
     // Net worth metrics
-    const accounts = AccountRepository.findByUserId(userId);
     const totalAssetsPaise = accounts
       .filter((a) => a.account_type !== 'CREDIT_CARD' && a.account_type !== 'LOAN')
       .reduce((sum, a) => sum + Math.max(0, a.balance_paise), 0);

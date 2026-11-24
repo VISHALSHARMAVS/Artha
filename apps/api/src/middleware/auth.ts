@@ -47,15 +47,29 @@ export function authMiddleware(req: Request, _res: Response, next: NextFunction)
     }
   }
 
-  // Developer / test fallback support: check x-user-id or test mode
-  const headerUserId = req.header('x-user-id');
-  if (headerUserId && headerUserId.trim()) {
-    req.userId = headerUserId.trim();
-    return next();
+  // Developer / test mode ONLY: allow x-user-id in automated test suite
+  if (process.env.NODE_ENV === 'test') {
+    const headerUserId = req.header('x-user-id');
+    if (headerUserId && headerUserId.trim()) {
+      req.userId = headerUserId.trim();
+      return next();
+    }
   }
 
-  // Fallback for demo mode and exploration: allows linking WhatsApp and using demo ledger
+  // Demo mode fallback: allow read-only exploration of sample data
   if (process.env.NODE_ENV !== 'production' || process.env.ALLOW_DEMO_MODE !== 'false') {
+    // Prevent anonymous users from corrupting or mutating shared demo financial records
+    const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method);
+    const isPublicFlow = path.startsWith('/api/v1/auth') || path.startsWith('/api/v1/onboarding');
+
+    if (isMutation && !isPublicFlow && process.env.NODE_ENV !== 'test') {
+      throw new AppError(
+        'Authentication required. Shared demo data is protected against anonymous modifications. Please create a free account or sign in to record transactions.',
+        401,
+        'DEMO_MUTATION_FORBIDDEN'
+      );
+    }
+
     req.userId = DEFAULT_USER_ID;
     return next();
   }

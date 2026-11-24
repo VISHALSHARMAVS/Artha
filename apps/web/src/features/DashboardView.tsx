@@ -144,6 +144,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         return 'bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border-amber-200/80 dark:border-amber-800/60';
       case 'DEFICIT':
         return 'bg-red-50 text-red-800 dark:bg-red-950/40 dark:text-red-300 border-red-200/80 dark:border-red-800/60';
+      case 'SETUP_REQUIRED':
+      default:
+        return 'bg-slate-50 text-slate-800 dark:bg-[#1F1F1F] dark:text-slate-200 border-slate-200 dark:border-[#313131]';
     }
   };
 
@@ -152,9 +155,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Header with Quick Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="max-w-[680px]">
-          <h1 className="heading-4 sm:heading-3 tracking-tight text-slate-900 dark:text-white">
-            Financial dashboard
-          </h1>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="heading-4 sm:heading-3 tracking-tight text-slate-900 dark:text-white">
+              Financial dashboard
+            </h1>
+            {(!localStorage.getItem('artha_token')) && (
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20" title="You are viewing sample financial data. Create an account or sign in to save your personal records.">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                Demo Mode (Sample Data)
+              </span>
+            )}
+          </div>
           <p className="caption-1 text-slate-500 dark:text-slate-400 mt-1 max-w-[680px]">
             Institutional financial telemetry answering your five core wealth questions.
           </p>
@@ -264,66 +275,101 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* Question 5 Hero Banner: How much can I safely spend? */}
-      <div className={`p-5 rounded-lg border ${getSafeStatusColor()} transition-all shadow-subtle`}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {safe.status === 'SETUP_REQUIRED' || safe.isSetupComplete === false ? (
+        <div className="p-5 rounded-lg border border-blue-200 dark:border-[#313131] bg-blue-50/40 dark:bg-[#1F1F1F] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
-              <h2 className="text-sm font-semibold tracking-wide uppercase">
+              <h2 className="text-sm font-semibold tracking-wide uppercase text-slate-900 dark:text-white">
                 5. Safe-to-Spend Computation
               </h2>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white/80 dark:bg-[#1F1F1F]/80 border">
-                STATUS: {safe.status}
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                SETUP REQUIRED
               </span>
             </div>
-            <p className="text-xs opacity-90 max-w-xl">
-              {safe.advisoryMessage}
+            <p className="text-xs text-slate-600 dark:text-slate-400 max-w-xl">
+              Complete your financial setup to calculate Safe-to-Spend. Set your monthly salary pay date, bank accounts, and fixed obligations to unlock obligation-aware daily spending limits.
             </p>
           </div>
-
-          <div className="flex items-baseline gap-6 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-current/20">
-            <div>
-              <div className="text-[10px] uppercase font-medium opacity-75 tracking-wider flex items-center gap-1">
-                <span>Guilt-Free Capital</span>
-                <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-semibold">100% Free</span>
+          {onStartOnboarding && (
+            <Button
+              variant="primary"
+              size="sm"
+              icon={<Sparkles className="w-3.5 h-3.5" />}
+              onClick={onStartOnboarding}
+              className="shrink-0"
+            >
+              Complete financial setup
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className={`p-5 rounded-lg border ${getSafeStatusColor()} transition-all shadow-subtle`}>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
+                <h2 className="text-sm font-semibold tracking-wide uppercase">
+                  5. Safe-to-Spend Computation
+                </h2>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white/80 dark:bg-[#1F1F1F]/80 border">
+                  STATUS: {safe.status}
+                </span>
               </div>
-              <div className="text-2xl font-bold tnum">
-                {formatPaise(safe.guiltFreePaise ?? safe.safeAmountPaise, { includeDecimals: false })}
-              </div>
+              <p className="text-xs opacity-90 max-w-xl">
+                {safe.advisoryMessage}
+              </p>
             </div>
 
-            <div>
-              <div className="text-[10px] uppercase font-medium opacity-75 tracking-wider">
-                Safe Daily Velocity
+            <div className="flex items-baseline gap-6 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-current/20">
+              <div>
+                <div className="text-[10px] uppercase font-medium opacity-75 tracking-wider flex items-center gap-1">
+                  <span>Guilt-Free Capital</span>
+                  <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-semibold">100% Free</span>
+                </div>
+                <div className="text-2xl font-bold tnum">
+                  {formatPaise(safe.guiltFreePaise ?? safe.safeAmountPaise, { includeDecimals: false })}
+                </div>
               </div>
-              <div className="text-2xl font-bold tnum text-blue-600 dark:text-blue-400">
-                {formatPaise(safe.dailySafePaise, { includeDecimals: false })}
-                <span className="text-xs font-normal opacity-75 ml-0.5">/day</span>
+
+              <div>
+                <div className="text-[10px] uppercase font-medium opacity-75 tracking-wider">
+                  Safe Daily Velocity
+                </div>
+                <div className="text-2xl font-bold tnum text-blue-600 dark:text-blue-400">
+                  {formatPaise(safe.dailySafePaise, { includeDecimals: false })}
+                  <span className="text-xs font-normal opacity-75 ml-0.5">/day</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="mt-4 pt-3 border-t border-current/15 flex flex-wrap items-center gap-y-2 gap-x-6 text-[11px] opacity-80">
-          <span>
-            Liquid Balance: <strong className="tnum">{formatPaise(answers.total_liquid_paise, { includeDecimals: false })}</strong>
-          </span>
-          <span>
-            — Deducted Obligations: <strong className="tnum">{formatPaise(safe.upcomingObligationsTotalPaise, { includeDecimals: false })}</strong>
-          </span>
-          <span>
-            — Emergency Reserve: <strong className="tnum">{formatPaise(safe.emergencyReserveBufferPaise, { includeDecimals: false })}</strong>
-          </span>
-          {safe.hourlyWagePaise && safe.hourlyWagePaise > 0 ? (
-            <span className="text-blue-700 dark:text-blue-300 font-medium">
-              ⚡ Life Energy: <strong>{formatPaise(safe.hourlyWagePaise, { includeDecimals: false })}/hr</strong> wage
+          <div className="mt-4 pt-3 border-t border-current/15 flex flex-wrap items-center gap-y-2 gap-x-6 text-[11px] opacity-80">
+            <span>
+              Liquid Assets: <strong className="tnum">{formatPaise(safe.breakdown?.grossLiquidAssetsPaise ?? answers.total_liquid_paise, { includeDecimals: false })}</strong>
             </span>
-          ) : null}
-          <span className="ml-auto font-medium">
-            Next Payday in {safe.daysUntilSalary} days
-          </span>
+            <span>
+              — Obligations: <strong className="tnum">{formatPaise(safe.upcomingObligationsTotalPaise, { includeDecimals: false })}</strong>
+            </span>
+            <span>
+              — Emergency Reserve: <strong className="tnum">{formatPaise(safe.emergencyReserveBufferPaise, { includeDecimals: false })}</strong>
+            </span>
+            {safe.breakdown?.unpaidCreditCardDebtPaise ? (
+              <span>
+                — Unpaid CC: <strong className="tnum">{formatPaise(safe.breakdown.unpaidCreditCardDebtPaise, { includeDecimals: false })}</strong>
+              </span>
+            ) : null}
+            {safe.hourlyWagePaise && safe.hourlyWagePaise > 0 ? (
+              <span className="text-blue-700 dark:text-blue-300 font-medium">
+                ⚡ Life Energy: <strong>{formatPaise(safe.hourlyWagePaise, { includeDecimals: false })}/hr</strong> wage
+              </span>
+            ) : null}
+            <span className="ml-auto font-medium">
+              Next Payday in {safe.daysUntilSalary} days
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* FINANCIAL FREEDOM SUITE (Morgan Housel, Ramit Sethi, George Clason) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

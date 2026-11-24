@@ -88,18 +88,31 @@ export interface Obligation {
   categoryName?: string;
 }
 
+export interface SafeToSpendBreakdown {
+  grossLiquidAssetsPaise: number;
+  protectedReservesPaise: number;
+  upcomingObligationsTotalPaise: number;
+  plannedInvestmentsPaise: number;
+  unpaidCreditCardDebtPaise: number;
+  minimumCashBufferPaise: number;
+  availableSpendingPoolPaise: number;
+}
+
 export interface SafeToSpendDetails {
+  isSetupComplete?: boolean;
+  availableSpendingPoolPaise?: number;
   safeAmountPaise: number;
   dailySafePaise: number;
   upcomingObligationsTotalPaise: number;
   emergencyReserveBufferPaise: number;
   daysUntilSalary: number;
-  status: 'HEALTHY' | 'MODERATE' | 'TIGHT' | 'DEFICIT';
+  status: 'HEALTHY' | 'MODERATE' | 'TIGHT' | 'DEFICIT' | 'SETUP_REQUIRED';
   advisoryMessage: string;
   guiltFreePaise?: number;
   freedomRunwayMonths?: number;
   freedomRunwayDays?: number;
   hourlyWagePaise?: number;
+  breakdown?: SafeToSpendBreakdown;
 }
 
 export interface DashboardOverview {
@@ -482,4 +495,41 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  // Data Export
+  downloadTransactionsExport: async (format: 'csv' | 'json' = 'csv') => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('artha_token') : null;
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_BASE}/reports/export?format=${format}`, { headers });
+    if (!res.ok) throw new Error('Failed to export transaction ledger');
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `artha-transactions-${new Date().toISOString().slice(0, 10)}.${format}`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
+
+  downloadSplitsExport: async () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('artha_token') : null;
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_BASE}/splits/export`, { headers });
+    if (!res.ok) throw new Error('Failed to export reimbursements ledger');
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `artha-reimbursements-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
 };

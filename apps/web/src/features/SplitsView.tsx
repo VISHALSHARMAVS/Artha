@@ -4,7 +4,7 @@ import { Card } from '../components/ui/Card.js';
 import { Button } from '../components/ui/Button.js';
 import { Badge } from '../components/ui/Badge.js';
 import { SettleSplitModal } from '../components/SettleSplitModal.js';
-import { Users, CheckCircle, Clock, Check, Trash2, ArrowUpRight, MessageSquare, Plus, RefreshCw, AlertCircle } from 'lucide-react';
+import { Users, CheckCircle, Clock, Check, Trash2, ArrowUpRight, MessageSquare, Plus, RefreshCw, AlertCircle, Download } from 'lucide-react';
 
 interface SplitsViewProps {
   accounts: Account[];
@@ -23,6 +23,18 @@ export const SplitsView: React.FC<SplitsViewProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'pending' | 'settled' | 'all'>('pending');
   const [settlingSplit, setSettlingSplit] = useState<SplitReceivable | null>(null);
+  const [isExporting, setIsExporting] = useState<boolean>(false);
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      await api.downloadSplitsExport();
+    } catch (err: any) {
+      setError(err.message || 'Failed to export reimbursement ledger');
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -71,20 +83,32 @@ export const SplitsView: React.FC<SplitsViewProps> = ({
             <span>Split payments and receivables</span>
           </h1>
           <p className="caption-1 text-slate-500 dark:text-slate-400 mt-0.5">
-            Track money friends owe you. Recoveries credit your bank without inflating your taxable income.
+            Expense and Reimbursement Audit Trail. Track shared expenses, participant shares, and settlements.
           </p>
         </div>
 
-        {onRecordSplit && (
+        <div className="flex items-center gap-2">
           <Button
-            variant="primary"
+            variant="outline"
             size="sm"
-            icon={<Plus className="w-3.5 h-3.5" />}
-            onClick={onRecordSplit}
+            icon={<Download className="w-3.5 h-3.5" />}
+            onClick={handleExport}
+            disabled={isExporting}
           >
-            Record split expense
+            {isExporting ? 'Exporting...' : 'Export CSV'}
           </Button>
-        )}
+
+          {onRecordSplit && (
+            <Button
+              variant="primary"
+              size="sm"
+              icon={<Plus className="w-3.5 h-3.5" />}
+              onClick={onRecordSplit}
+            >
+              Record split expense
+            </Button>
+          )}
+        </div>
       </div>
 
       {error && (

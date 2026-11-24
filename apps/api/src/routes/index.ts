@@ -53,6 +53,7 @@ router.delete('/transactions/:id', TransactionController.delete);
 // Splits & Friend Receivables
 router.get('/splits', SplitController.list);
 router.get('/splits/summary', SplitController.summary);
+router.get('/splits/export', SplitController.exportCsv);
 router.post('/splits/:id/settle', validateBody(SettleSplitSchema), SplitController.settle);
 router.delete('/splits/:id', SplitController.delete);
 
@@ -79,6 +80,7 @@ router.post('/loans', validateBody(CreateLoanSchema), LoanController.create);
 // Reports
 router.get('/reports/cash-flow', ReportController.getCashFlow);
 router.get('/reports/category-breakdown', ReportController.getCategoryBreakdown);
+router.get('/reports/export', ReportController.exportData);
 
 // Journey A Onboarding
 router.post('/onboarding', validateBody(OnboardingPayloadSchema), OnboardingController.submit);

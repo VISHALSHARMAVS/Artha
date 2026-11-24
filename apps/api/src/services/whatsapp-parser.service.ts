@@ -686,6 +686,16 @@ _(Reply *"Undo"* anytime to revert this entry)_`;
     // 3. Extract Clean Description / Merchant
     const description = this.extractDescription(text, extractedAmount.rawMatch, txType);
 
+    // Prompt requirement: Ambiguous inputs like bare "500" or "Rs 500" must trigger clarification
+    if (txType === 'EXPENSE' && (description === 'Expense' || description.trim().length === 0)) {
+      const formattedAmt = Money.fromPaise(extractedAmount.amountPaise).format();
+      return {
+        success: false,
+        action: 'PARSE_ERROR',
+        replyMessage: `❓ What did you spend *${formattedAmt}* on?\n\nPlease reply with a description so Artha can categorize it accurately, e.g.:\n• *"Lunch ${extractedAmount.rawMatch}"*\n• *"Petrol ${extractedAmount.rawMatch}"*\n• *"Paid ${extractedAmount.rawMatch} for electricity"*`,
+      };
+    }
+
     // 4. Suggest Category
     const categorySuggestion = CategoryService.suggestCategory(description, user.id);
 

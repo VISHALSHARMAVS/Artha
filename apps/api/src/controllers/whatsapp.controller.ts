@@ -1,7 +1,21 @@
+import crypto from 'node:crypto';
 import { Request, Response } from 'express';
 import { WhatsAppParserService } from '../services/whatsapp-parser.service.js';
 import { AuthService } from '../services/auth.service.js';
 import { normalizePhoneNumber } from '../repositories/user.repository.js';
+
+// Cache for processed message IDs to prevent Meta webhook retry duplicates (10 min TTL)
+const processedMessageIds = new Map<string, number>();
+const DEDUP_TTL_MS = 10 * 60 * 1000;
+
+function cleanupOldMessageIds(): void {
+  const now = Date.now();
+  for (const [msgId, timestamp] of processedMessageIds.entries()) {
+    if (now - timestamp > DEDUP_TTL_MS) {
+      processedMessageIds.delete(msgId);
+    }
+  }
+}
 
 export class WhatsAppController {
   /**
@@ -32,6 +46,20 @@ export class WhatsAppController {
    */
   static async handleWebhookMessage(req: Request, res: Response): Promise<void> {
     try {
+      const appSecret = process.env.META_APP_SECRET || process.env.WHATSAPP_APP_SECRET;
+      const signature = req.headers['x-hub-signature-256'] as string | undefined;
+
+      // Validate cryptographic HMAC signature if app secret is configured
+      if (appSecret && signature) {
+        const rawBody = (req as any).rawBody || JSON.stringify(req.body);
+        const expectedSig = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex');
+        if (signature !== expectedSig) {
+          console.warn('⚠️ Webhook signature mismatch from Meta request.');
+          res.status(401).json({ error: 'Unauthorized: Invalid signature' });
+          return;
+        }
+      }
+
       const body = req.body;
 
       // Meta sends events in entry[].changes[].value
@@ -45,6 +73,18 @@ export class WhatsAppController {
           const msg = messages[0];
           const from = msg.from; // e.g. "919876543210"
           const messageText = msg.text?.body;
+          const msgId = msg.id;
+
+          // Deduplication: prevent processing the same Meta message twice
+          if (msgId) {
+            cleanupOldMessageIds();
+            if (processedMessageIds.has(msgId)) {
+              console.log(`ℹ️ Duplicate WhatsApp message ignored (ID: ${msgId})`);
+              res.status(200).json({ status: 'DUPLICATE_IGNORED' });
+              return;
+            }
+            processedMessageIds.set(msgId, Date.now());
+          }
 
           if (from && messageText) {
             console.log(`📩 Incoming WhatsApp from +${from}: "${messageText}"`);
@@ -145,11 +185,12 @@ export class WhatsAppController {
     const protocol = req.protocol;
     const host = req.get('host') || 'localhost:3000';
     const webhookUrl = `${protocol}://${host}/api/v1/webhooks/whatsapp`;
-    const verifyToken =
+    const isCustomToken = Boolean(
       process.env.WHATSAPP_VERIFY_TOKEN ||
       process.env.META_VERIFY_TOKEN ||
-      process.env.META_WA_VERIFY_TOKEN ||
-      'artha_webhook_token';
+      process.env.META_WA_VERIFY_TOKEN
+    );
+    const verifyTokenDisplay = isCustomToken ? '•••••••• (configured in environment)' : 'artha_webhook_token';
 
     const hasToken = Boolean(
       process.env.META_API_TOKEN ||
@@ -178,7 +219,7 @@ export class WhatsAppController {
         has_api_credentials: hasToken,
         integration_status: integrationStatus,
         webhook_url: webhookUrl,
-        verify_token: verifyToken,
+        verify_token: verifyTokenDisplay,
         sandbox_instructions: {
           steps: [
             'Go to developers.facebook.com and select your App > WhatsApp > API Setup',

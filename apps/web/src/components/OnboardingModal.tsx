@@ -263,11 +263,14 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               </label>
               <input
                 type="text"
-                placeholder="e.g. Google India Pvt Ltd"
+                placeholder="e.g. Google India Pvt Ltd, TCS, Self-Employed"
                 value={employerName}
                 onChange={(e) => setEmployerName(e.target.value)}
                 className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
+              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                Company or firm name where you work (not salary amount)
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
