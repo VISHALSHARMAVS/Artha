@@ -91,11 +91,11 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="heading-4 sm:heading-3 tracking-tight hero-heading-light dark:hero-heading-dark">
+          <h1 className="heading-4 sm:heading-3 tracking-tight hero-heading-light dark:hero-heading-dark text-balance">
             Transactions ledger
           </h1>
-          <p className="caption-1 text-slate-500 dark:text-slate-400 mt-0.5">
-            Audit-safe record of all inflows, outflows, and transfers.
+          <p className="caption-1 text-slate-500 dark:text-[#9B9B9B] mt-0.5 text-pretty">
+            Audit safe record of all inflows, outflows, and transfers.
           </p>
         </div>
 
@@ -121,7 +121,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
       </div>
 
       {error && (
-        <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl flex items-center justify-between gap-2 caption-2 text-red-700 dark:text-red-300">
+        <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-md flex items-center justify-between gap-2 caption-2 text-red-700 dark:text-red-300">
           <span>{error}</span>
           <button onClick={() => setError(null)} className="caption-3 font-semibold hover:underline">
             Dismiss
@@ -130,16 +130,16 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
       )}
 
       {/* Filter Toolbar */}
-      <div className="bg-white dark:bg-[#1F1F1F] p-3.5 rounded-lg border border-slate-200 dark:border-[#313131] shadow-card flex flex-wrap items-center gap-3">
+      <div className="bg-white dark:bg-[#1F1F1F] p-3 rounded-lg border border-slate-200 dark:border-[#313131] shadow-card flex flex-wrap items-center gap-3">
         {/* Search Input */}
         <form onSubmit={handleSearchSubmit} className="relative flex-1 min-w-[200px]">
-          <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by merchant, description..."
-            className="w-full h-9 pl-9 pr-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            className="w-full h-9 pl-9 pr-3 text-xs bg-slate-50 dark:bg-[#272727] border border-slate-200 dark:border-[#313131] rounded-md text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors duration-300"
           />
         </form>
 
@@ -150,12 +150,12 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
             setTypeFilter(e.target.value);
             setPage(1);
           }}
-          className="h-9 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="h-9 px-3 text-xs bg-slate-50 dark:bg-[#272727] border border-slate-200 dark:border-[#313131] rounded-md text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors duration-300 cursor-pointer"
         >
-          <option value="">All Movement Types</option>
-          <option value="EXPENSE">Expenses Only</option>
-          <option value="INCOME">Income Only</option>
-          <option value="TRANSFER">Transfers Only</option>
+          <option value="">All movement types</option>
+          <option value="EXPENSE">Expenses only</option>
+          <option value="INCOME">Income only</option>
+          <option value="TRANSFER">Transfers only</option>
         </select>
 
         {/* Account Filter */}
@@ -165,9 +165,9 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
             setAccountFilter(e.target.value);
             setPage(1);
           }}
-          className="h-9 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="h-9 px-3 text-xs bg-slate-50 dark:bg-[#272727] border border-slate-200 dark:border-[#313131] rounded-md text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors duration-300 cursor-pointer"
         >
-          <option value="">All Accounts</option>
+          <option value="">All accounts</option>
           {accounts.map((acc) => (
             <option key={acc.id} value={acc.id}>
               {acc.name}
@@ -182,9 +182,9 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
             setCategoryFilter(e.target.value);
             setPage(1);
           }}
-          className="h-9 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="h-9 px-3 text-xs bg-slate-50 dark:bg-[#272727] border border-slate-200 dark:border-[#313131] rounded-md text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors duration-300 cursor-pointer"
         >
-          <option value="">All Categories</option>
+          <option value="">All categories</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -197,17 +197,17 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
       <div className="bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-lg shadow-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-[#313131] text-slate-500 font-medium">
+            <thead className="bg-slate-50 dark:bg-[#272727] border-b border-slate-200 dark:border-[#313131] text-slate-500 dark:text-[#9B9B9B] font-medium caption-1">
               <tr>
                 <th className="py-3 px-4">Date</th>
                 <th className="py-3 px-4">Description</th>
                 <th className="py-3 px-4">Category</th>
-                <th className="py-3 px-4">Account Movement</th>
+                <th className="py-3 px-4">Account movement</th>
                 <th className="py-3 px-4 text-right">Amount</th>
                 <th className="py-3 px-4 text-center w-20">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-slate-100 dark:divide-[#313131]">
               {loading ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-slate-400">
@@ -265,9 +265,9 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                 transactions.map((tx) => (
                   <tr
                     key={tx.id}
-                    className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+                    className="hover:bg-slate-50/70 dark:hover:bg-[#272727]/60 transition-colors duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
                   >
-                    <td className="py-3 px-4 text-slate-500 tnum whitespace-nowrap">
+                    <td className="py-3 px-4 text-slate-500 dark:text-[#9B9B9B] tnum whitespace-nowrap">
                       {tx.transaction_date}
                     </td>
 
@@ -282,7 +282,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                         <div>
                           <div>{tx.description}</div>
                           {tx.notes && (
-                            <div className="text-[10px] text-slate-400 font-normal">
+                            <div className="caption-5 text-slate-400 dark:text-[#9B9B9B] font-normal">
                               {tx.notes}
                             </div>
                           )}
@@ -298,11 +298,11 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                           {tx.category_name}
                         </span>
                       ) : (
-                        <span className="caption-4 text-slate-400">Uncategorized</span>
+                        <span className="caption-4 text-slate-400 dark:text-[#9B9B9B]">Uncategorized</span>
                       )}
                     </td>
 
-                    <td className="py-3 px-4 text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                    <td className="py-3 px-4 text-slate-600 dark:text-[#9B9B9B] whitespace-nowrap">
                       {tx.type === 'TRANSFER' ? (
                         <span>
                           {tx.account_name} → <strong className="text-slate-800 dark:text-slate-200">{tx.destination_account_name}</strong>
@@ -328,10 +328,10 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                         </span>
                         {Boolean(tx.is_split) && (
                           <div className="flex items-center justify-end gap-1 mt-0.5">
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/50">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 dark:bg-[#272727] dark:text-indigo-400 border border-indigo-200/50 dark:border-[#313131]">
                               Split
                             </span>
-                            <span className="text-[10px] text-slate-500 font-medium">
+                            <span className="text-[10px] text-slate-500 dark:text-[#9B9B9B] font-medium font-mono">
                               Your share: {formatPaise(tx.personal_share_paise ?? tx.amount_paise)}
                             </span>
                           </div>
@@ -343,14 +343,14 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                       <div className="flex items-center justify-center gap-1">
                         <button
                           onClick={() => setEditingTransaction(tx)}
-                          className="p-1 text-slate-400 hover:text-blue-600 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-blue-600 dark:hover:text-white rounded hover:bg-slate-100 dark:hover:bg-[#272727] active:scale-[0.98] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
                           title="Edit transaction details"
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleDelete(tx.id)}
-                          className="p-1 text-slate-400 hover:text-red-600 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded hover:bg-slate-100 dark:hover:bg-[#272727] active:scale-[0.98] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
                           title="Delete transaction and reverse balance impact"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -365,20 +365,20 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
         </div>
 
         {/* Pagination Controls */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-[#313131] bg-slate-50/50 dark:bg-slate-800/30 text-xs text-slate-500">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-[#313131] bg-slate-50/50 dark:bg-[#272727]/40 text-xs text-slate-500 dark:text-[#9B9B9B]">
           <span>Showing page {page}</span>
           <div className="flex items-center gap-2">
             <button
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
-              className="px-2.5 py-1 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-slate-700 rounded disabled:opacity-40"
+              className="px-2.5 py-1 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded disabled:opacity-40 active:scale-[0.98] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
             >
               Previous
             </button>
             <button
               disabled={transactions.length < limit}
               onClick={() => setPage(page + 1)}
-              className="px-2.5 py-1 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-slate-700 rounded disabled:opacity-40"
+              className="px-2.5 py-1 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded disabled:opacity-40 active:scale-[0.98] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
             >
               Next
             </button>

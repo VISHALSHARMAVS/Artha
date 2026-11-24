@@ -285,15 +285,14 @@ p, span, label, td, th {
 
 /* Hero Section heading gradients (Rule B5) */
 .hero-heading,
-.hero-heading-dark,
 .hero-heading-light {
-  background: linear-gradient(to right, #0F172A 0%, #475569 100%);
+  background: linear-gradient(to right, #000000 0%, #666666 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: #0F172A;
+  color: #000000;
 }
 
-/* In Dark Mode, headings MUST ALWAYS be crisp white/silver */
+/* In Dark Mode, left to right gradient on the heading text, #FFFFFF → #9B9B9B (Rule B5) */
 .dark .hero-heading,
 .dark .hero-heading-dark,
 .dark .hero-heading-light,
@@ -302,7 +301,7 @@ p, span, label, td, th {
 [data-theme="dark"] .hero-heading-dark,
 [data-theme="dark"] .hero-heading-light,
 [data-theme="dark"] .dark\:hero-heading-dark {
-  background: linear-gradient(to right, #FFFFFF 0%, #E2E8F0 100%) !important;
+  background: linear-gradient(to right, #FFFFFF 0%, #9B9B9B 100%) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   color: #FFFFFF !important;

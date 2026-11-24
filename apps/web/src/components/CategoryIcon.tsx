@@ -66,7 +66,7 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
       className={`shrink-0 flex items-center justify-center border border-slate-200/60 dark:border-[#313131] ${containerSizes[size]}`}
       style={{
         backgroundColor: colorHex ? `${colorHex}15` : 'rgba(15, 23, 42, 0.05)',
-        color: colorHex || '#475569',
+        color: colorHex || '#9B9B9B',
       }}
     >
       {getIcon()}
