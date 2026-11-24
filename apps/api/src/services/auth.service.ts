@@ -13,9 +13,31 @@ export class AuthService {
    */
   static register(dto: RegisterDTO): AuthResponse {
     return transaction(() => {
+      const cleanEmail = dto.email.trim().toLowerCase();
+
       // 1. Check uniqueness of email
-      const existing = UserRepository.findByEmail(dto.email);
+      const existing = UserRepository.findByEmail(cleanEmail);
       if (existing) {
+        // If an account exists without a password (created during Onboarding or WhatsApp), claim it and set password
+        if (!existing.password_hash || existing.password_hash.trim() === '') {
+          const { hash, salt } = Security.hashPassword(dto.password);
+          UserRepository.setPassword(existing.id, hash, salt, dto.full_name);
+          const token = Security.generateToken({
+            userId: existing.id,
+            email: existing.email,
+          });
+          return {
+            user: {
+              id: existing.id,
+              email: existing.email,
+              full_name: dto.full_name || existing.full_name,
+              currency_code: existing.currency_code,
+              created_at: existing.created_at,
+            },
+            token,
+          };
+        }
+
         throw new AppError('An account with this email address already exists. Please sign in.', 409, 'EMAIL_EXISTS');
       }
 
@@ -26,8 +48,8 @@ export class AuthService {
       // 3. Create user record
       const user = UserRepository.createWithPassword({
         id: userId,
-        email: dto.email,
-        full_name: dto.full_name,
+        email: cleanEmail,
+        full_name: dto.full_name.trim(),
         password_hash: hash,
         password_salt: salt,
       });
@@ -67,9 +89,19 @@ export class AuthService {
    * Authenticates user credentials and returns signed session token.
    */
   static login(dto: LoginDTO): AuthResponse {
-    const user = UserRepository.findByEmail(dto.email);
+    const cleanEmail = dto.email.trim().toLowerCase();
+    const user = UserRepository.findByEmail(cleanEmail);
     if (!user) {
       throw new AppError('Invalid email or password. Please verify your credentials.', 401, 'INVALID_CREDENTIALS');
+    }
+
+    // Check if account was created without a password (e.g. from Onboarding or WhatsApp linking)
+    if (!user.password_hash || user.password_hash.trim() === '') {
+      throw new AppError(
+        'This account was created during financial onboarding without a password. Please switch to the "Register" tab to set a password for your account.',
+        400,
+        'PASSWORD_NOT_SET'
+      );
     }
 
     const isValidPassword = Security.verifyPassword(dto.password, user.password_hash, user.password_salt);

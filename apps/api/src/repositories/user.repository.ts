@@ -210,6 +210,23 @@ export class UserRepository {
     return this.findById(data.id)!;
   }
 
+  static setPassword(id: string, password_hash: string, password_salt: string, full_name?: string): void {
+    const db = getDb();
+    if (full_name && full_name.trim()) {
+      db.prepare(`
+        UPDATE users 
+        SET password_hash = ?, password_salt = ?, full_name = ?, updated_at = CURRENT_TIMESTAMP 
+        WHERE id = ?
+      `).run(password_hash, password_salt, full_name.trim(), id);
+    } else {
+      db.prepare(`
+        UPDATE users 
+        SET password_hash = ?, password_salt = ?, updated_at = CURRENT_TIMESTAMP 
+        WHERE id = ?
+      `).run(password_hash, password_salt, id);
+    }
+  }
+
   static getSalaryProfile(userId: string): SalaryProfileRecord | null {
     const db = getDb();
     const row = db.prepare('SELECT * FROM salary_profiles WHERE user_id = ?').get(userId) as unknown as SalaryProfileRecord | undefined;

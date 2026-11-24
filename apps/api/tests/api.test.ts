@@ -326,7 +326,7 @@ describe('Artha Layered Backend Integration Tests', () => {
     assert.strictEqual(afterImportAcc.balance_paise, initialBal + 2415000);
 
     // Verify transactions exist in ledger
-    const { transactions: txs } = TransactionRepository.list({ userId: DEFAULT_USER_ID, limit: 10 });
+    const { transactions: txs } = TransactionRepository.list({ userId: DEFAULT_USER_ID, limit: 100 });
     const importedIncome = txs.find(t => t.description === 'Client Consulting Freelance');
     const importedExpense = txs.find(t => t.description === 'Swiggy Gourmet Dinner');
 

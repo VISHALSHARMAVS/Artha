@@ -4,6 +4,7 @@ import { AccountRepository } from '../repositories/account.repository.js';
 import { ObligationRepository } from '../repositories/obligation.repository.js';
 import { TransactionRepository } from '../repositories/transaction.repository.js';
 import { CategoryRepository } from '../repositories/category.repository.js';
+import { Security } from '../lib/security.js';
 import { transaction } from '../database/db.js';
 import type { OnboardingPayloadDTO } from '@artha/domain';
 
@@ -83,11 +84,23 @@ export class OnboardingService {
         });
       }
 
+      // If a password was provided during onboarding, hash and save it so user can log in later
+      if (dto.password && dto.password.length >= 6) {
+        const { hash, salt } = Security.hashPassword(dto.password);
+        UserRepository.setPassword(userId, hash, salt, dto.full_name);
+      }
+
+      const token = Security.generateToken({
+        userId: user.id,
+        email: user.email,
+      });
+
       return {
         user,
         account,
         salaryProfile: UserRepository.getSalaryProfile(userId),
         obligationsCount: dto.obligations.length,
+        token,
       };
     });
   }

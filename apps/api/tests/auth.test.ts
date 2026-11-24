@@ -5,6 +5,7 @@ import { TransactionService } from '../src/services/transaction.service.js';
 import { AccountService } from '../src/services/account.service.js';
 import { DashboardService } from '../src/services/dashboard.service.js';
 import { Security } from '../src/lib/security.js';
+import { UserRepository } from '../src/repositories/user.repository.js';
 
 describe('Multi-User Authentication & Data Isolation Tests', () => {
   const userAEmail = `user_a_${Date.now()}@test.com`;
@@ -132,5 +133,51 @@ describe('Multi-User Authentication & Data Isolation Tests', () => {
         return err.statusCode === 404;
       }
     );
+  });
+
+  test('Passwordless onboarding account handling and claiming via Register', () => {
+    const onboardingEmail = `onboard_${Date.now()}@test.com`;
+
+    // 1. Manually create an onboarding-style user without password
+    const guestUser = UserRepository.create({
+      id: `usr_guest_${Date.now()}`,
+      email: onboardingEmail,
+      full_name: 'Guest Vishal',
+      currency_code: 'INR',
+    });
+
+    assert.ok(guestUser.id);
+
+    // 2. Attempting to login directly fails with PASSWORD_NOT_SET
+    assert.throws(
+      () => {
+        AuthService.login({
+          email: onboardingEmail,
+          password: 'SomePassword@123',
+        });
+      },
+      (err: any) => {
+        return err.statusCode === 400 && err.code === 'PASSWORD_NOT_SET';
+      }
+    );
+
+    // 3. User switches to Register tab to claim the account and set a password
+    const claimRes = AuthService.register({
+      email: onboardingEmail.toUpperCase(), // also test case insensitivity
+      password: 'NewSecurePassword@123',
+      full_name: 'Vishal Sharma',
+    });
+
+    assert.strictEqual(claimRes.user.id, guestUser.id, 'Claiming must retain original user ID');
+    assert.ok(claimRes.token);
+
+    // 4. Now logging in with the newly set password succeeds
+    const postClaimLogin = AuthService.login({
+      email: onboardingEmail,
+      password: 'NewSecurePassword@123',
+    });
+
+    assert.strictEqual(postClaimLogin.user.id, guestUser.id);
+    assert.ok(postClaimLogin.token);
   });
 });

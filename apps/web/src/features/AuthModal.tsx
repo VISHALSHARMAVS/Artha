@@ -43,7 +43,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
       onSuccess(res.user);
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Authentication failed. Please verify credentials.');
+      const msg = err.message || '';
+      if (msg.includes('PASSWORD_NOT_SET') || msg.includes('financial onboarding without a password')) {
+        setIsRegister(true);
+        setError('Your account was created during financial onboarding! Please enter your name and choose a password below to secure and claim your account.');
+      } else {
+        setError(msg || 'Authentication failed. Please verify credentials.');
+      }
     } finally {
       setIsLoading(false);
     }

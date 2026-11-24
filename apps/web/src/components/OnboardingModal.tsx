@@ -25,6 +25,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   // Step 1: Profile & Primary Account
   const [fullName, setFullName] = useState<string>(currentUser?.full_name || '');
   const [email, setEmail] = useState<string>(currentUser?.email || '');
+  const [password, setPassword] = useState<string>('');
   const [accountName, setAccountName] = useState<string>('');
   const [accountType, setAccountType] = useState<string>('SAVINGS');
   const [initialBalancePaise, setInitialBalancePaise] = useState<number>(0);
@@ -92,9 +93,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
     setLoading(true);
     try {
-      await api.submitOnboarding({
+      const res = await api.submitOnboarding({
         full_name: fullName.trim() || undefined,
         email: email.trim() || undefined,
+        password: password.trim().length >= 6 ? password.trim() : undefined,
         account: {
           name: accountName.trim(),
           account_type: accountType,
@@ -112,6 +114,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           due_day_of_month: o.dueDay,
         })),
       });
+
+      if ((res as any)?.token) {
+        localStorage.setItem('artha_token', (res as any).token);
+      }
 
       if (currentUser?.id) {
         localStorage.setItem(`artha_onboarded_${currentUser.id}`, 'true');
@@ -212,6 +218,24 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 />
               </div>
             </div>
+
+            {!currentUser && (
+              <div>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Create Account Password (min 6 characters)
+                </label>
+                <input
+                  type="password"
+                  placeholder="Choose a password (e.g. ••••••••)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full h-10 px-3 bg-white dark:bg-[#1F1F1F] border border-slate-300 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+                <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                  Required to sign back into Artha after logging out or on other devices.
+                </p>
+              </div>
+            )}
 
             <div className="pt-2 border-t border-slate-100 dark:border-[#313131]">
               <h4 className="text-xs font-semibold uppercase text-slate-500 mb-2">Primary Bank Account</h4>
