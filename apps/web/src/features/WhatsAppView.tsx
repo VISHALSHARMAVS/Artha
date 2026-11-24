@@ -20,21 +20,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
   const [isLinking, setIsLinking] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
   const [linkSuccess, setLinkSuccess] = useState<string | null>(null);
-  const [metaDiag, setMetaDiag] = useState<any>(null);
-  const [isCheckingMeta, setIsCheckingMeta] = useState<boolean>(false);
 
-  const checkMetaHealth = async () => {
-    setIsCheckingMeta(true);
-    try {
-      const res = await fetch('/api/v1/whatsapp/test-connection');
-      const data = await res.json();
-      setMetaDiag(data);
-    } catch (e: any) {
-      setMetaDiag({ status: 'ERROR', message: e.message });
-    } finally {
-      setIsCheckingMeta(false);
-    }
-  };
 
   // Simulator State
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -246,76 +232,104 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ onTransactionLogged 
             </form>
           </div>
 
-          {/* Card 2: Meta Developer Sandbox Guide (Zero SIM Cost) */}
-          <div className="bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-xl p-5 shadow-sm space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-emerald-500 text-base">🛡️</span>
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
-                Meta Cloud API Sandbox (No SIM Needed)
-              </h2>
+          {/* Card 2: How to Text Artha / Command Cheatsheet */}
+          <div className="bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] rounded-xl p-5 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-emerald-500 text-base">⚡</span>
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+                  How to Text Artha
+                </h2>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                Natural Language
+              </span>
             </div>
-            
+
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Meta gives every developer a <strong>free test number</strong> with 1,000 free conversations per month. You do NOT need to buy a SIM card to run or test Artha.
+              Log transactions as fast as texting a friend. Send single lines, Hinglish phrasing, or split bills. Click any prompt to try it in the live simulator:
             </p>
 
-            <div className="bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-xs space-y-2">
-              <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
-                <span>Webhook URL:</span>
-                <span className="font-mono text-slate-900 dark:text-slate-100 select-all">
-                  {status?.webhook_url || '/api/v1/webhooks/whatsapp'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
-                <span>Verify Token:</span>
-                <span className="font-mono text-emerald-600 dark:text-emerald-400 select-all font-semibold">
-                  {status?.verify_token || 'artha_webhook_token'}
-                </span>
-              </div>
-            </div>
-
-            <div className="text-xs text-slate-500 dark:text-slate-400 space-y-1.5 pt-1">
-              <p className="font-medium text-slate-700 dark:text-slate-300">Quick Setup in 3 Minutes:</p>
-              <ol className="list-decimal pl-4 space-y-1">
-                <li>Create free Meta for Developers account at <code className="text-blue-600 dark:text-blue-400">developers.facebook.com</code></li>
-                <li>Add WhatsApp product and copy the free Meta Sandbox test number</li>
-                <li>Paste the Webhook URL & Verify Token above into Configuration</li>
-                <li>Add your personal WhatsApp number to the <strong>"To" (Recipient)</strong> list in API Setup</li>
-                <li>Send a test message from Meta dashboard to open the 24-hr session, then reply!</li>
-              </ol>
-            </div>
-
-            <div className="pt-2 border-t border-slate-100 dark:border-[#313131]">
-              <div className="p-2.5 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-xs text-slate-700 dark:text-slate-300 space-y-1">
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400">💡 1-Second WhatsApp Link:</span>
-                <p>You can also link directly inside WhatsApp! Just text the bot: <br/><code className="font-mono text-emerald-600 dark:text-emerald-400 font-semibold select-all">LINK aditya@artha.internal</code></p>
-              </div>
-            </div>
-
-            {/* Test Connection Button */}
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={checkMetaHealth}
-                disabled={isCheckingMeta}
-                className="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
+            <div className="space-y-2">
+              <div
+                onClick={() => handleSendMessage('Spent 450 at Starbucks')}
+                className="group p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 bg-slate-50/60 dark:bg-[#181818] cursor-pointer transition-all"
               >
-                {isCheckingMeta ? 'Checking Meta Cloud API...' : '🔍 Check Meta API Token & Connection'}
-              </button>
-
-              {metaDiag && (
-                <div className={`mt-2 p-2.5 rounded-lg text-xs space-y-1 border ${
-                  metaDiag.status === 'HEALTHY' 
-                    ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 text-emerald-700 dark:text-emerald-300'
-                    : 'bg-amber-50 dark:bg-amber-950/30 border-amber-300 text-amber-700 dark:text-amber-300'
-                }`}>
-                  <div className="font-semibold flex items-center justify-between">
-                    <span>Status: {metaDiag.status}</span>
-                    <span className="text-[10px]">{metaDiag.phoneId ? `Phone ID: ${metaDiag.phoneId}` : ''}</span>
-                  </div>
-                  <p>{metaDiag.message || JSON.stringify(metaDiag.metaGraphResponse || metaDiag)}</p>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-slate-800 dark:text-slate-200 group-hover:text-emerald-500">
+                    "Spent 450 at Starbucks"
+                  </span>
+                  <span className="text-[10px] text-slate-400">Expense →</span>
                 </div>
-              )}
+                <p className="text-[11px] text-slate-500 mt-0.5">Auto-categorized into Food & Dining</p>
+              </div>
+
+              <div
+                onClick={() => handleSendMessage('Paid 1800 for dinner split with Rohit and Neha')}
+                className="group p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 bg-slate-50/60 dark:bg-[#181818] cursor-pointer transition-all"
+              >
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-slate-800 dark:text-slate-200 group-hover:text-emerald-500">
+                    "Paid 1800 for dinner split with Rohit and Neha"
+                  </span>
+                  <span className="text-[10px] text-slate-400">Bill Split →</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">Logs ₹600 personal share & tracks ₹1,200 receivables</p>
+              </div>
+
+              <div
+                onClick={() => handleSendMessage('Petrol 2000 from ICICI credit card')}
+                className="group p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 bg-slate-50/60 dark:bg-[#181818] cursor-pointer transition-all"
+              >
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-slate-800 dark:text-slate-200 group-hover:text-emerald-500">
+                    "Petrol 2000 from ICICI credit card"
+                  </span>
+                  <span className="text-[10px] text-slate-400">Card Routing →</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">Updates credit card liability & accounts payable</p>
+              </div>
+
+              <div
+                onClick={() => handleSendMessage('Safe to spend')}
+                className="group p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 bg-slate-50/60 dark:bg-[#181818] cursor-pointer transition-all"
+              >
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-slate-800 dark:text-slate-200 group-hover:text-emerald-500">
+                    "Safe to spend" or "Balance"
+                  </span>
+                  <span className="text-[10px] text-slate-400">Telemetry →</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">Calculates liquid cash minus upcoming obligations</p>
+              </div>
+
+              <div
+                onClick={() => handleSendMessage('undo')}
+                className="group p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 bg-slate-50/60 dark:bg-[#181818] cursor-pointer transition-all"
+              >
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-slate-800 dark:text-slate-200 group-hover:text-emerald-500">
+                    "undo" or "delete last"
+                  </span>
+                  <span className="text-[10px] text-slate-400">Reversal →</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">Instantly rolls back the latest transaction</p>
+              </div>
+            </div>
+
+            {/* Quick 1-click WhatsApp Action */}
+            <div className="pt-2 border-t border-slate-100 dark:border-[#313131]">
+              <a
+                href={status?.phone_number ? `https://wa.me/918000000000` : 'https://wa.me/918000000000'}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-2 shadow-sm"
+              >
+                <span>💬 Chat with Artha on WhatsApp</span>
+              </a>
+              <p className="text-[11px] text-center text-slate-400 mt-2">
+                100% End-to-end encrypted • Zero app downloads required
+              </p>
             </div>
           </div>
         </div>

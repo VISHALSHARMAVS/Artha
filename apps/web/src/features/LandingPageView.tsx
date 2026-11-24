@@ -240,29 +240,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
     },
   ];
 
-  const testimonials = [
-    {
-      quote:
-        'Artha replaced three separate spreadsheets for my apartment and startup expenses. I just drop WhatsApp voice or text notes while paying UPI, and everything is neatly reconciled.',
-      name: 'Rahul Sharma',
-      role: 'Co-founder at BuildFast, Bengaluru',
-      metric: '₹2.4L tracked monthly',
-    },
-    {
-      quote:
-        'Splitting dinners and rent used to take 20 minutes of Excel math every Sunday. With Artha, split payments create instant receivables that credit my bank without inflating taxable income.',
-      name: 'Priya Nair',
-      role: 'Product Designer, Mumbai',
-      metric: 'Zero forgotten dues',
-    },
-    {
-      quote:
-        'Uploading my password protected HDFC bank statement parsed 240 transactions cleanly. The runway intelligence gives me complete peace of mind on my savings.',
-      name: 'Amit Patel',
-      role: 'Engineering Lead, Gurugram',
-      metric: '8.4 months runway visible',
-    },
-  ];
 
   const faqs = [
     {
@@ -698,43 +675,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           </div>
         </section>
 
-        {/* Social Proof & Testimonials Section */}
-        <section className="py-20 px-4 sm:px-6 bg-slate-100/40 dark:bg-[#181818] border-t border-slate-200 dark:border-[#313131]">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <h2 className="heading-3 tracking-tight text-slate-900 dark:text-white text-balance">
-                Trusted by builders across India
-              </h2>
-              <p className="caption-1 text-slate-500 dark:text-[#9B9B9B] mt-2 text-pretty">
-                See how Indian founders and professionals use Artha to regain complete clarity over their personal finances.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {testimonials.map((t, idx) => (
-                <div
-                  key={idx}
-                  className="rounded-2xl p-6 bg-white dark:bg-[#1F1F1F] border border-slate-200 dark:border-[#313131] shadow-card flex flex-col justify-between"
-                >
-                  <p className="body-5 text-slate-700 dark:text-[#D1D5DB] text-pretty">
-                    "{t.quote}"
-                  </p>
-                  <div className="mt-6 pt-4 border-t border-slate-100 dark:border-[#272727]">
-                    <div className="title-4 font-semibold text-slate-900 dark:text-white">
-                      {t.name}
-                    </div>
-                    <div className="caption-2 text-slate-500 dark:text-[#9B9B9B]">
-                      {t.role}
-                    </div>
-                    <div className="caption-3 font-semibold text-emerald-600 dark:text-emerald-400 mt-2">
-                      {t.metric}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* Section 5 of Master Dossier: Competitive Intelligence Matrix */}
         <section id="comparison" className="py-20 px-4 sm:px-6 max-w-5xl mx-auto border-t border-slate-200 dark:border-[#313131]">
