@@ -21,6 +21,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasLoadedExisting, setHasLoadedExisting] = useState<boolean>(false);
 
   // Step 1: Profile & Primary Account
   const [fullName, setFullName] = useState<string>(currentUser?.full_name || '');
@@ -29,6 +30,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   const [accountName, setAccountName] = useState<string>('');
   const [accountType, setAccountType] = useState<string>('SAVINGS');
   const [initialBalancePaise, setInitialBalancePaise] = useState<number>(0);
+
+  const isEditing = Boolean(currentUser || hasLoadedExisting || (typeof window !== 'undefined' && localStorage.getItem('artha_token')));
 
   // Keep synced with currently logged in user and prefill current setup if editing
   useEffect(() => {
@@ -43,6 +46,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     api.getOnboardingCurrent()
       .then((data) => {
         if (!data) return;
+        setHasLoadedExisting(true);
         if (data.user) {
           if (data.user.full_name) setFullName(data.user.full_name);
           if (data.user.email) setEmail(data.user.email);
@@ -181,14 +185,27 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Welcome to Artha"
-      description="Journey A — High-precision financial onboarding in 3 simple steps."
+      title={isEditing ? 'Financial Setup & Telemetry Configuration' : 'Welcome to Artha'}
+      description={
+        isEditing
+          ? 'Review or adjust your financial accounts, salary inflow, emergency buffer, and recurring commitments.'
+          : 'Journey A — High-precision financial onboarding in 3 simple steps.'
+      }
       maxWidth="lg"
     >
       <div className="space-y-6">
-        {/* Step Indicator */}
+        {/* Step Indicator (Directly Clickable) */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#313131] text-xs">
-          <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setError(null);
+              setStep(1);
+            }}
+            className={`flex items-center gap-2 p-1 rounded hover:bg-slate-100 dark:hover:bg-[#272727] transition-colors cursor-pointer ${
+              step === 1 ? 'font-semibold text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+            }`}
+          >
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center font-medium ${
                 step >= 1 ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500'
@@ -196,11 +213,19 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
             >
               1
             </span>
-            <span className={step === 1 ? 'font-semibold text-slate-900 dark:text-white' : 'text-slate-500'}>
-              Account Setup
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
+            <span>Account Setup</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setError(null);
+              setStep(2);
+            }}
+            className={`flex items-center gap-2 p-1 rounded hover:bg-slate-100 dark:hover:bg-[#272727] transition-colors cursor-pointer ${
+              step === 2 ? 'font-semibold text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+            }`}
+          >
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center font-medium ${
                 step >= 2 ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500'
@@ -208,11 +233,19 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
             >
               2
             </span>
-            <span className={step === 2 ? 'font-semibold text-slate-900 dark:text-white' : 'text-slate-500'}>
-              Salary & Inflow
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
+            <span>Salary & Inflow</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setError(null);
+              setStep(3);
+            }}
+            className={`flex items-center gap-2 p-1 rounded hover:bg-slate-100 dark:hover:bg-[#272727] transition-colors cursor-pointer ${
+              step === 3 ? 'font-semibold text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+            }`}
+          >
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center font-medium ${
                 step >= 3 ? 'bg-blue-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500'
@@ -220,10 +253,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
             >
               3
             </span>
-            <span className={step === 3 ? 'font-semibold text-slate-900 dark:text-white' : 'text-slate-500'}>
-              Obligations
-            </span>
-          </div>
+            <span>Obligations</span>
+          </button>
         </div>
 
         {error && (
@@ -469,36 +500,61 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               size="md"
               type="button"
               icon={<ArrowLeft className="w-4 h-4" />}
-              onClick={() => setStep(step - 1)}
+              onClick={() => {
+                setError(null);
+                setStep(step - 1);
+              }}
             >
               Back
             </Button>
           ) : (
-            <div />
+            <Button
+              variant="subtle"
+              size="md"
+              type="button"
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
           )}
 
-          {step < 3 ? (
-            <Button
-              variant="primary"
-              size="md"
-              type="button"
-              icon={<ArrowRight className="w-4 h-4" />}
-              onClick={handleNextStep}
-            >
-              Next Step
-            </Button>
-          ) : (
-            <Button
-              variant="secondary"
-              size="md"
-              type="button"
-              loading={loading}
-              icon={<CheckCircle2 className="w-4 h-4" />}
-              onClick={handleSubmit}
-            >
-              Complete Setup & Open Artha
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {isEditing && (
+              <Button
+                variant="primary"
+                size="md"
+                type="button"
+                loading={loading}
+                icon={<CheckCircle2 className="w-4 h-4" />}
+                onClick={handleSubmit}
+              >
+                Save & Update Setup
+              </Button>
+            )}
+
+            {step < 3 ? (
+              <Button
+                variant={isEditing ? 'outline' : 'primary'}
+                size="md"
+                type="button"
+                icon={<ArrowRight className="w-4 h-4" />}
+                onClick={handleNextStep}
+              >
+                Next Step
+              </Button>
+            ) : !isEditing ? (
+              <Button
+                variant="secondary"
+                size="md"
+                type="button"
+                loading={loading}
+                icon={<CheckCircle2 className="w-4 h-4" />}
+                onClick={handleSubmit}
+              >
+                Complete Setup & Open Artha
+              </Button>
+            ) : null}
+          </div>
         </div>
       </div>
     </Modal>

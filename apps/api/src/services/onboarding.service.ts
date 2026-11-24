@@ -7,7 +7,8 @@ import { CategoryRepository } from '../repositories/category.repository.js';
 import { Security } from '../lib/security.js';
 import { getDb, transaction } from '../database/db.js';
 import type { OnboardingPayloadDTO } from '@artha/domain';
-import type { AccountRecord, TransactionRecord } from '../repositories/transaction.repository.js';
+import type { AccountRecord } from '../repositories/account.repository.js';
+import type { TransactionRecord } from '../repositories/transaction.repository.js';
 
 export class OnboardingService {
   /**
