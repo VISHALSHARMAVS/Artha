@@ -56,17 +56,20 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
   };
 
   const containerSizes = {
-    sm: 'w-7 h-7 rounded',
-    md: 'w-9 h-9 rounded-md',
-    lg: 'w-11 h-11 rounded-lg',
+    sm: 'w-9 h-9 rounded-xl',
+    md: 'w-10 h-10 rounded-xl',
+    lg: 'w-12 h-12 rounded-2xl',
   };
+
+  const effectiveColor = colorHex || (type === 'INCOME' ? '#10B981' : type === 'TRANSFER' ? '#6366F1' : '#F43F5E');
 
   return (
     <div
-      className={`shrink-0 flex items-center justify-center border border-slate-200/60 dark:border-[#313131] ${containerSizes[size]}`}
+      className={`shrink-0 flex items-center justify-center transition-transform duration-200 shadow-sm ${containerSizes[size]}`}
       style={{
-        backgroundColor: colorHex ? `${colorHex}15` : 'rgba(15, 23, 42, 0.05)',
-        color: colorHex || '#475569',
+        backgroundColor: `${effectiveColor}18`,
+        border: `1px solid ${effectiveColor}35`,
+        color: effectiveColor,
       }}
     >
       {getIcon()}
