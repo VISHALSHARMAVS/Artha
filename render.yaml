@@ -1,3 +1,9 @@
+databases:
+  - name: artha-db
+    plan: free
+    databaseName: artha
+    user: artha_user
+
 services:
   # Artha Intelligent Financial Operating System (Unified Web + API + WhatsApp Engine)
   - type: web
@@ -9,6 +15,10 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: artha-db
+          property: connectionString
       - key: JWT_SECRET
         generateValue: true
       - key: META_WA_PHONE_NUMBER_ID

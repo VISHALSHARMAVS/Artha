@@ -21,6 +21,7 @@ import { authMiddleware } from './middleware/auth.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { getDb } from './database/db.js';
 import { runSeed } from './database/seed.js';
+import { PostgresService } from './database/postgres.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -78,6 +79,21 @@ try {
   if (userCheck.cnt === 0) {
     console.log('⚡ Initializing database schema with default seed data...');
     runSeed();
+  } else {
+    // Re-verify that founder account is seeded even if database existed
+    runSeed();
+  }
+
+  // Verify PostgreSQL cloud link if configured
+  if (PostgresService.isConfigured()) {
+    console.log('🐘 PostgreSQL detected in environment (DATABASE_URL configured). Connecting to cloud database...');
+    PostgresService.testConnection().then((diag) => {
+      if (diag.ok) {
+        console.log('✅ PostgreSQL connection verified. Cloud database active:', diag.version);
+      } else {
+        console.warn('⚠️ PostgreSQL connection failed, falling back to local storage:', diag.error);
+      }
+    });
   }
 } catch (err) {
   console.error('Error verifying database state:', err);

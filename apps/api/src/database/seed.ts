@@ -35,13 +35,23 @@ export function runSeed(): void {
       insertCat.run(c.id, c.name, c.type, c.icon_name, c.color_hex, c.is_system);
     }
 
-    // 2. Seed Default Demo User with Secure Password
+    // 2. Seed Default Demo User & Founder Account with Secure Passwords
     const { hash, salt } = Security.hashPassword('Demo@1234');
     const defaultPhone = process.env.WHATSAPP_DEFAULT_PHONE || process.env.DEFAULT_PHONE_NUMBER || null;
     db.prepare(`
       INSERT OR REPLACE INTO users (id, email, full_name, password_hash, password_salt, currency_code, phone_number, whatsapp_linked)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).run(DEFAULT_USER_ID, 'aditya@artha.internal', 'Aditya Sharma', hash, salt, 'INR', defaultPhone, defaultPhone ? 1 : 0);
+
+    // Ensure founder account persists across all container restarts and cloud redeployments
+    const founderEmail = 'vishalsharmakt143@gmail.com';
+    const founderExisting = db.prepare('SELECT id FROM users WHERE LOWER(email) = LOWER(?)').get(founderEmail) as { id: string } | undefined;
+    if (!founderExisting) {
+      db.prepare(`
+        INSERT INTO users (id, email, full_name, password_hash, password_salt, currency_code, phone_number, whatsapp_linked)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `).run('usr_founder_vishal', founderEmail, 'Vishal Sharma', hash, salt, 'INR', null, 0);
+    }
 
     // 3. Seed Salary Profile
     db.prepare(`
