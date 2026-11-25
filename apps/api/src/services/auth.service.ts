@@ -92,7 +92,7 @@ export class AuthService {
     const cleanEmail = dto.email.trim().toLowerCase();
     const user = UserRepository.findByEmail(cleanEmail);
     if (!user) {
-      throw new AppError('Invalid email or password. Please verify your credentials.', 401, 'INVALID_CREDENTIALS');
+      throw new AppError('No account found with this email. Click "Create Account" below to register.', 401, 'INVALID_CREDENTIALS');
     }
 
     // Check if account was created without a password (e.g. from Onboarding or WhatsApp linking)
@@ -106,7 +106,7 @@ export class AuthService {
 
     const isValidPassword = Security.verifyPassword(dto.password, user.password_hash, user.password_salt);
     if (!isValidPassword) {
-      throw new AppError('Invalid email or password. Please verify your credentials.', 401, 'INVALID_CREDENTIALS');
+      throw new AppError('Incorrect password. Please verify your credentials.', 401, 'INVALID_CREDENTIALS');
     }
 
     const token = Security.generateToken({
