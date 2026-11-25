@@ -40,6 +40,7 @@ export const App: React.FC = () => {
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [dataVersion, setDataVersion] = useState(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [overviewError, setOverviewError] = useState<string | null>(null);
 
@@ -111,6 +112,7 @@ export const App: React.FC = () => {
       setOverview(ovData);
       setAccounts(accData);
       setCategories(catData);
+      setDataVersion((v) => v + 1);
       setOverviewError(null);
     } catch (err: any) {
       console.error('Data refresh error:', err);
@@ -199,6 +201,8 @@ export const App: React.FC = () => {
             onAddTransaction={() => setIsAddTxOpen(true)}
             accounts={accounts}
             categories={categories}
+            onRefresh={refreshAllData}
+            refreshTrigger={dataVersion}
           />
         )}
 

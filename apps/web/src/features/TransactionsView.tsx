@@ -11,12 +11,16 @@ interface TransactionsViewProps {
   onAddTransaction: () => void;
   accounts: Account[];
   categories: Category[];
+  onRefresh?: () => void;
+  refreshTrigger?: number;
 }
 
 export const TransactionsView: React.FC<TransactionsViewProps> = ({
   onAddTransaction,
   accounts,
   categories,
+  onRefresh,
+  refreshTrigger,
 }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [total, setTotal] = useState<number>(0);
@@ -78,7 +82,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
 
   useEffect(() => {
     loadTransactions();
-  }, [page, typeFilter, accountFilter, categoryFilter]);
+  }, [page, typeFilter, accountFilter, categoryFilter, refreshTrigger]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,6 +98,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
     try {
       await api.deleteTransaction(id);
       loadTransactions();
+      onRefresh?.();
     } catch (err: any) {
       setError(err.message || 'Failed to delete transaction. Please try again.');
     }
@@ -411,7 +416,10 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
       <EditTransactionModal
         isOpen={!!editingTransaction}
         onClose={() => setEditingTransaction(null)}
-        onSuccess={loadTransactions}
+        onSuccess={() => {
+          loadTransactions();
+          onRefresh?.();
+        }}
         transaction={editingTransaction}
         accounts={accounts}
         categories={categories}
@@ -420,7 +428,10 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
       <ImportStatementModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
-        onSuccess={loadTransactions}
+        onSuccess={() => {
+          loadTransactions();
+          onRefresh?.();
+        }}
         accounts={accounts}
         categories={categories}
       />
